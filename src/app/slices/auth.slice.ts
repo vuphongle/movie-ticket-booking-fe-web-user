@@ -1,10 +1,10 @@
+import { authApi } from '@app/services/auth.api';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import {
   getDataFromLocalStorage,
   setDataToLocalStorage,
-} from '../../utils/localStorageUtils';
-import { authApi } from '../services/auth.api';
+} from '@utils/localStorageUtils';
 
 export interface User {
   id: string;
