@@ -1,5 +1,5 @@
+import { logout } from '@app/slices/auth.slice';
 import type { Middleware } from '@reduxjs/toolkit';
-import { logout } from '../slices/auth.slice';
 
 // Middleware kiểm tra trạng thái của các action để tự động đăng xuất nếu nhận được lỗi 401
 export const checkStatusMiddleware: Middleware =

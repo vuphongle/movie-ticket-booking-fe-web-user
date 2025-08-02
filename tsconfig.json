@@ -29,9 +29,10 @@
       "@pages/*": ["src/pages/*"],
       "@utils/*": ["src/utils/*"],
       "@hooks/*": ["src/hooks/*"],
-      "@services/*": ["src/app/services/*"],
-      "@store/*": ["src/app/store/*"],
+      "@app/*": ["src/app/*"],
       "@assets/*": ["src/assets/*"],
+      "@images/*": ["src/assets/images/*"],
+      "@lib/*": ["src/lib/*"],
       "@contexts/*": ["src/contexts/*"],
       "@types/*": ["src/types/*"]
     },
@@ -43,13 +44,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": [
-    "src/**/*",
-    "vite.config.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ]
+  "include": ["src/**/*", "vite.config.ts"],
+  "exclude": ["node_modules", "dist", "build"]
 }

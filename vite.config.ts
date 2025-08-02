@@ -1,12 +1,12 @@
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: true
+    host: true,
   },
   resolve: {
     alias: {
@@ -15,20 +15,21 @@ export default defineConfig({
       '@pages': '/src/pages',
       '@utils': '/src/utils',
       '@hooks': '/src/hooks',
-      '@services': '/src/app/services',
-      '@store': '/src/app/store',
+      '@app': '/src/app',
       '@assets': '/src/assets',
+      '@images': '/src/assets/images',
       '@contexts': '/src/contexts',
-      '@types': '/src/types'
-    }
+      '@types': '/src/types',
+      '@lib': '/src/lib',
+    },
   },
   css: {
     modules: {
-      localsConvention: 'camelCase'
-    }
+      localsConvention: 'camelCase',
+    },
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
-  }
-})
+    sourcemap: true,
+  },
+});
