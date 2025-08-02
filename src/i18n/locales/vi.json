@@ -1,0 +1,121 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "movies": "Phim",
+    "cinemas": "Rạp chiếu",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirm_password": "Xác nhận mật khẩu",
+    "forgot_password": "Quên mật khẩu?"
+  },
+  "buttons": {
+    "submit": "Gửi",
+    "cancel": "Hủy",
+    "book_now": "Đặt vé ngay",
+    "see_more": "Xem thêm",
+    "back": "Quay lại"
+  },
+  "home": {
+    "title": "Chào mừng đến với rạp phim của chúng tôi!",
+    "subtitle": "Khám phá các bộ phim mới nhất và đặt vé ngay hôm nay. Chúng tôi sẽ đem đến cho bạn những trải nghiệm tuyệt vời nhất khi đặt vé xem phim ở trang này :)((."
+  },
+  "movies": {
+    "now_showing": "Đang chiếu",
+    "coming_soon": "Sắp chiếu",
+    "no_movies": "Không có phim nào.",
+    "loading": "Đang tải phim...",
+    "title": "Tiêu đề",
+    "description": "Mô tả"
+  },
+  "cinema": {
+    "choose_cinema": "Chọn rạp chiếu",
+    "no_cinema": "Không có rạp nào khả dụng.",
+    "location": "Địa điểm",
+    "schedule": "Lịch chiếu"
+  },
+  "review": {
+    "title": "Đánh giá",
+    "your_review": "Đánh giá của bạn",
+    "submit_review": "Gửi đánh giá",
+    "no_reviews": "Chưa có đánh giá nào."
+  },
+  "user": {
+    "profile": "Hồ sơ",
+    "my_bookings": "Lịch sử đặt vé",
+    "settings": "Cài đặt",
+    "greeting": "Xin chào, {{name}}!"
+  },
+  "footer": {
+    "terms": "Điều khoản sử dụng",
+    "privacy": "Chính sách bảo mật",
+    "copyright": "Bản quyền © 2025"
+  },
+  "messages": {
+    "login_success": "Đăng nhập thành công",
+    "logout_success": "Đăng xuất thành công",
+    "error": "Đã xảy ra lỗi",
+    "loading": "Đang tải..."
+  },
+  "help": {
+    "faq": "Câu hỏi thường gặp",
+    "contact_support": "Liên hệ hỗ trợ",
+    "terms_of_service": "Điều khoản dịch vụ",
+    "privacy_policy": "Chính sách bảo mật"
+  },
+  "contact": {
+    "email_us": "Gửi email cho chúng tôi",
+    "call_us": "Gọi cho chúng tôi",
+    "address": "Địa chỉ",
+    "follow_us": "Theo dõi chúng tôi trên mạng xã hội"
+  },
+  "profile": {
+    "edit_profile": "Chỉnh sửa hồ sơ",
+    "change_password": "Đổi mật khẩu",
+    "delete_account": "Xóa tài khoản",
+    "save_changes": "Lưu thay đổi",
+    "cancel": "Hủy"
+  },
+  "settings": {
+    "language": "Ngôn ngữ",
+    "notifications": "Thông báo",
+    "privacy_settings": "Cài đặt quyền riêng tư",
+    "account_settings": "Cài đặt tài khoản"
+  },
+  "loading": {
+    "fetching_data": "Đang lấy dữ liệu...",
+    "processing_request": "Đang xử lý yêu cầu của bạn..."
+  },
+  "errors": {
+    "network_error": "Lỗi mạng, vui lòng thử lại sau.",
+    "not_found": "Trang không tìm thấy.",
+    "unauthorized": "Bạn không có quyền truy cập trang này."
+  },
+  "alerts": {
+    "success": "Hoạt động đã hoàn thành thành công!",
+    "warning": "Vui lòng kiểm tra đầu vào của bạn.",
+    "info": "Đây là một thông báo thông tin.",
+    "error": "Đã xảy ra lỗi, vui lòng thử lại."
+  },
+  "search": {
+    "placeholder": "Tìm kiếm phim, rạp chiếu...",
+    "no_results": "Không tìm thấy kết quả."
+  },
+  "booking": {
+    "select_seat": "Chọn ghế",
+    "total_price": "Tổng giá vé",
+    "confirm_booking": "Xác nhận đặt vé",
+    "booking_success": "Đặt vé thành công!",
+    "booking_error": "Lỗi khi đặt vé. Vui lòng thử lại."
+  },
+  "notifications": {
+    "new_movie": "Phim mới đã được thêm!",
+    "cinema_update": "Thông tin rạp chiếu đã được cập nhật."
+  }
+}

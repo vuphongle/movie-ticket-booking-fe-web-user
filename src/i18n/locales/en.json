@@ -1,0 +1,129 @@
+{
+  "nav": {
+    "home": "Home",
+    "movies": "Movies",
+    "cinemas": "Cinemas",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "forgot_password": "Forgot password?"
+  },
+  "buttons": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "book_now": "Book Now",
+    "see_more": "See More",
+    "back": "Back"
+  },
+  "home": {
+    "title": "Welcome to our cinema!",
+    "subtitle": "Discover the latest movies and book your tickets today Mmmmmmmmmmmmmmmmmmmsssssssssssssssssss."
+  },
+  "movies": {
+    "now_showing": "Now Showing",
+    "coming_soon": "Coming Soon",
+    "no_movies": "No movies found.",
+    "loading": "Loading movies...",
+    "title": "Title",
+    "description": "Description"
+  },
+  "cinema": {
+    "choose_cinema": "Choose a cinema",
+    "no_cinema": "No cinema available.",
+    "location": "Location",
+    "schedule": "Showtime"
+  },
+  "review": {
+    "title": "Reviews",
+    "your_review": "Your review",
+    "submit_review": "Submit Review",
+    "no_reviews": "No reviews yet."
+  },
+  "user": {
+    "profile": "Profile",
+    "my_bookings": "My Bookings",
+    "settings": "Settings",
+    "greeting": "Hello, {{name}}!"
+  },
+  "footer": {
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy",
+    "copyright": "Copyright © 2025"
+  },
+  "messages": {
+    "login_success": "Login successful",
+    "logout_success": "Logout successful",
+    "error": "An error occurred",
+    "loading": "Loading..."
+  },
+  "search": {
+    "placeholder": "Search for movies or cinemas...",
+    "no_results": "No results found."
+  },
+  "errors": {
+    "network_error": "Network error, please try again later.",
+    "not_found": "Page not found.",
+    "unauthorized": "You are not authorized to access this page."
+  },
+  "alerts": {
+    "success": "Operation completed successfully!",
+    "warning": "Please check your input.",
+    "info": "This is an informational message.",
+    "error": "An error occurred, please try again."
+  },
+  "loading": {
+    "fetching_data": "Fetching data...",
+    "processing_request": "Processing your request..."
+  },
+  "profile": {
+    "edit_profile": "Edit Profile",
+    "change_password": "Change Password",
+    "delete_account": "Delete Account",
+    "save_changes": "Save Changes",
+    "cancel": "Cancel"
+  },
+  "settings": {
+    "language": "Language",
+    "notifications": "Notifications",
+    "privacy_settings": "Privacy Settings",
+    "account_settings": "Account Settings"
+  },
+  "help": {
+    "faq": "Frequently Asked Questions",
+    "contact_support": "Contact Support",
+    "terms_conditions": "Terms and Conditions",
+    "privacy_policy": "Privacy Policy"
+  },
+  "contact": {
+    "get_in_touch": "Get in Touch",
+    "email_us": "Email Us",
+    "call_us": "Call Us",
+    "follow_us": "Follow Us"
+  },
+  "about": {
+    "our_story": "Our Story",
+    "mission": "Our Mission",
+    "team": "Meet the Team",
+    "careers": "Careers"
+  },
+
+  "notifications": {
+    "new_message": "You have a new message",
+    "booking_confirmation": "Your booking has been confirmed",
+    "booking_cancellation": "Your booking has been cancelled"
+  },
+  "booking": {
+    "select_seat": "Select Seat",
+    "total_price": "Total Price",
+    "confirm_booking": "Confirm Booking",
+    "booking_success": "Booking successful!",
+    "booking_error": "Error while booking. Please try again."
+  }
+}
