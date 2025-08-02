@@ -1,33 +1,59 @@
-import { useState } from 'react';
-import './App.css';
+import Footer from '@components/footer/Footer';
+import Header from '@components/header/Header';
+import LanguageSelector from '@components/language/LanguageSelector';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import './i18n';
+import HomePage from './pages/home/Home';
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      {/* <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div style={styles.container}>
+        <header style={styles.header}>
+          <Header />
+          <LanguageSelector />
+        </header>
+
+        <main style={styles.main}>
+          <Routes>
+            <Route path='/' element={<HomePage />} />
+            {/* các route con khác kkkk */}
+          </Routes>
+        </main>
+
+        <footer style={styles.footer}>
+          <Footer />
+        </footer>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p> */}
-    </>
+    </Router>
   );
 }
+
+const styles: { [key: string]: React.CSSProperties } = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
+  },
+  header: {
+    padding: '16px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  main: {
+    flex: 1,
+    padding: '16px',
+    width: '100%',
+    flexDirection: 'column',
+  },
+
+  footer: {
+    padding: '16px',
+    borderTop: '1px solid #ccc',
+    marginTop: '32px',
+  },
+};
 
 export default App;
