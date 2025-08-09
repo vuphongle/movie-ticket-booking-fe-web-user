@@ -80,5 +80,32 @@
     "placeholder": "Search movies or theaters"
   },
   "ACCOUNT_NOT_ACTIVATED": "Your account is not activated. Please check your email for the activation link.",
-  "INVALID_CREDENTIALS": "Invalid email or password. Please try again."
+  "INVALID_CREDENTIALS": "Invalid email or password. Please try again.",
+
+  "register": {
+    "title": "Register your account",
+    "name": "Name",
+    "name_placeholder": "Enter name",
+    "name_required": "Name is required",
+    "email": "Email",
+    "email_placeholder": "Enter email",
+    "email_required": "Email is required",
+    "email_invalid": "Email is invalid",
+    "phone": "Phone",
+    "phone_placeholder": "Enter phone",
+    "phone_required": "Phone number is required",
+    "phone_invalid": "Phone number is invalid",
+    "password": "Password",
+    "password_placeholder": "Enter password",
+    "password_required": "Password is required",
+    "confirm_password": "Confirm Password",
+    "confirm_password_placeholder": "Enter confirm password",
+    "confirm_password_required": "Confirm password is required",
+    "confirm_password_match": "Confirm password does not match",
+    "submit": "Register",
+    "success_message": "Registration successful. Please check your email to verify your account.",
+    "have_account": "Already have an account?",
+    "login_link": "Login",
+    "show_password": "Show password"
+  }
 }
