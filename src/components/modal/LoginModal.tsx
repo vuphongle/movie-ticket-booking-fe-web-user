@@ -1,10 +1,10 @@
 import { useLoginMutation } from '@/app/services/auth.api';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { theme } from '@theme/Theme';
+import { message } from 'antd';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import ModalBase from '../base/ModalBase';
@@ -50,17 +50,22 @@ const LoginModal: React.FC<LoginModalProps> = ({
     ),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    login(data)
-      .unwrap()
-      .then(() => {
-        toast.success(t('messages.login_success'));
-        handleClose();
-      })
-      .catch(error => {
-        console.error(error);
-        toast.error(error.data.message || t('messages.error'));
-      });
+  const onSubmit = async (data: LoginFormData) => {
+    console.log('Data gửi lên:', data);
+    try {
+      await login(data).unwrap();
+      message.success(t('messages.login_success'));
+      handleClose();
+    } catch (error: any) {
+      console.error('Login error:', error);
+      if (error?.data?.code === 'ACCOUNT_NOT_ACTIVATED') {
+        message.error(t('ACCOUNT_NOT_ACTIVATED'));
+      } else if (error?.data?.code === 'INVALID_CREDENTIALS') {
+        message.error(t('INVALID_CREDENTIALS'));
+      } else {
+        message.error(t('messages.error'));
+      }
+    }
   };
 
   return (

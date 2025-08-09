@@ -1,31 +1,29 @@
 import Footer from '@components/footer/Footer';
 import Header from '@components/header/Header';
 import LanguageSelector from '@components/language/LanguageSelector';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom'; // BỎ BrowserRouter/Router
 import './i18n';
 import HomePage from './pages/home/Home';
 
 function App() {
   return (
-    <Router>
-      <div style={styles.container}>
-        <header style={styles.header}>
-          <Header />
-          <LanguageSelector />
-        </header>
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <Header />
+        <LanguageSelector />
+      </header>
 
-        <main style={styles.main}>
-          <Routes>
-            <Route path='/' element={<HomePage />} />
-            {/* các route con khác kkkk */}
-          </Routes>
-        </main>
+      <main style={styles.main}>
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          {/* các route con khác */}
+        </Routes>
+      </main>
 
-        <footer style={styles.footer}>
-          <Footer />
-        </footer>
-      </div>
-    </Router>
+      <footer style={styles.footer}>
+        <Footer />
+      </footer>
+    </div>
   );
 }
 

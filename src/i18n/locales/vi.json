@@ -78,5 +78,7 @@
   },
   "search": {
     "placeholder": "Tìm kiếm phim hoặc rạp"
-  }
+  },
+  "ACCOUNT_NOT_ACTIVATED": "Tài khoản của bạn chưa được kích hoạt. Vui lòng kiểm tra email để nhận liên kết kích hoạt.",
+  "INVALID_CREDENTIALS": "Email hoặc mật khẩu không hợp lệ. Vui lòng thử lại."
 }
