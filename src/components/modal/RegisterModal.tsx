@@ -7,7 +7,8 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import ModalBase from '../base/ModalBase';
+import { useRegisterAccountMutation } from '@app/services/auth.api';
+import ModalBase from '@components/base/ModalBase';
 
 interface RegisterModalProps {
   open: boolean;
@@ -29,7 +30,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   handleLogin,
 }) => {
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
 
   const schema = yup
     .object({
@@ -48,10 +48,15 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
       password: yup.string().required(t('register.password_required')),
       confirmPassword: yup
         .string()
-        .oneOf([yup.ref('password')], t('register.confirm_password_match'))
+        .oneOf(
+          [yup.ref('password'), undefined],
+          t('register.confirm_password_match')
+        )
         .required(t('register.confirm_password_required')),
     })
     .required();
+
+  const [registerAccount, { isLoading }] = useRegisterAccountMutation();
 
   const {
     register,
@@ -71,7 +76,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   };
 
   const onSubmit = async (data: RegisterFormData) => {
-    toast.success(t('register.success_message'));
+    try {
+      await registerAccount(data).unwrap();
+      toast.success(t('register.success_message'));
+      handleClose();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.data?.message || t('messages.error'));
+    }
   };
 
   return (
