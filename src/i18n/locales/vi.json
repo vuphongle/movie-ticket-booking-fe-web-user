@@ -1,13 +1,14 @@
 {
   "nav": {
     "home": "Trang chủ",
+    "showtimes": "Lịch chiếu",
     "movies": "Phim",
-    "cinemas": "Rạp chiếu",
-    "about": "Giới thiệu",
-    "contact": "Liên hệ"
+    "reviews": "Đánh giá",
+    "blog": "Blog"
   },
   "auth": {
     "login": "Đăng nhập",
+    "signup": "Đăng ký",
     "register": "Đăng ký",
     "logout": "Đăng xuất",
     "email": "Email",
@@ -63,59 +64,19 @@
     "error": "Đã xảy ra lỗi",
     "loading": "Đang tải..."
   },
-  "help": {
-    "faq": "Câu hỏi thường gặp",
-    "contact_support": "Liên hệ hỗ trợ",
-    "terms_of_service": "Điều khoản dịch vụ",
-    "privacy_policy": "Chính sách bảo mật"
-  },
-  "contact": {
-    "email_us": "Gửi email cho chúng tôi",
-    "call_us": "Gọi cho chúng tôi",
-    "address": "Địa chỉ",
-    "follow_us": "Theo dõi chúng tôi trên mạng xã hội"
-  },
-  "profile": {
-    "edit_profile": "Chỉnh sửa hồ sơ",
-    "change_password": "Đổi mật khẩu",
-    "delete_account": "Xóa tài khoản",
-    "save_changes": "Lưu thay đổi",
-    "cancel": "Hủy"
-  },
-  "settings": {
-    "language": "Ngôn ngữ",
-    "notifications": "Thông báo",
-    "privacy_settings": "Cài đặt quyền riêng tư",
-    "account_settings": "Cài đặt tài khoản"
-  },
-  "loading": {
-    "fetching_data": "Đang lấy dữ liệu...",
-    "processing_request": "Đang xử lý yêu cầu của bạn..."
-  },
-  "errors": {
-    "network_error": "Lỗi mạng, vui lòng thử lại sau.",
-    "not_found": "Trang không tìm thấy.",
-    "unauthorized": "Bạn không có quyền truy cập trang này."
-  },
-  "alerts": {
-    "success": "Hoạt động đã hoàn thành thành công!",
-    "warning": "Vui lòng kiểm tra đầu vào của bạn.",
-    "info": "Đây là một thông báo thông tin.",
-    "error": "Đã xảy ra lỗi, vui lòng thử lại."
+  "login": {
+    "title": "Đăng nhập tài khoản",
+    "google_login": "Đăng nhập với Google",
+    "facebook_login": "Đăng nhập với Facebook",
+    "email_placeholder": "Nhập email",
+    "password_placeholder": "Nhập mật khẩu",
+    "forgot_password": "Quên mật khẩu?",
+    "login_button": "Đăng nhập",
+    "register_prompt": "Bạn chưa có tài khoản?",
+    "register_link": "Đăng ký?",
+    "or": "Hoặc"
   },
   "search": {
-    "placeholder": "Tìm kiếm phim, rạp chiếu...",
-    "no_results": "Không tìm thấy kết quả."
-  },
-  "booking": {
-    "select_seat": "Chọn ghế",
-    "total_price": "Tổng giá vé",
-    "confirm_booking": "Xác nhận đặt vé",
-    "booking_success": "Đặt vé thành công!",
-    "booking_error": "Lỗi khi đặt vé. Vui lòng thử lại."
-  },
-  "notifications": {
-    "new_movie": "Phim mới đã được thêm!",
-    "cinema_update": "Thông tin rạp chiếu đã được cập nhật."
+    "placeholder": "Tìm kiếm phim hoặc rạp"
   }
 }

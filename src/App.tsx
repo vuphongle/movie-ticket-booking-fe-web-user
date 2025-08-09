@@ -36,7 +36,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: '100vh',
   },
   header: {
-    padding: '16px',
+    padding: '8px 16px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     display: 'flex',
     alignItems: 'center',
@@ -46,7 +46,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     flex: 1,
     padding: '16px',
     width: '100%',
+    display: 'flex',
     flexDirection: 'column',
+    boxSizing: 'border-box',
   },
 
   footer: {

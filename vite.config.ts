@@ -21,6 +21,7 @@ export default defineConfig({
       '@contexts': '/src/contexts',
       '@types': '/src/types',
       '@lib': '/src/lib',
+      '@theme': '/src/theme',
     },
   },
   css: {

@@ -1,13 +1,14 @@
 {
   "nav": {
     "home": "Home",
+    "showtimes": "Showtimes",
     "movies": "Movies",
-    "cinemas": "Cinemas",
-    "about": "About",
-    "contact": "Contact"
+    "reviews": "Reviews",
+    "blog": "Blog"
   },
   "auth": {
     "login": "Login",
+    "signup": "Sign Up",
     "register": "Register",
     "logout": "Logout",
     "email": "Email",
@@ -63,67 +64,19 @@
     "error": "An error occurred",
     "loading": "Loading..."
   },
+  "login": {
+    "title": "Login to your account",
+    "google_login": "Login with Google",
+    "facebook_login": "Login with Facebook",
+    "email_placeholder": "Enter email",
+    "password_placeholder": "Enter password",
+    "forgot_password": "Forgot password?",
+    "login_button": "Login",
+    "register_prompt": "Don't have an account?",
+    "register_link": "Register?",
+    "or": "or"
+  },
   "search": {
-    "placeholder": "Search for movies or cinemas...",
-    "no_results": "No results found."
-  },
-  "errors": {
-    "network_error": "Network error, please try again later.",
-    "not_found": "Page not found.",
-    "unauthorized": "You are not authorized to access this page."
-  },
-  "alerts": {
-    "success": "Operation completed successfully!",
-    "warning": "Please check your input.",
-    "info": "This is an informational message.",
-    "error": "An error occurred, please try again."
-  },
-  "loading": {
-    "fetching_data": "Fetching data...",
-    "processing_request": "Processing your request..."
-  },
-  "profile": {
-    "edit_profile": "Edit Profile",
-    "change_password": "Change Password",
-    "delete_account": "Delete Account",
-    "save_changes": "Save Changes",
-    "cancel": "Cancel"
-  },
-  "settings": {
-    "language": "Language",
-    "notifications": "Notifications",
-    "privacy_settings": "Privacy Settings",
-    "account_settings": "Account Settings"
-  },
-  "help": {
-    "faq": "Frequently Asked Questions",
-    "contact_support": "Contact Support",
-    "terms_conditions": "Terms and Conditions",
-    "privacy_policy": "Privacy Policy"
-  },
-  "contact": {
-    "get_in_touch": "Get in Touch",
-    "email_us": "Email Us",
-    "call_us": "Call Us",
-    "follow_us": "Follow Us"
-  },
-  "about": {
-    "our_story": "Our Story",
-    "mission": "Our Mission",
-    "team": "Meet the Team",
-    "careers": "Careers"
-  },
-
-  "notifications": {
-    "new_message": "You have a new message",
-    "booking_confirmation": "Your booking has been confirmed",
-    "booking_cancellation": "Your booking has been cancelled"
-  },
-  "booking": {
-    "select_seat": "Select Seat",
-    "total_price": "Total Price",
-    "confirm_booking": "Confirm Booking",
-    "booking_success": "Booking successful!",
-    "booking_error": "Error while booking. Please try again."
+    "placeholder": "Search movies or theaters"
   }
 }
