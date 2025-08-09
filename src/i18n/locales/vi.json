@@ -107,5 +107,9 @@
     "have_account": "Bạn đã có tài khoản?",
     "login_link": "Đăng nhập",
     "show_password": "Hiển thị mật khẩu"
+  },
+  "verify": {
+    "success_title": "Xác thực tài khoản",
+    "success_message": "Tài khoản của bạn đã được xác thực thành công. Bạn có thể đăng nhập ngay bây giờ."
   }
 }

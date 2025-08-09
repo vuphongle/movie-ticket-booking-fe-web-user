@@ -41,7 +41,18 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+    verifyAccount: builder.mutation<void, { code: string }>({
+      query: body => ({
+        url: 'verify',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterAccountMutation } = authApi;
+export const {
+  useLoginMutation,
+  useRegisterAccountMutation,
+  useVerifyAccountMutation,
+} = authApi;

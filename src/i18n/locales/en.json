@@ -107,5 +107,9 @@
     "have_account": "Already have an account?",
     "login_link": "Login",
     "show_password": "Show password"
+  },
+  "verify": {
+    "success_title": "Account Verified",
+    "success_message": "Your account has been successfully verified."
   }
 }
