@@ -1,13 +1,15 @@
 import { useLoginMutation } from '@/app/services/auth.api';
+import ModalBase from '@components/base/ModalBase';
+import ShowSuccessModal from '@components/modal/sub-modal/ShowSuccessModal';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { theme } from '@theme/Theme';
-import { message } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import ModalBase from '../base/ModalBase';
 
 interface LoginModalProps {
   open: boolean;
@@ -28,6 +30,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
   handleRegister,
 }) => {
   const { t } = useTranslation();
+
+  // modal state
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const [login, { isLoading }] = useLoginMutation();
   const {
@@ -51,133 +56,119 @@ const LoginModal: React.FC<LoginModalProps> = ({
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log('Data gửi lên:', data);
     try {
       await login(data).unwrap();
-      message.success(t('messages.login_success'));
-      handleClose();
+      setSuccessOpen(true);
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Login error**:', error);
       if (error?.data?.code === 'ACCOUNT_NOT_ACTIVATED') {
-        message.error(t('ACCOUNT_NOT_ACTIVATED'));
+        toast.error(t('ACCOUNT_NOT_ACTIVATED'));
       } else if (error?.data?.code === 'INVALID_CREDENTIALS') {
-        message.error(t('INVALID_CREDENTIALS'));
+        toast.error(t('INVALID_CREDENTIALS'));
       } else {
-        message.error(t('messages.error'));
+        toast.error(t('messages.error'));
       }
     }
   };
 
   return (
-    <ModalBase
-      isOpen={open}
-      onClose={handleClose}
-      size='sm'
-      style={{ width: '400px' }}
-      zIndex={1080}
-    >
-      <Wrapper>
-        <Title>{t('login.title')}</Title>
+    <>
+      <ModalBase
+        isOpen={open}
+        onClose={handleClose}
+        size='sm'
+        style={{ width: '400px' }}
+        zIndex={1080}
+      >
+        <Wrapper>
+          <Title>{t('login.title')}</Title>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Field>
-            <Label htmlFor='email'>{t('auth.email')}</Label>
-            <Input
-              type='email'
-              id='email'
-              {...register('email')}
-              placeholder={t('login.email_placeholder')}
-            />
-            {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
-          </Field>
-
-          <Field>
-            <Label htmlFor='password'>{t('auth.password')}</Label>
-            <PasswordWrapper>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Field>
+              <Label htmlFor='email'>{t('auth.email')}</Label>
               <Input
-                type='password'
-                id='password'
-                {...register('password')}
-                placeholder={t('login.password_placeholder')}
+                type='email'
+                id='email'
+                {...register('email')}
+                placeholder={t('login.email_placeholder')}
               />
-            </PasswordWrapper>
-            {errors.password && (
-              <ErrorText>{errors.password.message}</ErrorText>
-            )}
-          </Field>
+              {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
+            </Field>
 
-          <ForgotPasswordWrapper>
-            <ForgotPassword onClick={handleForgotPassword}>
-              {t('login.forgot_password')}
-            </ForgotPassword>
-          </ForgotPasswordWrapper>
+            <Field>
+              <Label htmlFor='password'>{t('auth.password')}</Label>
+              <PasswordWrapper>
+                <Input
+                  type='password'
+                  id='password'
+                  {...register('password')}
+                  placeholder={t('login.password_placeholder')}
+                />
+              </PasswordWrapper>
+              {errors.password && (
+                <ErrorText>{errors.password.message}</ErrorText>
+              )}
+            </Field>
 
-          <SubmitButton type='submit' disabled={isLoading}>
-            {isLoading && <LoadingSpinner />}
-            {t('login.login_button')}
-          </SubmitButton>
+            <ForgotPasswordWrapper>
+              <ForgotPassword onClick={handleForgotPassword}>
+                {t('login.forgot_password')}
+              </ForgotPassword>
+            </ForgotPasswordWrapper>
 
-          <RegisterText>
-            {t('login.register_prompt')}{' '}
-            <RegisterLink onClick={handleRegister}>
-              {t('login.register_link')}
-            </RegisterLink>
-          </RegisterText>
-        </form>
+            <SubmitButton type='submit' disabled={isLoading}>
+              {isLoading && <LoadingSpinner />}
+              {t('login.login_button')}
+            </SubmitButton>
 
-        <Divider>
-          <Line />
-          {t('login.or') || 'HOẶC'}
-          <Line />
-        </Divider>
+            <RegisterText>
+              {t('login.register_prompt')}{' '}
+              <RegisterLink onClick={handleRegister}>
+                {t('login.register_link')}
+              </RegisterLink>
+            </RegisterText>
+          </form>
 
-        <SocialLoginContainer>
-          <GoogleButton>
-            <GoogleIcon
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 90 92'
-              fill='none'
-            >
-              <path
-                d='M90 47.1c0-3.1-.3-6.3-.8-9.3H45.9v17.7h24.8c-1 5.7-4.3 10.7-9.2 13.9l14.8 11.5C85 72.8 90 61 90 47.1z'
-                fill='#4280ef'
-              />
-              <path
-                d='M45.9 91.9c12.4 0 22.8-4.1 30.4-11.1L61.5 69.4c-4.1 2.8-9.4 4.4-15.6 4.4-12 0-22.1-8.1-25.8-18.9L4.9 66.6c7.8 15.5 23.6 25.3 41 25.3z'
-                fill='#34a353'
-              />
-              <path
-                d='M20.1 54.8c-1.9-5.7-1.9-11.9 0-17.6L4.9 25.4c-6.5 13-6.5 28.3 0 41.2l15.2-11.8z'
-                fill='#f6b704'
-              />
-              <path
-                d='M45.9 18.3c6.5-.1 12.9 2.4 17.6 6.9L76.6 12C68.3 4.2 57.3 0 45.9.1c-17.4 0-33.2 9.8-41 25.3l15.2 11.8c3.7-10.9 13.8-18.9 25.8-18.9z'
-                fill='#e54335'
-              />
-            </GoogleIcon>
-            {t('login.google_login')}
-          </GoogleButton>
+          <Divider>
+            <Line />
+            {t('login.or') || 'HOẶC'}
+            <Line />
+          </Divider>
 
-          <FacebookButton>
-            <FacebookIcon
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 24 24'
-              fill='none'
-            >
-              <path
-                d='M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.406.593 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.466.099 2.797.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.312h3.588l-.467 3.622h-3.121V24h6.116c.73 0 1.324-.593 1.324-1.324V1.325C24 .593 23.406 0 22.675 0z'
-                fill='#1877F2'
-              />
-              <path
-                d='M16.671 24v-9.294h3.121l.467-3.622h-3.588v-2.312c0-1.048.29-1.763 1.795-1.763l1.918-.001v-3.24c-.331-.044-1.472-.143-2.797-.143-2.766 0-4.659 1.688-4.659 4.788v2.683h-3.129v3.622h3.129V24h3.129z'
-                fill='#0F66E0'
-              />
-            </FacebookIcon>
-            {t('login.facebook_login')}
-          </FacebookButton>
-        </SocialLoginContainer>
-      </Wrapper>
-    </ModalBase>
+          <SocialLoginContainer>
+            <GoogleButton>
+              <GoogleIcon
+                xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 90 92'
+                fill='none'
+              >
+                {/* ...Google icon path */}
+              </GoogleIcon>
+              {t('login.google_login')}
+            </GoogleButton>
+
+            <FacebookButton>
+              <FacebookIcon
+                xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 24 24'
+                fill='none'
+              >
+                {/* ...Facebook icon path */}
+              </FacebookIcon>
+              {t('login.facebook_login')}
+            </FacebookButton>
+          </SocialLoginContainer>
+        </Wrapper>
+      </ModalBase>
+
+      <ShowSuccessModal
+        open={successOpen}
+        onClose={() => {
+          setSuccessOpen(false);
+          handleClose();
+        }}
+      />
+    </>
   );
 };
 

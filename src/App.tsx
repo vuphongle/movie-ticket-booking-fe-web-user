@@ -1,13 +1,17 @@
 import Footer from '@components/footer/Footer';
 import Header from '@components/header/Header';
 import LanguageSelector from '@components/language/LanguageSelector';
-import { Route, Routes } from 'react-router-dom'; // BỎ BrowserRouter/Router
+import { Route, Routes } from 'react-router-dom';
 import './i18n';
 import HomePage from './pages/home/Home';
+
+import AppToastContainer from '@components/base/AppToastContainer';
 
 function App() {
   return (
     <div style={styles.container}>
+      <AppToastContainer />
+
       <header style={styles.header}>
         <Header />
         <LanguageSelector />
@@ -39,6 +43,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    position: 'sticky',
+    top: 0,
+    background: '#fff',
+    zIndex: 100,
   },
   main: {
     flex: 1,
@@ -48,11 +56,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     boxSizing: 'border-box',
   },
-
   footer: {
     padding: '16px',
-    borderTop: '1px solid #ccc',
+    borderTop: '1px solid #eee',
     marginTop: '32px',
+    background: '#fff',
   },
 };
 

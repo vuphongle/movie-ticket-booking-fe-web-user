@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 
-type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
+type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 interface ModalBaseProps {
   isOpen: boolean;
@@ -14,6 +14,7 @@ interface ModalBaseProps {
 }
 
 const sizeMap: Record<ModalSize, string> = {
+  xs: '20%',
   sm: '25%',
   md: '50%',
   lg: '75%',
