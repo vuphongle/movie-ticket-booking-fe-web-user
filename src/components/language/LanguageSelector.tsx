@@ -1,8 +1,8 @@
 import { theme } from '@theme/Theme';
 import { useTranslation } from 'react-i18next';
 import Select, { components } from 'react-select';
-import FlagUS from '/flags/us.png';
-import FlagVN from '/flags/vn.png';
+import FlagUS from '@assets/images/flags/us.png';
+import FlagVN from '@assets/images/flags/vn.png';
 
 export default function LanguageSelector() {
   const { i18n } = useTranslation();

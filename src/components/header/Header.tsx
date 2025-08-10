@@ -27,7 +27,7 @@ export default function Header() {
       <Nav>
         <LeftGroup>
           <LogoArea>
-            <Logo src='/logo.png' alt='GoCinema' />
+            <Logo src='@assets/images/logo.png' alt='GoCinema' />
           </LogoArea>
 
           <SearchBox>
