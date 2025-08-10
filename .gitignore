@@ -104,3 +104,6 @@ Thumbs.db
 
 # Vite cache
 .vite-cache
+
+# Vite config file
+vite.config.js
