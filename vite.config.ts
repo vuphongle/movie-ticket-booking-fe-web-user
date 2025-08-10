@@ -32,10 +32,4 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
   },
-
-  cacheDir: 'D:/vite-global-cache/movie-ticket-booking-fe-web-user',
-
-  optimizeDeps: {
-    force: true,
-  },
 });
