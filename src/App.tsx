@@ -1,9 +1,10 @@
+import VerifyAccount from '@/pages/verify/VerifyAccount';
 import Footer from '@components/footer/Footer';
 import Header from '@components/header/Header';
 import LanguageSelector from '@components/language/LanguageSelector';
+import HomePage from '@pages/home/Home';
 import { Route, Routes } from 'react-router-dom';
 import './i18n';
-import HomePage from './pages/home/Home';
 
 import AppToastContainer from '@components/base/AppToastContainer';
 
@@ -20,7 +21,7 @@ function App() {
       <main style={styles.main}>
         <Routes>
           <Route path='/' element={<HomePage />} />
-          {/* các route con khác */}
+          <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />
         </Routes>
       </main>
 

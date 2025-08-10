@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import React, { useRef } from 'react';
+import { theme } from '@theme/Theme';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 
 type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -8,7 +8,7 @@ interface ModalBaseProps {
   isOpen: boolean;
   onClose: () => void;
   size?: ModalSize;
-  children: ReactNode;
+  children: React.ReactNode;
   zIndex?: number;
   style?: React.CSSProperties;
 }
@@ -30,12 +30,14 @@ const Overlay = styled.div<{ zIndex?: number }>`
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
   z-index: ${({ zIndex }) => zIndex ?? 50};
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
 `;
 
 const ModalWrapper = styled.div<{ size: ModalSize; isOpen: boolean }>`
   position: relative;
-  top: 20px;
-  margin: 0 auto;
   width: ${({ size }) => sizeMap[size] || sizeMap.md};
   background: #fff;
   border-radius: 8px;
@@ -43,6 +45,28 @@ const ModalWrapper = styled.div<{ size: ModalSize; isOpen: boolean }>`
   transition: all 0.3s ease-in-out;
   transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(100%)')};
   opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: ${theme.colors.closeButtonBg};
+  border: none;
+  width: 32px;
+  height: 32px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+  color: ${theme.colors.closeButtonText};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: ${theme.colors.closeButtonBgHover};
+  }
 `;
 
 const ModalBase: React.FC<ModalBaseProps> = ({
@@ -54,11 +78,38 @@ const ModalBase: React.FC<ModalBaseProps> = ({
   style,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [mouseDownPos, setMouseDownPos] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   if (!isOpen) return null;
 
+  const CLICK_THRESHOLD = 10;
+
+  const handleOverlayMouseDown = (e: React.MouseEvent) => {
+    setMouseDownPos({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (!mouseDownPos) return;
+
+    const dx = Math.abs(e.clientX - mouseDownPos.x);
+    const dy = Math.abs(e.clientY - mouseDownPos.y);
+
+    if (dx < CLICK_THRESHOLD && dy < CLICK_THRESHOLD) {
+      onClose();
+    }
+
+    setMouseDownPos(null);
+  };
+
   return (
-    <Overlay zIndex={zIndex} onClick={onClose}>
+    <Overlay
+      zIndex={zIndex}
+      onMouseDown={handleOverlayMouseDown}
+      onClick={handleOverlayClick}
+    >
       <ModalWrapper
         ref={modalRef}
         size={size}
@@ -66,6 +117,9 @@ const ModalBase: React.FC<ModalBaseProps> = ({
         onClick={e => e.stopPropagation()}
         style={style}
       >
+        <CloseButton onClick={onClose} aria-label='Close modal'>
+          &times;
+        </CloseButton>
         {children}
       </ModalWrapper>
     </Overlay>

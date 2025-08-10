@@ -12,6 +12,9 @@ export const theme = {
     gray: '#6b7280',
     background: '#f0f0f0',
     textSecondary: '#6b7280',
+    closeButtonBg: '#fff7ed',
+    closeButtonBgHover: '#fed7aa',
+    closeButtonText: '#c2410c',
   },
   borderRadius: {
     small: '4px',

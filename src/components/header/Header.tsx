@@ -1,26 +1,37 @@
-import LoginModal from '@/components/modal/LoginModal';
+import LoginModal from '@components/modal/LoginModal';
+import RegisterModal from '@components/modal/RegisterModal';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import LogoImg from '@/assets/image/logo.png';
 
-import { theme } from '@/theme/Theme';
+import { theme } from '@theme/Theme';
 
 export default function Header() {
   const { t } = useTranslation();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   const openLoginModal = () => setIsLoginOpen(true);
   const closeLoginModal = () => setIsLoginOpen(false);
+
+  const openRegisterModal = () => setIsRegisterOpen(true);
+  const closeRegisterModal = () => setIsRegisterOpen(false);
 
   const handleForgotPassword = () => {
     alert('Chuyển sang màn hình quên mật khẩu');
   };
 
   const handleRegister = () => {
-    alert('Chuyển sang màn hình đăng ký');
+    closeLoginModal();
+    openRegisterModal();
+  };
+
+  const handleLogin = () => {
+    closeRegisterModal();
+    openLoginModal();
   };
 
   return (
@@ -48,7 +59,9 @@ export default function Header() {
           </Menu>
 
           <RightArea>
-            <ButtonOutline>{t('auth.signup')}</ButtonOutline>
+            <ButtonOutline onClick={openRegisterModal}>
+              {t('auth.signup')}
+            </ButtonOutline>
             <ButtonPrimary onClick={openLoginModal}>
               {t('auth.login')}
             </ButtonPrimary>
@@ -61,6 +74,12 @@ export default function Header() {
         handleClose={closeLoginModal}
         handleForgotPassword={handleForgotPassword}
         handleRegister={handleRegister}
+      />
+
+      <RegisterModal
+        open={isRegisterOpen}
+        handleClose={closeRegisterModal}
+        handleLogin={handleLogin}
       />
     </>
   );
