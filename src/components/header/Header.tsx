@@ -3,6 +3,7 @@ import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
+import LogoImg from '@/assets/image/logo.png';
 
 import { theme } from '@/theme/Theme';
 
@@ -27,7 +28,7 @@ export default function Header() {
       <Nav>
         <LeftGroup>
           <LogoArea>
-            <Logo src='@assets/images/logo.png' alt='GoCinema' />
+            <Logo src={LogoImg} alt='GoCinema' />
           </LogoArea>
 
           <SearchBox>
