@@ -81,6 +81,7 @@
   },
   "ACCOUNT_NOT_ACTIVATED": "Tài khoản của bạn chưa được kích hoạt. Vui lòng kiểm tra email để nhận liên kết kích hoạt.",
   "INVALID_CREDENTIALS": "Email hoặc mật khẩu không hợp lệ. Vui lòng thử lại.",
+  "EMAIL_ALREADY_EXISTS": "Email đã tồn tại. Vui lòng sử dụng email khác.",
 
   "register": {
     "title": "Đăng ký Tài khoản",

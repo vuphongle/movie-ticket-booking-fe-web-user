@@ -81,8 +81,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
       toast.success(t('register.success_message'));
       handleClose();
     } catch (error: any) {
-      console.error(error);
-      toast.error(error?.data?.message || t('messages.error'));
+      if (error?.data?.code === 'EMAIL_ALREADY_EXISTS') {
+        toast.error(t('EMAIL_ALREADY_EXISTS'));
+      } else {
+        console.error(error);
+        toast.error(error?.data?.message || t('messages.error'));
+      }
     }
   };
 

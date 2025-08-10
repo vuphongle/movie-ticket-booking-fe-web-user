@@ -81,6 +81,7 @@
   },
   "ACCOUNT_NOT_ACTIVATED": "Your account is not activated. Please check your email for the activation link.",
   "INVALID_CREDENTIALS": "Invalid email or password. Please try again.",
+  "EMAIL_ALREADY_EXISTS": "Email already exists. Please use a different email.",
 
   "register": {
     "title": "Register your account",
