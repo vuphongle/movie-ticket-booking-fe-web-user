@@ -1,12 +1,28 @@
-import { theme } from '@theme/Theme';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
+import { theme } from '@theme/Theme';
+import { useVerifyAccountMutation } from '@app/services/auth.api';
 
-const VerifyAccountPage: React.FC = () => {
+const VerifyAccount: React.FC = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const [verifyAccount] = useVerifyAccountMutation();
 
-  return (
+  useEffect(() => {
+    if (token) {
+      verifyAccount(token)
+        .unwrap()
+        .catch((err) =>
+          toast.error(err?.data?.message || t('messages.error'))
+        );
+    }
+  }, [token, verifyAccount, t]);
+
+ return (
     <PageWrapper>
       <Content>
         <Title>{t('verify.success_title')}</Title>
@@ -16,7 +32,7 @@ const VerifyAccountPage: React.FC = () => {
   );
 };
 
-export default VerifyAccountPage;
+export default VerifyAccount;
 
 const PageWrapper = styled.div`
   min-height: 100vh;

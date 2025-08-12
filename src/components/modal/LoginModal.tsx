@@ -3,7 +3,7 @@ import ModalBase from '@components/base/ModalBase';
 import ShowSuccessModal from '@components/modal/sub-modal/ShowSuccessModal';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { theme } from '@theme/Theme';
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -29,36 +29,57 @@ const LoginModal: React.FC<LoginModalProps> = ({
   handleForgotPassword,
   handleRegister,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // modal state
   const [successOpen, setSuccessOpen] = useState(false);
 
-  const [login, { isLoading }] = useLoginMutation();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: yupResolver(
+  const schema = useMemo(
+    () =>
       yup
         .object({
           email: yup
             .string()
-            .email(t('auth.email') + ' không đúng định dạng')
-            .required(t('auth.email') + ' không được để trống'),
+            .email(t('login.email_invalid'))
+            .required(t('login.email_required')),
           password: yup
             .string()
-            .required(t('auth.password') + ' không được để trống'),
+            .required(t('login.password_required')),
         })
-        .required()
-    ),
+        .required(),
+    [i18n.language]
+  );
+
+  const [login, { isLoading }] = useLoginMutation();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    trigger,
+    reset,
+  } = useForm<LoginFormData>({
+    resolver: yupResolver(schema),
   });
+
+  const isFirstMount = useRef(true);
+
+  useEffect(() => {
+    if (open && isFirstMount.current) {
+      reset();
+      isFirstMount.current = false;
+    }
+  }, [open, reset]);
+
+  useEffect(() => {
+    trigger();
+  }, [i18n.language, trigger]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login(data).unwrap();
       setSuccessOpen(true);
+      handleClose();
     } catch (error: any) {
       console.error('Login error**:', error);
       if (error?.data?.code === 'ACCOUNT_NOT_ACTIVATED') {
@@ -252,6 +273,7 @@ const ForgotPassword = styled.span`
   font-size: ${theme.fontSize.sm};
   color: ${theme.colors.textPrimary};
   cursor: pointer;
+  font-weight: bold;
 
   &:hover {
     text-decoration: underline;
@@ -306,9 +328,9 @@ const RegisterText = styled.p`
 `;
 
 const RegisterLink = styled.span`
-  font-weight: 500;
   color: ${theme.colors.primary};
   cursor: pointer;
+  font-weight: bold;
 
   &:hover {
     text-decoration: underline;

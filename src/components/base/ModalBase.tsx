@@ -32,8 +32,7 @@ const Overlay = styled.div<{ zIndex?: number }>`
   z-index: ${({ zIndex }) => zIndex ?? 50};
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 20px;
+  align-items: center;
 `;
 
 const ModalWrapper = styled.div<{ size: ModalSize; isOpen: boolean }>`

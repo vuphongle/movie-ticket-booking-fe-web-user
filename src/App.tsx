@@ -51,7 +51,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   main: {
     flex: 1,
-    padding: '16px',
     width: '100%',
     display: 'flex',
     flexDirection: 'column',

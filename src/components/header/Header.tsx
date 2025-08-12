@@ -4,34 +4,41 @@ import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import LogoImg from '@/assets/image/logo.png';
+import LogoImg from '@/assets/image/cinema-logo.png';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { theme } from '@theme/Theme';
+import type { RootState } from '@app/Store';
+import { logout } from '@/app/slices/auth.slice';
+import UserMenu from '@components/menu/UserMenu';
 
 export default function Header() {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { auth, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   const openLoginModal = () => setIsLoginOpen(true);
   const closeLoginModal = () => setIsLoginOpen(false);
-
   const openRegisterModal = () => setIsRegisterOpen(true);
   const closeRegisterModal = () => setIsRegisterOpen(false);
 
   const handleForgotPassword = () => {
     alert('Chuyển sang màn hình quên mật khẩu');
   };
-
   const handleRegister = () => {
     closeLoginModal();
     openRegisterModal();
   };
-
   const handleLogin = () => {
     closeRegisterModal();
     openLoginModal();
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
   };
 
   return (
@@ -39,7 +46,7 @@ export default function Header() {
       <Nav>
         <LeftGroup>
           <LogoArea>
-            <Logo src={LogoImg} alt='GoCinema' />
+            <Logo src={LogoImg} alt="GoCinema" />
           </LogoArea>
 
           <SearchBox>
@@ -59,13 +66,19 @@ export default function Header() {
           </Menu>
 
           <RightArea>
-            <ButtonOutline onClick={openRegisterModal}>
-              {t('auth.signup')}
-            </ButtonOutline>
-            <ButtonPrimary onClick={openLoginModal}>
-              {t('auth.login')}
-            </ButtonPrimary>
-          </RightArea>
+          {isAuthenticated && auth ? (
+            <UserMenu auth={auth} onLogout={handleLogout} />
+          ) : (
+            <>
+              <ButtonOutline onClick={openRegisterModal}>
+                {t('auth.signup')}
+              </ButtonOutline>
+              <ButtonPrimary onClick={openLoginModal}>
+                {t('auth.login')}
+              </ButtonPrimary>
+            </>
+          )}
+        </RightArea>
         </RightGroup>
       </Nav>
 
@@ -101,14 +114,14 @@ const Nav = styled.nav`
 const LeftGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px; /* cách xa logo và search */
-  flex: 1; /* có thể cho nhóm trái rộng hơn */
+  gap: 20px;
+  flex: 1;
 `;
 
 const RightGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px; /* khoảng cách menu và nút */
+  gap: 20px;
 `;
 
 const LogoArea = styled.div`
@@ -129,7 +142,7 @@ const SearchBox = styled.div`
   border-radius: 20px;
   padding: 8px 10px;
   max-width: 260px;
-  flex: 1; /* search box chiếm hết không gian còn lại */
+  flex: 1;
 `;
 
 const SearchInput = styled.input`
@@ -158,7 +171,7 @@ const MenuItem = styled.div`
   color: ${theme.colors.textPrimary};
   cursor: pointer;
   &:hover {
-    color: ${theme.colors.primary};
+    color: ${theme.colors.textPrimaryHover};
   }
 `;
 

@@ -49,9 +49,9 @@
   },
   "user": {
     "profile": "Profile",
-    "my_bookings": "My Bookings",
+    "my_histories": "My Histories",
     "settings": "Settings",
-    "greeting": "Hello, {{name}}!"
+    "logout": "Logout"
   },
   "footer": {
     "terms": "Terms of Use",
@@ -74,7 +74,10 @@
     "login_button": "Login",
     "register_prompt": "Don't have an account?",
     "register_link": "Register?",
-    "or": "or"
+    "or": "or",
+    "email_invalid": "Email is invalid",
+    "email_required": "Email is required",
+    "password_required": "Password is required"
   },
   "search": {
     "placeholder": "Search movies or theaters"

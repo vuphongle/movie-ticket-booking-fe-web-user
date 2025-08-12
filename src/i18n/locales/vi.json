@@ -17,7 +17,7 @@
     "forgot_password": "Quên mật khẩu?"
   },
   "buttons": {
-    "submit": "Gửi",
+    "submit": "Xác nhận",
     "cancel": "Hủy",
     "book_now": "Đặt vé ngay",
     "see_more": "Xem thêm",
@@ -48,10 +48,10 @@
     "no_reviews": "Chưa có đánh giá nào."
   },
   "user": {
-    "profile": "Hồ sơ",
-    "my_bookings": "Lịch sử đặt vé",
+    "profile": "Tài khoản",
+    "my_histories": "Lịch sử",
     "settings": "Cài đặt",
-    "greeting": "Xin chào, {{name}}!"
+    "logout": "Đăng xuất"
   },
   "footer": {
     "terms": "Điều khoản sử dụng",
@@ -74,7 +74,10 @@
     "login_button": "Đăng nhập",
     "register_prompt": "Bạn chưa có tài khoản?",
     "register_link": "Đăng ký?",
-    "or": "Hoặc"
+    "or": "Hoặc",
+    "email_invalid": "Email không đúng định dạng",
+    "email_required": "Email không được để trống",
+    "password_required": "Mật khẩu không được để trống"
   },
   "search": {
     "placeholder": "Tìm kiếm phim hoặc rạp"
