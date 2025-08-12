@@ -1,10 +1,15 @@
 {
   "nav": {
     "home": "Home",
-    "showtimes": "Showtimes",
     "movies": "Movies",
-    "reviews": "Reviews",
-    "blog": "Blog"
+    "movies_now_showing": "Movies Now Showing",
+    "movies_coming_soon": "Movies Coming Soon",
+    "cinemas": "Cinemas",
+    "promotions": "Promotions",
+    "cinema_corner": "Cinema corner",
+    "blog_movies": "Blog movies",
+    "reviews_movies": "Movie reviews",
+    "actors_directors": "Actors/Directors"
   },
   "auth": {
     "login": "Login",
@@ -25,7 +30,7 @@
   },
   "home": {
     "title": "Welcome to our cinema!",
-    "subtitle": "Discover the latest movies and book your tickets today Mmmmmmmmmmmmmmmmmmmsssssssssssssssssss."
+    "subtitle": "Discover the latest movies."
   },
   "movies": {
     "now_showing": "Now Showing",

@@ -1,10 +1,15 @@
 {
   "nav": {
     "home": "Trang chủ",
-    "showtimes": "Lịch chiếu",
     "movies": "Phim",
-    "reviews": "Đánh giá",
-    "blog": "Blog"
+    "movies_now_showing": "Phim đang chiếu",
+    "movies_coming_soon": "Phim sắp chiếu",
+    "cinemas": "Rạp chiếu",
+    "promotions": "Khuyến mãi",
+    "cinema_corner": "Góc điện ảnh",
+    "blog_movies": "Blog phim",
+    "reviews_movies": "Bình luận phim",
+    "actors_directors": "Diễn viên/Đạo diễn"
   },
   "auth": {
     "login": "Đăng nhập",

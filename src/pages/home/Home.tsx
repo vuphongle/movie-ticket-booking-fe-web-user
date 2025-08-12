@@ -1,105 +1,158 @@
-import { theme } from '@/theme/Theme'; // lấy màu, spacing từ theme
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { theme } from '@/theme/Theme';
 
 interface Movie {
   id: number;
   title: string;
-  description: string;
   posterUrl: string;
+  rating?: string; 
+  showtime?: string; 
 }
 
 const HomePage: React.FC = () => {
-  const { t } = useTranslation();
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [hotMovies] = useState<Movie[]>([
+    { id: 1, title: 'Phim Hot 1', posterUrl: '/images/hot1.jpg' },
+    { id: 2, title: 'Phim Hot 2', posterUrl: '/images/hot2.jpg' },
+    { id: 3, title: 'Phim Hot 3', posterUrl: '/images/hot3.jpg' },
+  ]);
 
-  useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_BASE_URL}/movies`)
-      .then(res => setMovies(res.data))
-      .catch(err => console.error('Failed to load movies', err))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Loading>{t('loading')}</Loading>;
 
   return (
-    <Container>
-      <Title>{t('home.title')}</Title>
-      <Subtitle>{t('home.subtitle')}</Subtitle>
+    <PageContainer>
+      {/* Banner */}
+      <BannerSection>
+        <BannerTitle>Phim Hot Tháng 8</BannerTitle>
+        <BannerCarousel>
+          {hotMovies.map(movie => (
+            <BannerItem key={movie.id}>
+              <BannerImage src={movie.posterUrl} alt={movie.title} />
+            </BannerItem>
+          ))}
+        </BannerCarousel>
+      </BannerSection>
 
-      <Grid>
-        {movies.map(movie => (
-          <Card key={movie.id}>
-            <Poster src={movie.posterUrl} alt={movie.title} />
-            <MovieTitle>{movie.title}</MovieTitle>
-            <Description>{movie.description}</Description>
-          </Card>
-        ))}
-      </Grid>
-    </Container>
+      {/* Phim đang chiếu */}
+      <Section>
+        <SectionTitle>Phim Đang Chiếu</SectionTitle>
+      </Section>
+
+      {/* Phim sắp chiếu */}
+      <Section>
+        <SectionTitle>Phim Sắp Chiếu</SectionTitle>
+      </Section>
+
+      {/* Lịch chiếu phim */}
+      <ScheduleSection>
+        <ScheduleTitle>Lịch chiếu phim</ScheduleTitle>
+        <ScheduleTable>
+        </ScheduleTable>
+      </ScheduleSection>
+
+    {/* Góc điện ảnh */}
+      <CinemaCornerSection>
+        <CinemaCornerTitle>Góc điện ảnh</CinemaCornerTitle>
+        <nav>
+            <MenuItem>Thông tin phim</MenuItem>
+            <MenuItem>Đánh giá phim</MenuItem>
+            <MenuItem>Tin tức Đạo diên/diễn viên</MenuItem>
+        </nav>
+      </CinemaCornerSection>
+    </PageContainer>
   );
 };
 
-const Container = styled.div`
-  padding: 24px;
-  background-color: ${theme.colors.background};
+// Styled components
+const PageContainer = styled.div`
+  background: ${theme.colors.background};
+  color: ${theme.colors.textPrimary};
+  padding: 0 20px 40px;
+  font-family: 'Arial', sans-serif;
 `;
 
-const Title = styled.h1`
-  font-size: 32px;
+const BannerSection = styled.section`
+  margin-top: 10px;
+  padding: 0;
+`;
+
+const BannerTitle = styled.h2`
+  font-size: 22px;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 `;
 
-const Subtitle = styled.p`
-  font-size: 18px;
-  color: ${theme.colors.textSecondary};
-  margin-bottom: 24px;
+const BannerCarousel = styled.div`
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding-bottom: 10px;
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-`;
-
-const Card = styled.div`
-  background-color: #fff;
+const BannerItem = styled.div`
+  flex: 0 0 auto;
+  width: 320px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 0.15);
+`;
+
+const BannerImage = styled.img`
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+`;
+
+const Section = styled.section`
+  margin-top: 30px;
+`;
+
+const SectionTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+`;
+
+const ScheduleSection = styled.section`
+  margin-top: 40px;
+`;
+
+const ScheduleTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+`;
+
+const ScheduleTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
   text-align: center;
-  transition: transform 0.2s ease;
-  &:hover {
-    transform: scale(1.02);
+  thead tr {
+    background-color: ${theme.colors.primary};
+    color: white;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
   }
 `;
 
-const Poster = styled.img`
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
+const CinemaCornerSection = styled.section`
+  margin-top: 50px;
 `;
 
-const MovieTitle = styled.h2`
+const CinemaCornerTitle = styled.h3`
   font-size: 20px;
   font-weight: 600;
-  margin-top: 12px;
+  margin-bottom: 16px;
 `;
 
-const Description = styled.p`
-  font-size: 14px;
-  color: #666;
-  margin-top: 8px;
-`;
-
-const Loading = styled.p`
-  text-align: center;
-  font-size: 18px;
+const MenuItem = styled.div`
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  &:hover {
+    background: ${theme.colors.backgroundHover};
+  }
 `;
 
 export default HomePage;

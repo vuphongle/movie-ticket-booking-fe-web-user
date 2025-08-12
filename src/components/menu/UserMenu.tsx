@@ -22,7 +22,7 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ auth, onLogout }: UserMenuProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);

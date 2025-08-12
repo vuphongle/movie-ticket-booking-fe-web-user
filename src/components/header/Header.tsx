@@ -1,21 +1,25 @@
 import LoginModal from '@components/modal/LoginModal';
 import RegisterModal from '@components/modal/RegisterModal';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import LogoImg from '@/assets/image/cinema-logo.png';
 import { useSelector, useDispatch } from 'react-redux';
-
+import { Menu as MenuIcon, X as CloseIcon } from 'lucide-react';
+import { useState } from 'react';
 import { theme } from '@theme/Theme';
 import type { RootState } from '@app/Store';
 import { logout } from '@/app/slices/auth.slice';
 import UserMenu from '@components/menu/UserMenu';
+import LanguageSelector from '@components/language/LanguageSelector';
+import { useEffect, useRef } from 'react';
 
 export default function Header() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { auth, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { auth, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -24,6 +28,60 @@ export default function Header() {
   const closeLoginModal = () => setIsLoginOpen(false);
   const openRegisterModal = () => setIsRegisterOpen(true);
   const closeRegisterModal = () => setIsRegisterOpen(false);
+
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openSubMenuMovies, setOpenSubMenuMovies] = useState(false);
+  const [openSubMenuCinemaCorner, setOpenSubMenuCinemaCorner] = useState(false);
+
+  const toggleMobileMenu = () => setMobileMenuOpen(prev => !prev);
+  const toggleSubMenuMovies = () => {
+    setOpenSubMenuMovies(prev => {
+      if (!prev) setOpenSubMenuCinemaCorner(false);
+      return !prev;
+    });
+  };
+
+  const toggleSubMenuCinemaCorner = () => {
+    setOpenSubMenuCinemaCorner(prev => {
+      if (!prev) setOpenSubMenuMovies(false);
+      return !prev;
+    });
+  };
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenSubMenuMovies(false);
+        setOpenSubMenuCinemaCorner(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth > 1450) {
+        setMobileMenuOpen(false);
+        setOpenSubMenuMovies(false);
+        setOpenSubMenuCinemaCorner(false);
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleForgotPassword = () => {
     alert('Chuyển sang màn hình quên mật khẩu');
@@ -43,44 +101,84 @@ export default function Header() {
 
   return (
     <>
-      <Nav>
-        <LeftGroup>
-          <LogoArea>
-            <Logo src={LogoImg} alt="GoCinema" />
-          </LogoArea>
+      <Container>
+        <Nav>
+          <LeftGroup>
+            <LogoArea>
+              <Logo src={LogoImg} alt='GoCinema' />
+            </LogoArea>
 
-          <SearchBox>
-            <SearchInput
-              placeholder={t('search.placeholder') || 'Tìm phim, rạp'}
-            />
-            <SearchIcon />
-          </SearchBox>
-        </LeftGroup>
+            <SearchBox>
+              <SearchInput
+                placeholder={t('search.placeholder') || 'Tìm phim, rạp'}
+              />
+              <SearchIcon />
+            </SearchBox>
+          </LeftGroup>
 
-        <RightGroup>
-          <Menu>
-            <MenuItem>{t('nav.showtimes')} ▼</MenuItem>
-            <MenuItem>{t('nav.movies')}</MenuItem>
-            <MenuItem>{t('nav.reviews')}</MenuItem>
-            <MenuItem>{t('nav.blog')} ▼</MenuItem>
-          </Menu>
+          <RightGroup>
+            <HamburgerButton
+              onClick={toggleMobileMenu}
+              aria-label='Toggle menu'
+            >
+              {isMobileMenuOpen ? (
+                <CloseIcon size={24} />
+              ) : (
+                <MenuIcon size={24} />
+              )}
+            </HamburgerButton>
 
-          <RightArea>
-          {isAuthenticated && auth ? (
-            <UserMenu auth={auth} onLogout={handleLogout} />
-          ) : (
-            <>
-              <ButtonOutline onClick={openRegisterModal}>
-                {t('auth.signup')}
-              </ButtonOutline>
-              <ButtonPrimary onClick={openLoginModal}>
-                {t('auth.login')}
-              </ButtonPrimary>
-            </>
-          )}
-        </RightArea>
-        </RightGroup>
-      </Nav>
+            <Menu open={isMobileMenuOpen} ref={menuRef}>
+              <MenuItemWrapper>
+                <MenuItem onClick={toggleSubMenuMovies}>
+                  {t('nav.movies')} {openSubMenuMovies ? '▲' : '▼'}
+                </MenuItem>
+                {openSubMenuMovies && (
+                  <SubMenu>
+                    <SubMenuItem>{t('nav.movies_now_showing')}</SubMenuItem>
+                    <SubMenuItem>{t('nav.movies_coming_soon')}</SubMenuItem>
+                  </SubMenu>
+                )}
+              </MenuItemWrapper>
+
+              <MenuItem>{t('nav.cinemas')}</MenuItem>
+              <MenuItem>{t('nav.promotions')}</MenuItem>
+
+              <MenuItemWrapper>
+                <MenuItem onClick={toggleSubMenuCinemaCorner}>
+                  {t('nav.cinema_corner')} {openSubMenuCinemaCorner ? '▲' : '▼'}
+                </MenuItem>
+                {openSubMenuCinemaCorner && (
+                  <SubMenu>
+                    <SubMenuItem>{t('nav.blog_movies')}</SubMenuItem>
+                    <SubMenuItem>{t('nav.reviews_movies')}</SubMenuItem>
+                    <SubMenuItem>{t('nav.actors_directors')}</SubMenuItem>
+                  </SubMenu>
+                )}
+              </MenuItemWrapper>
+            </Menu>
+
+            <RightArea>
+              {isAuthenticated && auth ? (
+                <UserMenu auth={auth} onLogout={handleLogout} />
+              ) : (
+                <>
+                  <ButtonOutline onClick={openRegisterModal}>
+                    {t('auth.signup')}
+                  </ButtonOutline>
+                  <ButtonPrimary onClick={openLoginModal}>
+                    {t('auth.login')}
+                  </ButtonPrimary>
+                </>
+              )}
+            </RightArea>
+          </RightGroup>
+        </Nav>
+
+        <LanguageSelectorWrapper>
+          <LanguageSelector />
+        </LanguageSelectorWrapper>
+      </Container>
 
       <LoginModal
         open={isLoginOpen}
@@ -98,30 +196,105 @@ export default function Header() {
   );
 }
 
-/* Styles */
+const Container = styled.header`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 100;
+
+  & > div.language-selector {
+    width: 200px;
+    flex-shrink: 0;
+  }
+
+  & > nav {
+    flex-grow: 1;
+    min-width: 300px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+
+    & > nav {
+      min-width: unset;
+      flex-grow: 1;
+    }
+  }
+`;
+
 const Nav = styled.nav`
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: ${theme.colors.white};
-  padding: 0px 20px;
-  gap: 16px;
-  width: 83%;
+  padding: 0 ${theme.spacing.md};
+  padding-left: 0;
+  gap: ${theme.spacing.md};
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: ${theme.spacing.sm};
+    gap: ${theme.spacing.sm};
+  }
+
+  @media (max-width: 1450px) and (min-width: 769px) {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+`;
+
+const LanguageSelectorWrapper = styled.div`
+  width: 160px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 80px;
+    display: flex;
+    justify-content: flex-end;
+    align-self: flex-end;
+    margin-bottom: ${theme.spacing.sm};
+    gap: ${theme.spacing.xs};
+  }
 `;
 
 const LeftGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
-  flex: 1;
+  gap: ${theme.spacing.lg};
+  flex: 1 1 0;
+  min-width: 0;
+
+  @media (max-width: 768px) {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
 `;
 
 const RightGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: flex-end;
+  gap: ${theme.spacing.lg};
+  flex: 2 1 0;
+  min-width: 0;
+
+  @media (max-width: 768px) {
+    flex-basis: 100%;
+    justify-content: space-between;
+    gap: ${theme.spacing.xs};
+  }
 `;
 
 const LogoArea = styled.div`
@@ -132,64 +305,221 @@ const LogoArea = styled.div`
 const Logo = styled.img`
   width: 90px;
   height: 60px;
-  border-radius: 6px;
+  border-radius: ${theme.borderRadius.medium};
+
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 40px;
+  }
 `;
 
 const SearchBox = styled.div`
   display: flex;
   align-items: center;
-  background: #f5f5f5;
-  border-radius: 20px;
-  padding: 8px 10px;
-  max-width: 260px;
-  flex: 1;
+  background: ${theme.colors.backgroundHover};
+  border-radius: ${theme.borderRadius.large};
+  padding: ${theme.spacing.sm} ${theme.spacing.md};
+  max-width: 200px;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  @media (max-width: 768px) {
+    max-width: 180px;
+    width: 100%;
+  }
 `;
 
 const SearchInput = styled.input`
   border: none;
   outline: none;
   background: transparent;
-  flex: 1;
-  font-size: 16px;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: ${theme.fontSize.sm};
+  width: 100%;
 `;
 
 const SearchIcon = styled(Search)`
   width: 16px;
   height: 16px;
-  color: #888;
+  color: ${theme.colors.gray};
 `;
 
-const Menu = styled.div`
+const HamburgerButton = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  background-color: ${theme.colors.backgroundHover};
+  position: relative;
+
+  @media (max-width: 1450px) {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    display: block;
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+    padding: 6px 8px;
+  }
+`;
+
+const Menu = styled.div<{ open?: boolean }>`
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: ${theme.spacing.md};
+
+  @media (min-width: 1251px) {
+    display: flex !important;
+  }
+
+  @media (min-width: 769px) and (max-width: 1450px) {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 210px;
+    background: ${theme.colors.white};
+    flex-direction: column;
+    padding: ${theme.spacing.sm} 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    max-height: 300px;
+    overflow-y: auto;
+    gap: 0;
+    display: ${({ open }) => (open ? 'flex' : 'none')};
+    z-index: 10;
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 768px) {
+    display: ${({ open }) => (open ? 'flex' : 'none')};
+    flex-direction: column;
+    width: 220px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: ${theme.colors.white};
+    position: absolute;
+    top: 100%;
+    left: 0;
+    padding: ${theme.spacing.sm} 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    z-index: 10;
+    text-align: left;
+    align-items: flex-start;
+  }
 `;
 
 const MenuItem = styled.div`
-  font-size: 16px;
+  font-size: ${theme.fontSize.md};
   font-weight: bold;
   color: ${theme.colors.textPrimary};
   cursor: pointer;
-  &:hover {
+  white-space: nowrap;
+  padding: 8px 3px;
+  border-radius: 6px;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+
+  &:hover,
+  &:focus {
     color: ${theme.colors.textPrimaryHover};
+    background-color: ${theme.colors.backgroundHover};
+    outline: none;
+  }
+
+  @media (min-width: 769px) and (max-width: 1450px), (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const MenuItemWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: static;
+  }
+`;
+
+const SubMenu = styled.ul<{ nested?: boolean }>`
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  background: ${theme.colors.white};
+  border: 1px solid ${theme.colors.border};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: ${theme.borderRadius.medium};
+  position: absolute;
+  top: 100%;
+  left: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  z-index: 1000;
+
+  ${props =>
+    props.nested &&
+    `
+    left: 100%;
+    top: 0;
+  `}
+
+  @media (min-width: 769px) and (max-width: 1450px) {
+    position: static;
+    box-shadow: none;
+    border: none;
+    padding-left: ${props => (props.nested ? '24px' : '16px')};
+    min-width: auto;
+  }
+
+  @media (max-width: 768px) {
+    position: static;
+    box-shadow: none;
+    border: none;
+    padding-left: ${props => (props.nested ? '24px' : '16px')};
+    min-width: auto;
+  }
+`;
+
+const SubMenuItem = styled.li`
+  padding: 8px 16px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: ${theme.colors.backgroundHover};
+    font-weight: 600;
   }
 `;
 
 const RightArea = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: ${theme.spacing.sm};
 `;
 
 const ButtonOutline = styled.button`
   border: 1px solid ${theme.colors.border};
   background: ${theme.colors.white};
   padding: 10px 24px;
-  border-radius: 20px;
-  font-size: 14px;
+  border-radius: ${theme.borderRadius.large};
+  font-size: ${theme.fontSize.sm};
   cursor: pointer;
+  white-space: nowrap;
+
   &:hover {
     border-color: ${theme.colors.gray};
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 8px;
   }
 `;
 
@@ -198,10 +528,16 @@ const ButtonPrimary = styled.button`
   color: ${theme.colors.white};
   border: none;
   padding: 10px 24px;
-  border-radius: 20px;
-  font-size: 14px;
+  border-radius: ${theme.borderRadius.large};
+  font-size: ${theme.fontSize.sm};
   cursor: pointer;
+  white-space: nowrap;
+
   &:hover {
     background: ${theme.colors.primaryHover};
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 8px;
   }
 `;
