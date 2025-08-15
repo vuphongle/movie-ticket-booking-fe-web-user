@@ -8,10 +8,11 @@ import {
   ListItemIcon,
 } from '@mui/material';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import LockIcon from '@mui/icons-material/Lock';  
 import HistoryIcon from '@mui/icons-material/History';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { theme } from '@theme/Theme';
-import { useTranslation } from 'react-i18next'; 
+import { useTranslation } from 'react-i18next';
 
 interface UserMenuProps {
   auth: {
@@ -19,9 +20,10 @@ interface UserMenuProps {
     avatar?: string;
   };
   onLogout: () => void;
+  onChangePassword: () => void;
 }
 
-export default function UserMenu({ auth, onLogout }: UserMenuProps) {
+export default function UserMenu({ auth, onLogout, onChangePassword }: UserMenuProps) {
   const { t } = useTranslation();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -40,6 +42,11 @@ export default function UserMenu({ auth, onLogout }: UserMenuProps) {
     handleClose();
   };
 
+  const handleChangePasswordClick = () => {
+    onChangePassword();
+    handleClose();
+  };
+
   return (
     <Wrapper>
       <Trigger onClick={handleClick}>
@@ -53,6 +60,13 @@ export default function UserMenu({ auth, onLogout }: UserMenuProps) {
             <AccountBoxIcon fontSize='small' />
           </ListItemIcon>
           {t('user_profile')}
+        </StyledMenuItem>
+
+        <StyledMenuItem onClick={handleChangePasswordClick}>
+          <ListItemIcon>
+            <LockIcon fontSize='small' />
+          </ListItemIcon>
+          {t('user_change_password')}
         </StyledMenuItem>
 
         <StyledMenuItem onClick={handleClose}>

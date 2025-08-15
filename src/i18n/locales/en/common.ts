@@ -45,6 +45,7 @@ const common = {
   user_my_histories: "My Histories",
   user_settings: "Settings",
   user_logout: "Logout",
+  user_change_password: "Change Password",
 
   // footer
   footer_terms: "Terms of Use",
@@ -73,6 +74,7 @@ const common = {
   login_password_required: "Password is required",
   ACCOUNT_NOT_ACTIVATED: "Your account is not activated. Please check your email for the activation link.",
   INVALID_CREDENTIALS: "Invalid email or password. Please try again.",
+  messages_login_success: "Login successful",
 
   // search
   search_placeholder: "Search movies or theaters",
@@ -109,6 +111,41 @@ const common = {
   verify_success_title: "Account Verified",
   verify_success_message: "Your account has been successfully verified.",
   verify_back_home: "Back to Home",
+
+  // forgot password
+  forgot_password_title: "Forgot Password",
+  forgot_password_placeholder: "Enter your email",
+  forgot_password_submit: "Send Request",
+  forgot_password_sending: "Sending...",
+  forgot_password_success: "Please check your email for the password reset link",
+  forgot_password_email_required: "Please enter your email",
+  USER_NOT_FOUND: "User not found",
+  FORGOT_ACCOUNT_NOT_ACTIVATED: "Account not activated",
+
+  // Update Password
+  CHANGE_PASSWORD: "Change Password",
+  CHANGE_PASSWORD_SUBTITLE: "Enter a new password",
+  ENTER_NEW_PASSWORD: "Enter new password",
+  CURRENT_PASSWORD: "Current password",
+  CURRENT_PASSWORD_REQUIRED: "Current password is required!",
+  ENTER_CURRENT_PASSWORD: "Enter current password",
+  NEW_PASSWORD: "New password",
+  NEW_PASSWORD_REQUIRED: "New password is required!",
+  PASSWORD_MIN_LENGTH: "Password must be at least 8 characters",
+  PASSWORD_COMPLEXITY:
+    "Include at least 1 uppercase letter, 1 number and 1 symbol",
+  PASSWORD_STRENGTH: "Password strength",
+  PASSWORD_TIPS:
+    "Use at least 8 characters with a mix of uppercase letters, numbers, and symbols.",
+  CONFIRM_NEW_PASSWORD: "Confirm new password",
+  CONFIRM_PASSWORD_REQUIRED: "Confirm password is required!",
+  CONFIRM_NEW_PASSWORD_PLACEHOLDER: "Confirm new password",
+  PASSWORDS_NOT_MATCH: "Passwords do not match",
+  CHANGE_PASSWORD_SUCCESS: "Password changed successfully",
+  CHANGE_PASSWORD_ERROR: "Failed to change password",
+  CAPSLOCK_ON: "Caps Lock is on",
+  INVALID_OLD_PASSWORD: "Invalid current password",
+  NEW_PASSWORD_SAME_AS_OLD: "New password must be different from old password",
 };
 
 export default common;

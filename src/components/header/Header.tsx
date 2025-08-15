@@ -1,5 +1,6 @@
 import LoginModal from '@components/modal/LoginModal';
 import RegisterModal from '@components/modal/RegisterModal';
+import ForgotPassword from '@components/modal/ForgotPasswordModal';
 import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
@@ -15,9 +16,11 @@ import LanguageSelector from '@components/language/LanguageSelector';
 import { useEffect, useRef } from 'react';
 import ContentWrapper from '@components/base/ContentWrapper';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { auth, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
@@ -26,12 +29,16 @@ export default function Header() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
 
   const openLoginModal = () => setIsLoginOpen(true);
   const closeLoginModal = () => setIsLoginOpen(false);
   const openRegisterModal = () => setIsRegisterOpen(true);
   const closeRegisterModal = () => setIsRegisterOpen(false);
+  const openForgotModal = () => setIsForgotOpen(true);
+  const closeForgotModal = () => setIsForgotOpen(false);
+
   const toggleMobileMenu = () => setMobileMenuOpen(prev => !prev);
 
   const menuRef = useRef<HTMLDivElement>(null);
@@ -59,7 +66,8 @@ export default function Header() {
   }, []);
 
   const handleForgotPassword = () => {
-    alert('Chuyển sang màn hình quên mật khẩu');
+    closeLoginModal();
+    openForgotModal();
   };
   const handleRegister = () => {
     closeLoginModal();
@@ -69,6 +77,11 @@ export default function Header() {
     closeRegisterModal();
     openLoginModal();
   };
+
+  const handleChangePassword = () => {
+    navigate('/doi-mat-khau');
+  };
+
   const handleLogout = () => {
     dispatch(logout());
   };
@@ -81,7 +94,7 @@ export default function Header() {
             <Nav>
               <LeftGroup>
                 <LogoArea>
-                  <Logo src={LogoImg} alt="GoCinema" />
+                  <Logo src={LogoImg} alt='GoCinema' />
                 </LogoArea>
 
                 <SearchBox>
@@ -95,7 +108,7 @@ export default function Header() {
               <RightGroup>
                 <HamburgerButton
                   onClick={toggleMobileMenu}
-                  aria-label="Toggle menu"
+                  aria-label='Toggle menu'
                 >
                   {isMobileMenuOpen ? (
                     <CloseIcon size={24} />
@@ -152,7 +165,7 @@ export default function Header() {
 
                 <RightArea>
                   {isAuthenticated && auth ? (
-                    <UserMenu auth={auth} onLogout={handleLogout} />
+                    <UserMenu auth={auth} onLogout={handleLogout} onChangePassword={handleChangePassword} />
                   ) : (
                     <>
                       <ButtonOutline onClick={openRegisterModal}>
@@ -185,10 +198,11 @@ export default function Header() {
         handleClose={closeRegisterModal}
         handleLogin={handleLogin}
       />
+
+      <ForgotPassword open={isForgotOpen} handleClose={closeForgotModal} />
     </>
   );
 }
-
 
 const Container = styled.header`
   display: flex;

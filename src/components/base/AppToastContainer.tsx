@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 
 const StyledToastContainer = styled(ToastContainer)`
-  z-index: 2000;
+  z-index: 3000;
   .Toastify__toast {
     border-radius: ${theme.borderRadius.medium};
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

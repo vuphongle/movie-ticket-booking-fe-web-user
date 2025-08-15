@@ -45,6 +45,7 @@ const common = {
   user_my_histories: "Lịch sử",
   user_settings: "Cài đặt",
   user_logout: "Đăng xuất",
+  user_change_password: "Đổi mật khẩu",
 
   // footer
   footer_terms: "Điều khoản sử dụng",
@@ -73,6 +74,7 @@ const common = {
   login_password_required: "Mật khẩu không được để trống",
   ACCOUNT_NOT_ACTIVATED: "Tài khoản của bạn chưa được kích hoạt. Vui lòng kiểm tra email để nhận liên kết kích hoạt.",
   INVALID_CREDENTIALS: "Email hoặc mật khẩu không hợp lệ. Vui lòng thử lại.",
+  messages_login_success: "Đăng nhập thành công",
 
   // search
   search_placeholder: "Tìm kiếm phim hoặc rạp",
@@ -109,7 +111,43 @@ const common = {
   // verify
   verify_success_title: "Xác thực tài khoản",
   verify_success_message: "Tài khoản của bạn đã được xác thực thành công. Bạn có thể đăng nhập ngay bây giờ.",
-  verify_back_home: "Quay lại trang chủ"
+  verify_back_home: "Quay lại trang chủ",
+
+  // forgot password  
+  forgot_password_title: "Quên mật khẩu",
+  forgot_password_placeholder: "Nhập email của bạn",
+  forgot_password_submit: "Gửi yêu cầu",
+  forgot_password_sending: "Đang gửi...",
+  forgot_password_success: "Vui lòng kiểm tra email để nhận liên kết đặt lại mật khẩu",
+  forgot_password_email_required: "Vui lòng nhập email",
+  USER_NOT_FOUND: "Không tìm thấy người dùng",
+  FORGOT_ACCOUNT_NOT_ACTIVATED: "Tài khoản chưa kích hoạt",
+
+  //Update Password
+  CHANGE_PASSWORD: "Đổi mật khẩu",
+  CHANGE_PASSWORD_SUBTITLE: "Nhập mật khẩu mới",
+  ENTER_NEW_PASSWORD: "Nhập mật khẩu mới",
+  CURRENT_PASSWORD: "Mật khẩu hiện tại",
+  CURRENT_PASSWORD_REQUIRED: "Mật khẩu hiện tại là bắt buộc!",
+  ENTER_CURRENT_PASSWORD: "Nhập mật khẩu hiện tại",
+  NEW_PASSWORD: "Mật khẩu mới",
+  NEW_PASSWORD_REQUIRED: "Mật khẩu mới là bắt buộc!",
+  PASSWORD_MIN_LENGTH: "Mật khẩu phải có ít nhất 8 ký tự",
+  PASSWORD_COMPLEXITY:
+    "Bao gồm ít nhất 1 chữ cái viết hoa, 1 số và 1 ký tự đặc biệt",
+  PASSWORD_STRENGTH: "Độ mạnh của mật khẩu",
+  PASSWORD_TIPS:
+    "Sử dụng ít nhất 8 ký tự với sự kết hợp của chữ cái viết hoa, số và ký tự đặc biệt.",
+  CONFIRM_NEW_PASSWORD: "Xác nhận mật khẩu mới",
+  CONFIRM_PASSWORD_REQUIRED: "Xác nhận mật khẩu là bắt buộc!",
+  CONFIRM_NEW_PASSWORD_PLACEHOLDER: "Xác nhận mật khẩu mới",
+  PASSWORDS_NOT_MATCH: "Mật khẩu không khớp",
+  CHANGE_PASSWORD_SUCCESS: "Đổi mật khẩu thành công",
+  CHANGE_PASSWORD_ERROR: "Đổi mật khẩu không thành công",
+  CAPSLOCK_ON: "Caps Lock đang bật",
+  INVALID_OLD_PASSWORD: "Mật khẩu hiện tại không đúng",
+  NEW_PASSWORD_SAME_AS_OLD: "Mật khẩu mới không được trùng với mật khẩu cũ",
+
 };
 
 export default common;
