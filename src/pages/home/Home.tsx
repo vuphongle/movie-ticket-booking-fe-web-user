@@ -73,6 +73,7 @@ const PageContainer = styled.div`
   color: ${theme.colors.textPrimary};
   padding: 20px;
   font-family: 'Roboto', sans-serif;
+  margin-bottom: 20px;
 `;
 
 const BannerSection = styled.section`

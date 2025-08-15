@@ -17,6 +17,7 @@ import { useChangePasswordMutation } from '@app/services/auth.api';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '@app/slices/auth.slice';
 import { useDispatch } from 'react-redux';
+import { theme } from '@theme/Theme';
 
 interface ChangePasswordFormValues {
   oldPassword: string;
@@ -70,10 +71,10 @@ function ChangePassword() {
       toast.success(t('CHANGE_PASSWORD_SUCCESS'));
       form.resetFields();
       dispatch(logout());
-      
+
       setTimeout(() => {
-      navigate('/');
-    }, 2000);
+        navigate('/');
+      }, 2000);
     } catch (error: any) {
       console.log('Change password error:', error);
       const code = error?.data?.code;
@@ -97,17 +98,23 @@ function ChangePassword() {
       <Card
         variant='outlined'
         style={{
-          marginTop: 50,
-          borderRadius: 8,
-          borderColor: '#e0e0e0',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+          marginTop: theme.spacing.lg,
+          borderRadius: theme.borderRadius.medium,
+          borderColor: theme.colors.border,
+          boxShadow: `0 4px 20px rgba(0,0,0,0.06)`,
         }}
         title={
-          <div style={{ textAlign: 'center', margin: '16px 0' }}>
-            <Typography.Title level={4} style={{ margin: 0 }}>
+          <div style={{ textAlign: 'center', margin: `${theme.spacing.md} 0` }}>
+            <Typography.Title
+              level={4}
+              style={{ margin: 0, color: theme.colors.textPrimary }}
+            >
               {t('CHANGE_PASSWORD')}
             </Typography.Title>
-            <Typography.Text type='secondary'>
+            <Typography.Text
+              type='secondary'
+              style={{ color: theme.colors.textSecondary }}
+            >
               {t('CHANGE_PASSWORD_SUBTITLE') || t('ENTER_NEW_PASSWORD')}
             </Typography.Text>
           </div>
@@ -210,7 +217,12 @@ function ChangePassword() {
                 htmlType='submit'
                 loading={loading}
                 size='large'
-                style={{ width: '100%' }}
+                style={{
+                  width: '100%',
+                  backgroundColor: theme.colors.primary,
+                  borderColor: theme.colors.primary,
+                  color: theme.colors.white,
+                }}
               >
                 {t('CHANGE_PASSWORD')}
               </Button>

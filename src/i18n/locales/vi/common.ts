@@ -48,9 +48,23 @@ const common = {
   user_change_password: "Đổi mật khẩu",
 
   // footer
-  footer_terms: "Điều khoản sử dụng",
-  footer_privacy: "Chính sách bảo mật",
+  footer_customer_care: "Chăm sóc khách hàng",
+  footer_address: "123 Đường Rạp Phim, Hà Nội, Việt Nam",
+  footer_hotline: "Hotline: +84 123 456 789",
+  footer_email: "Email: support@cinema.com",
+  footer_buy_ticket: "Mua vé",
+  footer_schedule: "Lịch chiếu",
+  footer_cinema: "Rạp chiếu",
+  footer_movie: "Phim",
+  footer_review: "Đánh giá",
+  footer_blog: "Blog",
+  footer_connect: "Kết nối với chúng tôi",
   footer_copyright: "Bản quyền © 2025",
+  footer_dmca: "DMCA",
+  footer_terms: "Điều khoản sử dụng",
+  footer_contact: "Liên hệ với chúng tôi",
+  footer_privacy: "Chính sách bảo mật",
+  footer_terms_of_service: "Điều khoản dịch vụ",
 
   // messages
   login_success: "Đăng nhập thành công",

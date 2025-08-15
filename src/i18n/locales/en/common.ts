@@ -48,9 +48,23 @@ const common = {
   user_change_password: "Change Password",
 
   // footer
+  footer_customer_care: "Customer Care",
+  footer_address: "123 Cinema Street, Hanoi, Vietnam",
+  footer_hotline: "Hotline: +84 123 456 789",
+  footer_email: "Email: support@cinema.com",
+  footer_buy_ticket: "Buy Tickets",
+  footer_schedule: "Schedule",
+  footer_cinema: "Cinemas",
+  footer_movie: "Movies",
+  footer_review: "Reviews",
+  footer_blog: "Blog",
   footer_terms: "Terms of Use",
   footer_privacy: "Privacy Policy",
+  footer_connect: "Connect with us",
   footer_copyright: "Copyright © 2025",
+  footer_dmca: "DMCA",
+  footer_contact: "Contact Us",
+  footer_terms_of_service: "Terms of Service",
 
   // messages
   login_success: "Login successful",
