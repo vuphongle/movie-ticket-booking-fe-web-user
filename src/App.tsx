@@ -13,16 +13,20 @@ import ChangPasswordPage from '@/pages/verify/ChangePassword';
 import AppToastContainer from '@components/base/AppToastContainer';
 
 function App() {
-    const location = useLocation();
-    const hideLayout = location.pathname === '/xac-thuc-tai-khoan' || location.pathname === '/dat-lai-mat-khau' || location.pathname === '/doi-mat-khau';
+  const location = useLocation();
+  const hideLayout =
+    location.pathname === '/xac-thuc-tai-khoan' ||
+    location.pathname === '/dat-lai-mat-khau' ||
+    location.pathname === '/doi-mat-khau';
+
   return (
     <div style={styles.container}>
       <AppToastContainer />
 
       {!hideLayout && <Header />}
 
-      <main>
-        <ContentWrapper>
+      <main style={styles.main}>
+        <ContentWrapper style={styles.contentWrapper}>
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />
@@ -44,11 +48,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: '100vh',
   },
   main: {
-    flex: 1,
-    width: '100%',
+    flex: 1, 
     display: 'flex',
     flexDirection: 'column',
-    boxSizing: 'border-box',
+  },
+  contentWrapper: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
   },
 };
 

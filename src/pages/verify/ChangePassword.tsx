@@ -13,7 +13,7 @@ import { LockOutlined, CheckOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useChangePasswordMutation } from '@app/services/auth.api';
+import { useChangePasswordMutation } from '@app/services/user.api';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '@app/slices/auth.slice';
 import { useDispatch } from 'react-redux';

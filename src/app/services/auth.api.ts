@@ -1,4 +1,4 @@
-import { API_DOMAIN, API_BASE_URL, API_DOMAIN_AUTH_PUBLIC } from '@lib/api';
+import { API_DOMAIN, API_DOMAIN_AUTH_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const ENDPOINT = API_DOMAIN_AUTH_PUBLIC;
@@ -96,43 +96,6 @@ export const authApi = createApi({
   }),
 });
 
-export const userApi = createApi({
-  reducerPath: 'userApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as any).auth.accessToken;
-      if (token) headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-    responseHandler: async response => {
-      const text = await response.text();
-      try {
-        return JSON.parse(text);
-      } catch {
-        return text;
-      }
-    },
-  }),
-
-  endpoints: builder => ({
-    changePassword: builder.mutation<
-      void,
-      { currentPassword: string; newPassword: string; confirmPassword: string }
-    >({
-      query: data => ({
-        url: 'users/update-password',
-        method: 'PUT',
-        body: {
-          oldPassword: data.currentPassword,
-          newPassword: data.newPassword,
-          confirmPassword: data.confirmPassword,
-        },
-      }),
-    }),
-  }),
-});
-
 export const {
   useLoginMutation,
   useRegisterAccountMutation,
@@ -141,5 +104,3 @@ export const {
   useCheckForgotPasswordTokenQuery,
   useResetPasswordMutation,
 } = authApi;
-
-export const { useChangePasswordMutation } = userApi;
