@@ -1,30 +1,49 @@
 import { useTranslation } from 'react-i18next';
+import styled from 'styled-components';
+import ContentWrapper from '@components/base/ContentWrapper';
 
 export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <div style={styles.footer}>
-      <span>{t('footer.terms')}</span>
-      <span>{t('footer.privacy')}</span>
-      <span>{t('footer.copyright')}</span>
-    </div>
+    <FooterContainer>
+      <ContentWrapper>
+        <FooterContent>
+          <span>{t('footer_terms')}</span>
+          <span>{t('footer_privacy')}</span>
+          <span>{t('footer_copyright')}</span>
+        </FooterContent>
+      </ContentWrapper>
+    </FooterContainer>
   );
 }
 
-const styles = {
-  footer: {
-    fontSize: '14px',
-    textAlign: 'center' as const,
-    color: '#6B7280',
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: '16px',
-    marginTop: '32px',
-    marginBottom: '32px',
-    padding: '16px',
-    paddingTop: '23px',
-    borderTop: '1px solid #eee',
-    background: '#fff',
-  },
-};
+const FooterContainer = styled.footer`
+  width: 100%;
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 23px 0;
+`;
+
+const FooterContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  color: #6b7280;
+
+  span {
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #111827;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+`;

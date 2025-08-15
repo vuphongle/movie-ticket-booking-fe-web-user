@@ -13,6 +13,7 @@ colors: {
   gray: '#64748b',
   background: '#f1f5f9',
   textSecondary: '#64748b',
+  success: '#4caf50',
   closeButtonBg: '#f1f5f9',
   closeButtonBgHover: '#e2e8f0',
   closeButtonText: '#0b1e44', 

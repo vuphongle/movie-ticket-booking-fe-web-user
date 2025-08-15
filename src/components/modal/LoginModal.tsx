@@ -40,11 +40,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
         .object({
           email: yup
             .string()
-            .email(t('login.email_invalid'))
-            .required(t('login.email_required')),
-          password: yup
-            .string()
-            .required(t('login.password_required')),
+            .email(t('login_email_invalid'))
+            .required(t('login_email_required')),
+          password: yup.string().required(t('login_password_required')),
         })
         .required(),
     [i18n.language]
@@ -80,14 +78,14 @@ const LoginModal: React.FC<LoginModalProps> = ({
       await login(data).unwrap();
       setSuccessOpen(true);
       handleClose();
+      reset();
     } catch (error: any) {
-      console.error('Login error**:', error);
       if (error?.data?.code === 'ACCOUNT_NOT_ACTIVATED') {
         toast.error(t('ACCOUNT_NOT_ACTIVATED'));
       } else if (error?.data?.code === 'INVALID_CREDENTIALS') {
         toast.error(t('INVALID_CREDENTIALS'));
       } else {
-        toast.error(t('messages.error'));
+        toast.error(t('messages_error'));
       }
     }
   };
@@ -102,28 +100,28 @@ const LoginModal: React.FC<LoginModalProps> = ({
         zIndex={1080}
       >
         <Wrapper>
-          <Title>{t('login.title')}</Title>
+          <Title>{t('login_title')}</Title>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <Field>
-              <Label htmlFor='email'>{t('auth.email')}</Label>
+              <Label htmlFor='email'>{t('auth_email')}</Label>
               <Input
                 type='email'
                 id='email'
                 {...register('email')}
-                placeholder={t('login.email_placeholder')}
+                placeholder={t('login_email_placeholder')}
               />
               {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
             </Field>
 
             <Field>
-              <Label htmlFor='password'>{t('auth.password')}</Label>
+              <Label htmlFor='password'>{t('auth_password')}</Label>
               <PasswordWrapper>
                 <Input
                   type='password'
                   id='password'
                   {...register('password')}
-                  placeholder={t('login.password_placeholder')}
+                  placeholder={t('login_password_placeholder')}
                 />
               </PasswordWrapper>
               {errors.password && (
@@ -133,26 +131,26 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
             <ForgotPasswordWrapper>
               <ForgotPassword onClick={handleForgotPassword}>
-                {t('login.forgot_password')}
+                {t('login_forgot_password')}
               </ForgotPassword>
             </ForgotPasswordWrapper>
 
             <SubmitButton type='submit' disabled={isLoading}>
               {isLoading && <LoadingSpinner />}
-              {t('login.login_button')}
+              {t('login_login_button')}
             </SubmitButton>
 
             <RegisterText>
-              {t('login.register_prompt')}{' '}
+              {t('login_register_prompt')}{' '}
               <RegisterLink onClick={handleRegister}>
-                {t('login.register_link')}
+                {t('login_register_link')}
               </RegisterLink>
             </RegisterText>
           </form>
 
           <Divider>
             <Line />
-            {t('login.or') || 'HOẶC'}
+            {t('login_or') || 'HOẶC'}
             <Line />
           </Divider>
 
@@ -180,7 +178,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   fill='#e54335'
                 ></path>
               </GoogleIcon>
-              {t('login.google_login')}
+              {t('login_google_login')}
             </GoogleButton>
 
             <FacebookButton>
@@ -194,7 +192,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   d='M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.016 4.388 10.995 10.125 11.854v-8.385H7.078v-3.47h3.047V9.413c0-3.007 1.793-4.668 4.533-4.668 1.312 0 2.686.235 2.686.235v2.953h-1.513c-1.492 0-1.956.927-1.956 1.877v2.26h3.328l-.532 3.47h-2.796v8.385C19.612 23.068 24 18.089 24 12.073z'
                 />
               </FacebookIcon>
-              {t('login.facebook_login')}
+              {t('login_facebook_login')}
             </FacebookButton>
           </SocialLoginContainer>
         </Wrapper>

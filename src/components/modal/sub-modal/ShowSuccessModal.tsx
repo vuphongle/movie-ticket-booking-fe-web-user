@@ -15,7 +15,7 @@ type ShowSuccessModalProps = {
 const ShowSuccessModal: React.FC<ShowSuccessModalProps> = ({
   open,
   onClose,
-  titleKey = 'messages.login_success',
+  titleKey = 'messages_login_success',
   descriptionKey,
 }) => {
   const { t } = useTranslation();
@@ -44,7 +44,7 @@ const ShowSuccessModal: React.FC<ShowSuccessModalProps> = ({
 
         <Actions>
           <ConfirmButton type='button' onClick={onClose}>
-            {t('buttons.submit')}
+            {t('buttons_submit')}
           </ConfirmButton>
         </Actions>
       </Wrapper>

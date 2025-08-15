@@ -34,26 +34,26 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   const schema = useMemo(
     () =>
       yup.object({
-        name: yup.string().required(t('register.name_required')),
+        name: yup.string().required(t('register_name_required')),
         email: yup
           .string()
-          .email(t('register.email_invalid'))
-          .required(t('register.email_required')),
+          .email(t('register_email_invalid'))
+          .required(t('register_email_required')),
         phone: yup
           .string()
-          .required(t('register.phone_required'))
+          .required(t('register_phone_required'))
           .matches(
             /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/,
-            t('register.phone_invalid')
+            t('register_phone_invalid')
           ),
-        password: yup.string().required(t('register.password_required')),
+        password: yup.string().required(t('register_password_required')),
         confirmPassword: yup
           .string()
           .oneOf(
             [yup.ref('password'), undefined],
-            t('register.confirm_password_match')
+            t('register_confirm_password_match')
           )
-          .required(t('register.confirm_password_required')),
+          .required(t('register_confirm_password_required')),
       }),
     [i18n.language]
   );
@@ -70,14 +70,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     resolver: yupResolver(schema),
   });
 
-const isFirstMount = useRef(true);
+  const isFirstMount = useRef(true);
 
-useEffect(() => {
-  if (open && isFirstMount.current) {
-    reset();
-    isFirstMount.current = false;
-  }
-}, [open, reset]);
+  useEffect(() => {
+    if (open && isFirstMount.current) {
+      reset();
+      isFirstMount.current = false;
+    }
+  }, [open, reset]);
 
   useEffect(() => {
     trigger();
@@ -95,14 +95,16 @@ useEffect(() => {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await registerAccount(data).unwrap();
-      toast.success(t('register.success_message'));
+      toast.success(t('register_success_message'));
       handleClose();
+      reset();
     } catch (error: any) {
       if (error?.data?.code === 'EMAIL_ALREADY_EXISTS') {
         toast.error(t('EMAIL_ALREADY_EXISTS'));
+      } else if (error?.data?.code === 'ACCOUNT_NOT_ACTIVATED') {
+        toast.error(t('REGISTER_ACCOUNT_NOT_ACTIVATED'));
       } else {
-        console.error(error);
-        toast.error(error?.data?.message || t('messages.error'));
+        toast.error(error?.data?.message || t('messages_error'));
       }
     }
   };
@@ -117,14 +119,14 @@ useEffect(() => {
         zIndex={1080}
       >
         <ContentWrapper>
-          <Title>{t('register.title')}</Title>
+          <Title>{t('register_title')}</Title>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Field>
-              <Label htmlFor='name'>{t('register.name')}</Label>
+              <Label htmlFor='name'>{t('register_name')}</Label>
               <Input
                 type='text'
                 id='name'
-                placeholder={t('register.name_placeholder')}
+                placeholder={t('register_name_placeholder')}
                 {...register('name')}
                 error={!!errors.name}
               />
@@ -133,11 +135,11 @@ useEffect(() => {
 
             <GridTwoCols>
               <Field>
-                <Label htmlFor='email'>{t('register.email')}</Label>
+                <Label htmlFor='email'>{t('register_email')}</Label>
                 <Input
                   type='email'
                   id='email'
-                  placeholder={t('register.email_placeholder')}
+                  placeholder={t('register_email_placeholder')}
                   {...register('email')}
                   error={!!errors.email}
                 />
@@ -145,11 +147,11 @@ useEffect(() => {
               </Field>
 
               <Field>
-                <Label htmlFor='phone'>{t('register.phone')}</Label>
+                <Label htmlFor='phone'>{t('register_phone')}</Label>
                 <Input
                   type='text'
                   id='phone'
-                  placeholder={t('register.phone_placeholder')}
+                  placeholder={t('register_phone_placeholder')}
                   {...register('phone')}
                   error={!!errors.phone}
                 />
@@ -158,19 +160,19 @@ useEffect(() => {
             </GridTwoCols>
 
             <Field>
-              <Label htmlFor='password'>{t('register.password')}</Label>
+              <Label htmlFor='password'>{t('register_password')}</Label>
               <PasswordWrapper>
                 <Input
                   type={showPassword.password ? 'text' : 'password'}
                   id='password'
-                  placeholder={t('register.password_placeholder')}
+                  placeholder={t('register_password_placeholder')}
                   {...register('password')}
                   error={!!errors.password}
                 />
                 <ToggleButton
                   type='button'
                   onClick={() => togglePasswordVisibility('password')}
-                  title={t('register.show_password')}
+                  title={t('register_show_password')}
                 ></ToggleButton>
               </PasswordWrapper>
               {errors.password && (
@@ -180,20 +182,20 @@ useEffect(() => {
 
             <Field>
               <Label htmlFor='confirmPassword'>
-                {t('register.confirm_password')}
+                {t('register_confirm_password')}
               </Label>
               <PasswordWrapper>
                 <Input
                   type={showPassword.confirmPassword ? 'text' : 'password'}
                   id='confirmPassword'
-                  placeholder={t('register.confirm_password_placeholder')}
+                  placeholder={t('register_confirm_password_placeholder')}
                   {...register('confirmPassword')}
                   error={!!errors.confirmPassword}
                 />
                 <ToggleButton
                   type='button'
                   onClick={() => togglePasswordVisibility('confirmPassword')}
-                  title={t('register.show_password')}
+                  title={t('register_show_password')}
                 ></ToggleButton>
               </PasswordWrapper>
               {errors.confirmPassword && (
@@ -219,13 +221,13 @@ useEffect(() => {
                   />
                 </LoadingSpinner>
               )}
-              {t('register.submit')}
+              {t('register_submit')}
             </SubmitButton>
 
             <FooterText>
-              {t('register.have_account')}{' '}
+              {t('register_have_account')}{' '}
               <LoginLink onClick={handleLogin}>
-                {t('register.login_link')}
+                {t('register_login_link')}
               </LoginLink>
             </FooterText>
           </form>

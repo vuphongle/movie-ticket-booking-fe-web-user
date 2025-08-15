@@ -52,14 +52,14 @@ export default function UserMenu({ auth, onLogout }: UserMenuProps) {
           <ListItemIcon>
             <AccountBoxIcon fontSize='small' />
           </ListItemIcon>
-          {t('user.profile')}
+          {t('user_profile')}
         </StyledMenuItem>
 
         <StyledMenuItem onClick={handleClose}>
           <ListItemIcon>
             <HistoryIcon fontSize='small' />
           </ListItemIcon>
-          {t('user.my_histories')}
+          {t('user_my_histories')}
         </StyledMenuItem>
 
         <StyledDivider />
@@ -68,7 +68,7 @@ export default function UserMenu({ auth, onLogout }: UserMenuProps) {
           <ListItemIcon>
             <LogoutIcon fontSize='small' />
           </ListItemIcon>
-          {t('user.logout')}
+          {t('user_logout')}
         </StyledMenuItem>
       </StyledMenu>
     </Wrapper>

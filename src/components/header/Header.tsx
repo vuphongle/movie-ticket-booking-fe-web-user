@@ -13,6 +13,8 @@ import { logout } from '@/app/slices/auth.slice';
 import UserMenu from '@components/menu/UserMenu';
 import LanguageSelector from '@components/language/LanguageSelector';
 import { useEffect, useRef } from 'react';
+import ContentWrapper from '@components/base/ContentWrapper';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -23,64 +25,37 @@ export default function Header() {
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
 
   const openLoginModal = () => setIsLoginOpen(true);
   const closeLoginModal = () => setIsLoginOpen(false);
   const openRegisterModal = () => setIsRegisterOpen(true);
   const closeRegisterModal = () => setIsRegisterOpen(false);
-
-  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openSubMenuMovies, setOpenSubMenuMovies] = useState(false);
-  const [openSubMenuCinemaCorner, setOpenSubMenuCinemaCorner] = useState(false);
-
   const toggleMobileMenu = () => setMobileMenuOpen(prev => !prev);
-  const toggleSubMenuMovies = () => {
-    setOpenSubMenuMovies(prev => {
-      if (!prev) setOpenSubMenuCinemaCorner(false);
-      return !prev;
-    });
-  };
-
-  const toggleSubMenuCinemaCorner = () => {
-    setOpenSubMenuCinemaCorner(prev => {
-      if (!prev) setOpenSubMenuMovies(false);
-      return !prev;
-    });
-  };
 
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenSubMenuMovies(false);
-        setOpenSubMenuCinemaCorner(false);
+        setHoveredMenu(null);
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
     function handleResize() {
       if (window.innerWidth > 1450) {
         setMobileMenuOpen(false);
-        setOpenSubMenuMovies(false);
-        setOpenSubMenuCinemaCorner(false);
+        setHoveredMenu(null);
       }
     }
-
     window.addEventListener('resize', handleResize);
-
     handleResize();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleForgotPassword = () => {
@@ -94,7 +69,6 @@ export default function Header() {
     closeRegisterModal();
     openLoginModal();
   };
-
   const handleLogout = () => {
     dispatch(logout());
   };
@@ -102,82 +76,102 @@ export default function Header() {
   return (
     <>
       <Container>
-        <Nav>
-          <LeftGroup>
-            <LogoArea>
-              <Logo src={LogoImg} alt='GoCinema' />
-            </LogoArea>
+        <ContentWrapper>
+          <HeaderContent>
+            <Nav>
+              <LeftGroup>
+                <LogoArea>
+                  <Logo src={LogoImg} alt="GoCinema" />
+                </LogoArea>
 
-            <SearchBox>
-              <SearchInput
-                placeholder={t('search.placeholder') || 'Tìm phim, rạp'}
-              />
-              <SearchIcon />
-            </SearchBox>
-          </LeftGroup>
+                <SearchBox>
+                  <SearchInput
+                    placeholder={t('search_placeholder') || 'Tìm phim, rạp'}
+                  />
+                  <SearchIcon />
+                </SearchBox>
+              </LeftGroup>
 
-          <RightGroup>
-            <HamburgerButton
-              onClick={toggleMobileMenu}
-              aria-label='Toggle menu'
-            >
-              {isMobileMenuOpen ? (
-                <CloseIcon size={24} />
-              ) : (
-                <MenuIcon size={24} />
-              )}
-            </HamburgerButton>
+              <RightGroup>
+                <HamburgerButton
+                  onClick={toggleMobileMenu}
+                  aria-label="Toggle menu"
+                >
+                  {isMobileMenuOpen ? (
+                    <CloseIcon size={24} />
+                  ) : (
+                    <MenuIcon size={24} />
+                  )}
+                </HamburgerButton>
 
-            <Menu open={isMobileMenuOpen} ref={menuRef}>
-              <MenuItemWrapper>
-                <MenuItem onClick={toggleSubMenuMovies}>
-                  {t('nav.movies')} {openSubMenuMovies ? '▲' : '▼'}
-                </MenuItem>
-                {openSubMenuMovies && (
-                  <SubMenu>
-                    <SubMenuItem>{t('nav.movies_now_showing')}</SubMenuItem>
-                    <SubMenuItem>{t('nav.movies_coming_soon')}</SubMenuItem>
-                  </SubMenu>
-                )}
-              </MenuItemWrapper>
+                <Menu open={isMobileMenuOpen} ref={menuRef}>
+                  <MenuItemWrapper
+                    onMouseEnter={() => setHoveredMenu('movies')}
+                    onMouseLeave={() => setHoveredMenu(null)}
+                  >
+                    <MenuItem>
+                      {t('nav_movies')}
+                      {hoveredMenu === 'movies' ? (
+                        <FaChevronUp size={12} style={{ marginLeft: 4 }} />
+                      ) : (
+                        <FaChevronDown size={12} style={{ marginLeft: 4 }} />
+                      )}
+                    </MenuItem>
+                    {hoveredMenu === 'movies' && (
+                      <SubMenu>
+                        <SubMenuItem>{t('nav_movies_now_showing')}</SubMenuItem>
+                        <SubMenuItem>{t('nav_movies_coming_soon')}</SubMenuItem>
+                      </SubMenu>
+                    )}
+                  </MenuItemWrapper>
 
-              <MenuItem>{t('nav.cinemas')}</MenuItem>
-              <MenuItem>{t('nav.promotions')}</MenuItem>
+                  <MenuItem>{t('nav_cinemas')}</MenuItem>
+                  <MenuItem>{t('nav_promotions')}</MenuItem>
 
-              <MenuItemWrapper>
-                <MenuItem onClick={toggleSubMenuCinemaCorner}>
-                  {t('nav.cinema_corner')} {openSubMenuCinemaCorner ? '▲' : '▼'}
-                </MenuItem>
-                {openSubMenuCinemaCorner && (
-                  <SubMenu>
-                    <SubMenuItem>{t('nav.blog_movies')}</SubMenuItem>
-                    <SubMenuItem>{t('nav.reviews_movies')}</SubMenuItem>
-                    <SubMenuItem>{t('nav.actors_directors')}</SubMenuItem>
-                  </SubMenu>
-                )}
-              </MenuItemWrapper>
-            </Menu>
+                  <MenuItemWrapper
+                    onMouseEnter={() => setHoveredMenu('cinema_corner')}
+                    onMouseLeave={() => setHoveredMenu(null)}
+                  >
+                    <MenuItem>
+                      {t('nav_cinema_corner')}
+                      {hoveredMenu === 'cinema_corner' ? (
+                        <FaChevronUp size={12} style={{ marginLeft: 4 }} />
+                      ) : (
+                        <FaChevronDown size={12} style={{ marginLeft: 4 }} />
+                      )}
+                    </MenuItem>
+                    {hoveredMenu === 'cinema_corner' && (
+                      <SubMenu>
+                        <SubMenuItem>{t('nav_blog_movies')}</SubMenuItem>
+                        <SubMenuItem>{t('nav_reviews_movies')}</SubMenuItem>
+                        <SubMenuItem>{t('nav_actors_directors')}</SubMenuItem>
+                      </SubMenu>
+                    )}
+                  </MenuItemWrapper>
+                </Menu>
 
-            <RightArea>
-              {isAuthenticated && auth ? (
-                <UserMenu auth={auth} onLogout={handleLogout} />
-              ) : (
-                <>
-                  <ButtonOutline onClick={openRegisterModal}>
-                    {t('auth.signup')}
-                  </ButtonOutline>
-                  <ButtonPrimary onClick={openLoginModal}>
-                    {t('auth.login')}
-                  </ButtonPrimary>
-                </>
-              )}
-            </RightArea>
-          </RightGroup>
-        </Nav>
+                <RightArea>
+                  {isAuthenticated && auth ? (
+                    <UserMenu auth={auth} onLogout={handleLogout} />
+                  ) : (
+                    <>
+                      <ButtonOutline onClick={openRegisterModal}>
+                        {t('auth_signup')}
+                      </ButtonOutline>
+                      <ButtonPrimary onClick={openLoginModal}>
+                        {t('auth_login')}
+                      </ButtonPrimary>
+                    </>
+                  )}
+                </RightArea>
+              </RightGroup>
+            </Nav>
 
-        <LanguageSelectorWrapper>
-          <LanguageSelector />
-        </LanguageSelectorWrapper>
+            <LanguageSelectorWrapper>
+              <LanguageSelector />
+            </LanguageSelectorWrapper>
+          </HeaderContent>
+        </ContentWrapper>
       </Container>
 
       <LoginModal
@@ -186,7 +180,6 @@ export default function Header() {
         handleForgotPassword={handleForgotPassword}
         handleRegister={handleRegister}
       />
-
       <RegisterModal
         open={isRegisterOpen}
         handleClose={closeRegisterModal}
@@ -196,12 +189,14 @@ export default function Header() {
   );
 }
 
+
 const Container = styled.header`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
+  height: 80px;
+
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
@@ -226,6 +221,13 @@ const Container = styled.header`
       flex-grow: 1;
     }
   }
+`;
+
+const HeaderContent = styled.header`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const Nav = styled.nav`
@@ -303,12 +305,12 @@ const LogoArea = styled.div`
 `;
 
 const Logo = styled.img`
-  width: 90px;
+  width: 72px;
   height: 60px;
   border-radius: ${theme.borderRadius.medium};
 
   @media (max-width: 768px) {
-    width: 60px;
+    width: 48px;
     height: 40px;
   }
 `;
@@ -459,7 +461,7 @@ const SubMenu = styled.ul<{ nested?: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
-  top: calc(100% + 8px);
+  top: calc(100% + 1px);
   min-width: 180px;
   z-index: 1000;
 

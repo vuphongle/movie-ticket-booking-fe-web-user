@@ -49,6 +49,11 @@ const HomePage: React.FC = () => {
         </ScheduleTable>
       </ScheduleSection>
 
+      {/* Tin khuyến mãi */}
+      <PromotionSection>
+        <PromotionTitle>Tin khuyến mãi</PromotionTitle>
+      </PromotionSection>
+
     {/* Góc điện ảnh */}
       <CinemaCornerSection>
         <CinemaCornerTitle>Góc điện ảnh</CinemaCornerTitle>
@@ -66,8 +71,8 @@ const HomePage: React.FC = () => {
 const PageContainer = styled.div`
   background: ${theme.colors.background};
   color: ${theme.colors.textPrimary};
-  padding: 0 20px 40px;
-  font-family: 'Arial', sans-serif;
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
 `;
 
 const BannerSection = styled.section`
@@ -134,6 +139,16 @@ const ScheduleTable = styled.table`
     border: 1px solid #ddd;
     padding: 8px;
   }
+`;
+
+const PromotionSection = styled.section`
+  margin-top: 50px;
+`;
+
+const PromotionTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
 `;
 
 const CinemaCornerSection = styled.section`
