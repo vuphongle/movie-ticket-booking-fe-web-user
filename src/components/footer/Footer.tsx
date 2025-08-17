@@ -9,48 +9,51 @@ export default function Footer() {
   return (
     <FooterContainer>
       <ContentWrapper>
-        {/* Phần mới phía trên footer */}
         <TopContent>
           <Column>
-            <Title>{t('footer_customer_care')}</Title>
-            <div>{t('footer_address')}</div>
-            <div>{t('footer_hotline')}</div>
-            <div>{t('footer_email')}</div>
+            <Title>{t('FOOTER_CUSTOMER_CARE')}</Title>
+            <div>{t('FOOTER_ADDRESS')}</div>
+            <div>{t('FOOTER_HOTLINE')}</div>
+            <div>{t('FOOTER_EMAIL')}</div>
           </Column>
 
           <Column>
-            <Title>{t('footer_buy_ticket')}</Title>
-            <div>{t('footer_cinema')}</div>
-            <div>{t('footer_movie')}</div>
-            <div>{t('footer_review')}</div>
-            <div>{t('footer_blog')}</div>
+            <Title>{t('FOOTER_BUY_TICKET')}</Title>
+            <div>{t('FOOTER_CINEMA')}</div>
+            <div>{t('FOOTER_MOVIE')}</div>
+            <div>{t('FOOTER_REVIEW')}</div>
+            <div>{t('FOOTER_BLOG')}</div>
           </Column>
 
           <Column>
-            <Title>{t('footer_terms')}</Title>
-            <div>{t('footer_dmca')}</div>
-            <div>{t('footer_contact')}</div>
-            <div>{t('footer_privacy')}</div>
-            <div>{t('footer_terms_of_service')}</div>
+            <Title>{t('FOOTER_TERMS')}</Title>
+            <div>{t('FOOTER_DMCA')}</div>
+            <div>{t('FOOTER_CONTACT')}</div>
+            <div>{t('FOOTER_PRIVACY')}</div>
+            <div>{t('FOOTER_TERMS_OF_SERVICE')}</div>
           </Column>
 
           <Column>
-            <Title>{t('footer_connect')}</Title>
+            <Title>{t('FOOTER_CONNECT')}</Title>
             <SocialIcons>
-              <a href="#" target="_blank">FB</a>
-              <a href="#" target="_blank">LinkedIn</a>
-              <a href="#" target="_blank">YouTube</a>
+              <a href='#' target='_blank'>
+                FB
+              </a>
+              <a href='#' target='_blank'>
+                LinkedIn
+              </a>
+              <a href='#' target='_blank'>
+                YouTube
+              </a>
             </SocialIcons>
           </Column>
         </TopContent>
 
         <Divider />
-
-        {/* Footer gốc */}
         <FooterContent>
-          <span>{t('footer_terms')}</span>
-          <span>{t('footer_privacy')}</span>
-          <span>{t('footer_copyright')}</span>
+          <span>{t('FOOTER_TERMS')}</span>
+          <span>{t('FOOTER_PRIVACY')}</span>
+          <span>{t('FOOTER_COPYRIGHT')}</span>
         </FooterContent>
       </ContentWrapper>
     </FooterContainer>
@@ -70,6 +73,7 @@ const TopContent = styled.div`
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 32px;
+  padding: ${theme.spacing.sm};
   margin-bottom: ${theme.spacing.md};
 
   @media (max-width: 768px) {
@@ -110,6 +114,8 @@ const Divider = styled.div`
   height: 1px;
   background: ${theme.colors.border};
   margin-bottom: ${theme.spacing.md};
+  margin-left: ${theme.spacing.sm};
+  margin-right: ${theme.spacing.sm};
 `;
 
 const FooterContent = styled.div`
@@ -119,6 +125,7 @@ const FooterContent = styled.div`
   gap: ${theme.spacing.md};
   font-size: ${theme.fontSize.sm};
   color: ${theme.colors.textSecondary};
+  padding: ${theme.spacing.sm};
 
   span {
     cursor: pointer;

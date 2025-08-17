@@ -34,26 +34,26 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   const schema = useMemo(
     () =>
       yup.object({
-        name: yup.string().required(t('register_name_required')),
+        name: yup.string().required(t('REGISTER_NAME_REQUIRED')),
         email: yup
           .string()
-          .email(t('register_email_invalid'))
-          .required(t('register_email_required')),
+          .email(t('REGISTER_EMAIL_INVALID'))
+          .required(t('REGISTER_EMAIL_REQUIRED')),
         phone: yup
           .string()
-          .required(t('register_phone_required'))
+          .required(t('REGISTER_PHONE_REQUIRED'))
           .matches(
             /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/,
-            t('register_phone_invalid')
+            t('REGISTER_PHONE_INVALID')
           ),
-        password: yup.string().required(t('register_password_required')),
+        password: yup.string().required(t('REGISTER_PASSWORD_REQUIRED')),
         confirmPassword: yup
           .string()
           .oneOf(
             [yup.ref('password'), undefined],
-            t('register_confirm_password_match')
+            t('REGISTER_CONFIRM_PASSWORD_MATCH')
           )
-          .required(t('register_confirm_password_required')),
+          .required(t('REGISTER_CONFIRM_PASSWORD_REQUIRED')),
       }),
     [i18n.language]
   );
@@ -63,11 +63,13 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   const {
     register,
     handleSubmit,
-    trigger,
     reset,
+    clearErrors,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: yupResolver(schema),
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const isFirstMount = useRef(true);
@@ -80,8 +82,10 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   }, [open, reset]);
 
   useEffect(() => {
-    trigger();
-  }, [i18n.language, trigger]);
+  if (!open) {
+    clearErrors();
+  }
+}, [open, clearErrors]);
 
   const [showPassword, setShowPassword] = useState({
     password: false,
@@ -95,7 +99,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await registerAccount(data).unwrap();
-      toast.success(t('register_success_message'));
+      toast.success(t('REGISTER_SUCCESS_MESSAGE'));
       handleClose();
       reset();
     } catch (error: any) {
@@ -104,7 +108,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
       } else if (error?.data?.code === 'ACCOUNT_NOT_ACTIVATED') {
         toast.error(t('REGISTER_ACCOUNT_NOT_ACTIVATED'));
       } else {
-        toast.error(error?.data?.message || t('messages_error'));
+        toast.error(error?.data?.message || t('MESSAGES_ERROR'));
       }
     }
   };
@@ -119,14 +123,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
         zIndex={1080}
       >
         <ContentWrapper>
-          <Title>{t('register_title')}</Title>
+          <Title>{t('REGISTER_TITLE')}</Title>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Field>
-              <Label htmlFor='name'>{t('register_name')}</Label>
+              <Label htmlFor='name'>{t('REGISTER_NAME')}</Label>
               <Input
                 type='text'
                 id='name'
-                placeholder={t('register_name_placeholder')}
+                placeholder={t('REGISTER_NAME_PLACEHOLDER')}
                 {...register('name')}
                 error={!!errors.name}
               />
@@ -135,11 +139,11 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
 
             <GridTwoCols>
               <Field>
-                <Label htmlFor='email'>{t('register_email')}</Label>
+                <Label htmlFor='email'>{t('REGISTER_EMAIL')}</Label>
                 <Input
                   type='email'
                   id='email'
-                  placeholder={t('register_email_placeholder')}
+                  placeholder={t('REGISTER_EMAIL_PLACEHOLDER')}
                   {...register('email')}
                   error={!!errors.email}
                 />
@@ -147,11 +151,11 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               </Field>
 
               <Field>
-                <Label htmlFor='phone'>{t('register_phone')}</Label>
+                <Label htmlFor='phone'>{t('REGISTER_PHONE')}</Label>
                 <Input
                   type='text'
                   id='phone'
-                  placeholder={t('register_phone_placeholder')}
+                  placeholder={t('REGISTER_PHONE_PLACEHOLDER')}
                   {...register('phone')}
                   error={!!errors.phone}
                 />
@@ -160,19 +164,19 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
             </GridTwoCols>
 
             <Field>
-              <Label htmlFor='password'>{t('register_password')}</Label>
+              <Label htmlFor='password'>{t('REGISTER_PASSWORD')}</Label>
               <PasswordWrapper>
                 <Input
                   type={showPassword.password ? 'text' : 'password'}
                   id='password'
-                  placeholder={t('register_password_placeholder')}
+                  placeholder={t('REGISTER_PASSWORD_PLACEHOLDER')}
                   {...register('password')}
                   error={!!errors.password}
                 />
                 <ToggleButton
                   type='button'
                   onClick={() => togglePasswordVisibility('password')}
-                  title={t('register_show_password')}
+                  title={t('REGISTER_SHOW_PASSWORD')}
                 ></ToggleButton>
               </PasswordWrapper>
               {errors.password && (
@@ -182,20 +186,20 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
 
             <Field>
               <Label htmlFor='confirmPassword'>
-                {t('register_confirm_password')}
+                {t('REGISTER_CONFIRM_PASSWORD')}
               </Label>
               <PasswordWrapper>
                 <Input
                   type={showPassword.confirmPassword ? 'text' : 'password'}
                   id='confirmPassword'
-                  placeholder={t('register_confirm_password_placeholder')}
+                  placeholder={t('REGISTER_CONFIRM_PASSWORD_PLACEHOLDER')}
                   {...register('confirmPassword')}
                   error={!!errors.confirmPassword}
                 />
                 <ToggleButton
                   type='button'
                   onClick={() => togglePasswordVisibility('confirmPassword')}
-                  title={t('register_show_password')}
+                  title={t('REGISTER_SHOW_PASSWORD')}
                 ></ToggleButton>
               </PasswordWrapper>
               {errors.confirmPassword && (
@@ -221,13 +225,13 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                   />
                 </LoadingSpinner>
               )}
-              {t('register_submit')}
+              {t('REGISTER_SUBMIT')}
             </SubmitButton>
 
             <FooterText>
-              {t('register_have_account')}{' '}
+              {t('REGISTER_HAVE_ACCOUNT')}{' '}
               <LoginLink onClick={handleLogin}>
-                {t('register_login_link')}
+                {t('REGISTER_LOGIN_LINK')}
               </LoginLink>
             </FooterText>
           </form>

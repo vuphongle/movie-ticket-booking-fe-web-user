@@ -76,14 +76,13 @@ function ChangePassword() {
         navigate('/');
       }, 2000);
     } catch (error: any) {
-      console.log('Change password error:', error);
       const code = error?.data?.code;
       if (code === 'INVALID_OLD_PASSWORD') {
         toast.error(t('INVALID_OLD_PASSWORD'));
       } else if (code === 'NEW_PASSWORD_SAME_AS_OLD') {
         toast.error(t('NEW_PASSWORD_SAME_AS_OLD'));
       } else {
-        toast.error(t('messages_error'));
+        toast.error(t('MESSAGES_ERROR'));
       }
     } finally {
       setLoading(false);
@@ -222,6 +221,7 @@ function ChangePassword() {
                   backgroundColor: theme.colors.primary,
                   borderColor: theme.colors.primary,
                   color: theme.colors.white,
+                  marginTop: 8,
                 }}
               >
                 {t('CHANGE_PASSWORD')}

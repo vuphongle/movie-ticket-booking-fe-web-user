@@ -19,7 +19,7 @@ const VerifyAccount: React.FC = () => {
       verifyAccount(token)
         .unwrap()
         .catch((err) =>
-          toast.error(err?.data?.message || t('messages.error'))
+          toast.error(err?.data?.message || t('MESSAGES_ERROR'))
         );
     }
   }, [token, verifyAccount, t]);
@@ -30,10 +30,10 @@ const VerifyAccount: React.FC = () => {
         <IconWrapper>
           <FaCheckCircle size={70} color={theme.colors.success || '#4caf50'} />
         </IconWrapper>
-        <Title>{t('verify_success_title')}</Title>
-        <Message>{t('verify_success_message')}</Message>
+        <Title>{t('VERIFY_SUCCESS_TITLE')}</Title>
+        <Message>{t('VERIFY_SUCCESS_MESSAGE')}</Message>
         <BackButton onClick={() => navigate('/')}>
-          {t('verify_back_home')}
+          {t('VERIFY_BACK_HOME')}
         </BackButton>
       </Card>
     </PageWrapper>

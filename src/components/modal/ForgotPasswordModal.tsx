@@ -32,8 +32,8 @@ export default function ForgotPasswordModal({
       yup.object({
         email: yup
           .string()
-          .required(t('forgot_password_email_required'))
-          .email(t('login_email_invalid')),
+          .required(t('FORGOT_PASSWORD_EMAIL_REQUIRED'))
+          .email(t('LOGIN_EMAIL_INVALID')),
       }),
     [i18n.language]
   );
@@ -50,7 +50,7 @@ export default function ForgotPasswordModal({
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
       await forgotPassword({ email: data.email }).unwrap();
-      toast.success(t('forgot_password_success'));
+      toast.success(t('FORGOT_PASSWORD_SUCCESS'));
       handleClose();
     } catch (err: any) {
       if (err?.data?.code === 'USER_NOT_FOUND') {
@@ -58,7 +58,7 @@ export default function ForgotPasswordModal({
       } else if (err?.data?.code === 'ACCOUNT_NOT_ACTIVATED') {
         toast.error(t('FORGOT_ACCOUNT_NOT_ACTIVATED'));
       } else {
-        toast.error(err?.data?.message || t('messages_error'));
+        toast.error(err?.data?.message || t('MESSAGES_ERROR'));
       }
     }
   };
@@ -72,18 +72,18 @@ export default function ForgotPasswordModal({
   return (
     <ModalBase isOpen={open} onClose={handleClose} size='sm' zIndex={2000}>
       <ModalContent>
-        <ModalTitle>{t('forgot_password_title')}</ModalTitle>
+        <ModalTitle>{t('FORGOT_PASSWORD_TITLE')}</ModalTitle>
         <StyledInput
           type='email'
-          placeholder={t('forgot_password_placeholder')}
+          placeholder={t('FORGOT_PASSWORD_PLACEHOLDER')}
           {...register('email')}
           onKeyDown={e => e.key === 'Enter' && handleSubmit(onSubmit)()}
         />
         {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
         <StyledButton onClick={handleSubmit(onSubmit)} disabled={isLoading}>
           {isLoading
-            ? t('forgot_password_sending')
-            : t('forgot_password_submit')}
+            ? t('FORGOT_PASSWORD_SENDING')
+            : t('FORGOT_PASSWORD_SUBMIT')}
         </StyledButton>
       </ModalContent>
     </ModalBase>

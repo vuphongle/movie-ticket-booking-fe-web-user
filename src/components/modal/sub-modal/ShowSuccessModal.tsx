@@ -15,7 +15,7 @@ type ShowSuccessModalProps = {
 const ShowSuccessModal: React.FC<ShowSuccessModalProps> = ({
   open,
   onClose,
-  titleKey = 'messages_login_success',
+  titleKey = 'MESSAGES_LOGIN_SUCCESS',
   descriptionKey,
 }) => {
   const { t } = useTranslation();
@@ -25,7 +25,6 @@ const ShowSuccessModal: React.FC<ShowSuccessModalProps> = ({
       isOpen={open}
       onClose={onClose}
       size='xs'
-      // style={{ width: '400px' }}
       zIndex={1080}
     >
       <Wrapper>
@@ -44,7 +43,7 @@ const ShowSuccessModal: React.FC<ShowSuccessModalProps> = ({
 
         <Actions>
           <ConfirmButton type='button' onClick={onClose}>
-            {t('buttons_submit')}
+            {t('BUTTONS_SUBMIT')}
           </ConfirmButton>
         </Actions>
       </Wrapper>

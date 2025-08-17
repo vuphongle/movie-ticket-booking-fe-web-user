@@ -40,9 +40,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
         .object({
           email: yup
             .string()
-            .email(t('login_email_invalid'))
-            .required(t('login_email_required')),
-          password: yup.string().required(t('login_password_required')),
+            .email(t('LOGIN_EMAIL_INVALID'))
+            .required(t('LOGIN_EMAIL_REQUIRED')),
+          password: yup.string().required(t('LOGIN_PASSWORD_REQUIRED')),
         })
         .required(),
     [i18n.language]
@@ -54,10 +54,12 @@ const LoginModal: React.FC<LoginModalProps> = ({
     register,
     handleSubmit,
     formState: { errors },
-    trigger,
+    clearErrors,
     reset,
   } = useForm<LoginFormData>({
     resolver: yupResolver(schema),
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const isFirstMount = useRef(true);
@@ -70,8 +72,10 @@ const LoginModal: React.FC<LoginModalProps> = ({
   }, [open, reset]);
 
   useEffect(() => {
-    trigger();
-  }, [i18n.language, trigger]);
+    if (!open) {
+      clearErrors();
+    }
+  }, [open, clearErrors]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -85,7 +89,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
       } else if (error?.data?.code === 'INVALID_CREDENTIALS') {
         toast.error(t('INVALID_CREDENTIALS'));
       } else {
-        toast.error(t('messages_error'));
+        toast.error(t('MESSAGES_ERROR'));
       }
     }
   };
@@ -100,28 +104,28 @@ const LoginModal: React.FC<LoginModalProps> = ({
         zIndex={1080}
       >
         <Wrapper>
-          <Title>{t('login_title')}</Title>
+          <Title>{t('LOGIN_TITLE')}</Title>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <Field>
-              <Label htmlFor='email'>{t('auth_email')}</Label>
+              <Label htmlFor='email'>{t('AUTH_EMAIL')}</Label>
               <Input
                 type='email'
                 id='email'
                 {...register('email')}
-                placeholder={t('login_email_placeholder')}
+                placeholder={t('LOGIN_EMAIL_PLACEHOLDER')}
               />
               {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
             </Field>
 
             <Field>
-              <Label htmlFor='password'>{t('auth_password')}</Label>
+              <Label htmlFor='password'>{t('AUTH_PASSWORD')}</Label>
               <PasswordWrapper>
                 <Input
                   type='password'
                   id='password'
                   {...register('password')}
-                  placeholder={t('login_password_placeholder')}
+                  placeholder={t('LOGIN_PASSWORD_PLACEHOLDER')}
                 />
               </PasswordWrapper>
               {errors.password && (
@@ -131,26 +135,26 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
             <ForgotPasswordWrapper>
               <ForgotPassword onClick={handleForgotPassword}>
-                {t('login_forgot_password')}
+                {t('LOGIN_FORGOT_PASSWORD')}
               </ForgotPassword>
             </ForgotPasswordWrapper>
 
             <SubmitButton type='submit' disabled={isLoading}>
               {isLoading && <LoadingSpinner />}
-              {t('login_login_button')}
+              {t('LOGIN_LOGIN_BUTTON')}
             </SubmitButton>
 
             <RegisterText>
-              {t('login_register_prompt')}{' '}
+              {t('LOGIN_REGISTER_PROMPT')}{' '}
               <RegisterLink onClick={handleRegister}>
-                {t('login_register_link')}
+                {t('LOGIN_REGISTER_LINK')}
               </RegisterLink>
             </RegisterText>
           </form>
 
           <Divider>
             <Line />
-            {t('login_or') || 'HOẶC'}
+            {t('LOGIN_OR') || 'HOẶC'}
             <Line />
           </Divider>
 
@@ -178,7 +182,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   fill='#e54335'
                 ></path>
               </GoogleIcon>
-              {t('login_google_login')}
+              {t('LOGIN_GOOGLE_LOGIN')}
             </GoogleButton>
 
             <FacebookButton>
@@ -192,7 +196,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   d='M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.016 4.388 10.995 10.125 11.854v-8.385H7.078v-3.47h3.047V9.413c0-3.007 1.793-4.668 4.533-4.668 1.312 0 2.686.235 2.686.235v2.953h-1.513c-1.492 0-1.956.927-1.956 1.877v2.26h3.328l-.532 3.47h-2.796v8.385C19.612 23.068 24 18.089 24 12.073z'
                 />
               </FacebookIcon>
-              {t('login_facebook_login')}
+              {t('LOGIN_FACEBOOK_LOGIN')}
             </FacebookButton>
           </SocialLoginContainer>
         </Wrapper>

@@ -99,7 +99,7 @@ export default function Header() {
 
                 <SearchBox>
                   <SearchInput
-                    placeholder={t('search_placeholder') || 'Tìm phim, rạp'}
+                    placeholder={t('SEARCH_PLACEHOLDER') || 'Tìm phim, rạp'}
                   />
                   <SearchIcon />
                 </SearchBox>
@@ -123,7 +123,7 @@ export default function Header() {
                     onMouseLeave={() => setHoveredMenu(null)}
                   >
                     <MenuItem>
-                      {t('nav_movies')}
+                      {t('NAV_MOVIES')}
                       {hoveredMenu === 'movies' ? (
                         <FaChevronUp size={12} style={{ marginLeft: 4 }} />
                       ) : (
@@ -132,21 +132,21 @@ export default function Header() {
                     </MenuItem>
                     {hoveredMenu === 'movies' && (
                       <SubMenu>
-                        <SubMenuItem>{t('nav_movies_now_showing')}</SubMenuItem>
-                        <SubMenuItem>{t('nav_movies_coming_soon')}</SubMenuItem>
+                        <SubMenuItem>{t('NAV_MOVIES_NOW_SHOWING')}</SubMenuItem>
+                        <SubMenuItem>{t('NAV_MOVIES_COMING_SOON')}</SubMenuItem>
                       </SubMenu>
                     )}
                   </MenuItemWrapper>
 
-                  <MenuItem>{t('nav_cinemas')}</MenuItem>
-                  <MenuItem>{t('nav_promotions')}</MenuItem>
+                  <MenuItem>{t('NAV_CINEMAS')}</MenuItem>
+                  <MenuItem>{t('NAV_PROMOTIONS')}</MenuItem>
 
                   <MenuItemWrapper
                     onMouseEnter={() => setHoveredMenu('cinema_corner')}
                     onMouseLeave={() => setHoveredMenu(null)}
                   >
                     <MenuItem>
-                      {t('nav_cinema_corner')}
+                      {t('NAV_CINEMA_CORNER')}
                       {hoveredMenu === 'cinema_corner' ? (
                         <FaChevronUp size={12} style={{ marginLeft: 4 }} />
                       ) : (
@@ -155,9 +155,9 @@ export default function Header() {
                     </MenuItem>
                     {hoveredMenu === 'cinema_corner' && (
                       <SubMenu>
-                        <SubMenuItem>{t('nav_blog_movies')}</SubMenuItem>
-                        <SubMenuItem>{t('nav_reviews_movies')}</SubMenuItem>
-                        <SubMenuItem>{t('nav_actors_directors')}</SubMenuItem>
+                        <SubMenuItem>{t('NAV_BLOG_MOVIES')}</SubMenuItem>
+                        <SubMenuItem>{t('NAV_REVIEWS_MOVIES')}</SubMenuItem>
+                        <SubMenuItem>{t('NAV_ACTORS_DIRECTORS')}</SubMenuItem>
                       </SubMenu>
                     )}
                   </MenuItemWrapper>
@@ -165,14 +165,18 @@ export default function Header() {
 
                 <RightArea>
                   {isAuthenticated && auth ? (
-                    <UserMenu auth={auth} onLogout={handleLogout} onChangePassword={handleChangePassword} />
+                    <UserMenu
+                      auth={auth}
+                      onLogout={handleLogout}
+                      onChangePassword={handleChangePassword}
+                    />
                   ) : (
                     <>
                       <ButtonOutline onClick={openRegisterModal}>
-                        {t('auth_signup')}
+                        {t('AUTH_SIGNUP')}
                       </ButtonOutline>
                       <ButtonPrimary onClick={openLoginModal}>
-                        {t('auth_login')}
+                        {t('AUTH_LOGIN')}
                       </ButtonPrimary>
                     </>
                   )}
@@ -242,6 +246,7 @@ const HeaderContent = styled.header`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  padding: ${theme.spacing.md};
 `;
 
 const Nav = styled.nav`
@@ -265,7 +270,7 @@ const Nav = styled.nav`
     gap: ${theme.spacing.sm};
   }
 
-  @media (max-width: 1450px) and (min-width: 769px) {
+  @media (max-width: 1275px) and (min-width: 769px) {
     flex-wrap: nowrap;
     justify-content: space-between;
   }
@@ -369,7 +374,7 @@ const HamburgerButton = styled.button`
   background-color: ${theme.colors.backgroundHover};
   position: relative;
 
-  @media (max-width: 1450px) {
+  @media (max-width: 1275px) {
     display: block;
   }
 
@@ -392,7 +397,7 @@ const Menu = styled.div<{ open?: boolean }>`
     display: flex !important;
   }
 
-  @media (min-width: 769px) and (max-width: 1450px) {
+  @media (min-width: 769px) and (max-width: 1275px) {
     position: absolute;
     top: 100%;
     left: 0;
@@ -449,7 +454,7 @@ const MenuItem = styled.div`
     outline: none;
   }
 
-  @media (min-width: 769px) and (max-width: 1450px), (max-width: 768px) {
+  @media (min-width: 769px) and (max-width: 1275px), (max-width: 768px) {
     display: block;
   }
 `;
@@ -486,7 +491,7 @@ const SubMenu = styled.ul<{ nested?: boolean }>`
     top: 0;
   `}
 
-  @media (min-width: 769px) and (max-width: 1450px) {
+  @media (min-width: 769px) and (max-width: 1275px) {
     position: static;
     box-shadow: none;
     border: none;

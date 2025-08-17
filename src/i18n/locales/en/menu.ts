@@ -1,15 +1,15 @@
 const menu = {
- // Menu of header
-  nav_home: "Home",
-  nav_movies: "Movies",
-  nav_movies_now_showing: "Movies Now Showing",
-  nav_movies_coming_soon: "Movies Coming Soon",
-  nav_cinemas: "Cinemas",
-  nav_promotions: "Promotions",
-  nav_cinema_corner: "Cinema corner",
-  nav_blog_movies: "Blog movies",
-  nav_reviews_movies: "Movie reviews",
-  nav_actors_directors: "Actors/Directors"
+  // Menu of header
+  NAV_HOME: "Home",
+  NAV_MOVIES: "Movies",
+  NAV_MOVIES_NOW_SHOWING: "Movies Now Showing",
+  NAV_MOVIES_COMING_SOON: "Movies Coming Soon",
+  NAV_CINEMAS: "Cinemas",
+  NAV_PROMOTIONS: "Promotions",
+  NAV_CINEMA_CORNER: "Cinema corner",
+  NAV_BLOG_MOVIES: "Blog movies",
+  NAV_REVIEWS_MOVIES: "Movie reviews",
+  NAV_ACTORS_DIRECTORS: "Actors/Directors"
 };
 
 export default menu;

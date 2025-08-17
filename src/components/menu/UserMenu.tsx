@@ -8,7 +8,7 @@ import {
   ListItemIcon,
 } from '@mui/material';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import LockIcon from '@mui/icons-material/Lock';  
+import LockIcon from '@mui/icons-material/Lock';
 import HistoryIcon from '@mui/icons-material/History';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { theme } from '@theme/Theme';
@@ -23,7 +23,11 @@ interface UserMenuProps {
   onChangePassword: () => void;
 }
 
-export default function UserMenu({ auth, onLogout, onChangePassword }: UserMenuProps) {
+export default function UserMenu({
+  auth,
+  onLogout,
+  onChangePassword,
+}: UserMenuProps) {
   const { t } = useTranslation();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -59,21 +63,21 @@ export default function UserMenu({ auth, onLogout, onChangePassword }: UserMenuP
           <ListItemIcon>
             <AccountBoxIcon fontSize='small' />
           </ListItemIcon>
-          {t('user_profile')}
+          {t('USER_PROFILE')}
         </StyledMenuItem>
 
         <StyledMenuItem onClick={handleChangePasswordClick}>
           <ListItemIcon>
             <LockIcon fontSize='small' />
           </ListItemIcon>
-          {t('user_change_password')}
+          {t('USER_CHANGE_PASSWORD')}
         </StyledMenuItem>
 
         <StyledMenuItem onClick={handleClose}>
           <ListItemIcon>
             <HistoryIcon fontSize='small' />
           </ListItemIcon>
-          {t('user_my_histories')}
+          {t('USER_MY_HISTORIES')}
         </StyledMenuItem>
 
         <StyledDivider />
@@ -82,7 +86,7 @@ export default function UserMenu({ auth, onLogout, onChangePassword }: UserMenuP
           <ListItemIcon>
             <LogoutIcon fontSize='small' />
           </ListItemIcon>
-          {t('user_logout')}
+          {t('USER_LOGOUT')}
         </StyledMenuItem>
       </StyledMenu>
     </Wrapper>

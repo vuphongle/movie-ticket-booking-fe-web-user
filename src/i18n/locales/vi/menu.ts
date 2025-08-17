@@ -1,15 +1,15 @@
 const menu = {
   // Menu của header
-  nav_home: "Trang chủ",
-  nav_movies: "Phim",
-  nav_movies_now_showing: "Phim đang chiếu",
-  nav_movies_coming_soon: "Phim sắp chiếu",
-  nav_cinemas: "Rạp chiếu",
-  nav_promotions: "Khuyến mãi",
-  nav_cinema_corner: "Góc điện ảnh",
-  nav_blog_movies: "Blog phim",
-  nav_reviews_movies: "Bình luận phim",
-  nav_actors_directors: "Diễn viên/Đạo diễn"
+  NAV_HOME: "Trang chủ",
+  NAV_MOVIES: "Phim",
+  NAV_MOVIES_NOW_SHOWING: "Phim đang chiếu",
+  NAV_MOVIES_COMING_SOON: "Phim sắp chiếu",
+  NAV_CINEMAS: "Rạp chiếu",
+  NAV_PROMOTIONS: "Khuyến mãi",
+  NAV_CINEMA_CORNER: "Góc điện ảnh",
+  NAV_BLOG_MOVIES: "Blog phim",
+  NAV_REVIEWS_MOVIES: "Bình luận phim",
+  NAV_ACTORS_DIRECTORS: "Diễn viên/Đạo diễn"
 };
 
 export default menu;

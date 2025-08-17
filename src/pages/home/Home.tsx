@@ -71,9 +71,9 @@ const HomePage: React.FC = () => {
 const PageContainer = styled.div`
   background: ${theme.colors.background};
   color: ${theme.colors.textPrimary};
-  padding: 20px;
+  padding: ${theme.spacing.md};
   font-family: 'Roboto', sans-serif;
-  margin-bottom: 20px;
+  margin-bottom: ${theme.spacing.lg};
 `;
 
 const BannerSection = styled.section`

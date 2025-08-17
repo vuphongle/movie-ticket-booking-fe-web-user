@@ -1,152 +1,155 @@
 const common = {
-  // auth
-  auth_login: 'Đăng nhập',
-  auth_signup: 'Đăng ký',
-  auth_register: 'Đăng ký',
-  auth_logout: 'Đăng xuất',
-  auth_email: 'Email',
-  auth_password: 'Mật khẩu',
-  auth_confirm_password: 'Xác nhận mật khẩu',
-  auth_forgot_password: 'Quên mật khẩu?',
+  // AUTH
+  AUTH_LOGIN: 'Đăng nhập',
+  AUTH_SIGNUP: 'Đăng ký',
+  AUTH_REGISTER: 'Đăng ký',
+  AUTH_LOGOUT: 'Đăng xuất',
+  AUTH_EMAIL: 'Email',
+  AUTH_PASSWORD: 'Mật khẩu',
+  AUTH_CONFIRM_PASSWORD: 'Xác nhận mật khẩu',
+  AUTH_FORGOT_PASSWORD: 'Quên mật khẩu?',
 
-  // buttons
-  buttons_submit: 'Xác nhận',
-  buttons_cancel: 'Hủy',
-  buttons_book_now: 'Đặt vé ngay',
-  buttons_see_more: 'Xem thêm',
-  buttons_back: 'Quay lại',
+  // BUTTONS
+  BUTTONS_SUBMIT: 'Xác nhận',
+  BUTTONS_CANCEL: 'Hủy',
+  BUTTONS_BOOK_NOW: 'Đặt vé ngay',
+  BUTTONS_SEE_MORE: 'Xem thêm',
+  BUTTONS_BACK: 'Quay lại',
 
-  // home
-  home_title: 'Chào mừng đến với rạp phim của chúng tôi!',
-  home_subtitle:
+  // HOME
+  HOME_TITLE: 'Chào mừng đến với rạp phim của chúng tôi!',
+  HOME_SUBTITLE:
     'Khám phá các bộ phim mới nhất và đặt vé ngay hôm nay. Chúng tôi sẽ đem đến cho bạn những trải nghiệm tuyệt vời nhất khi đặt vé xem phim ở trang này :)((.',
 
-  // movies
-  movies_now_showing: 'Đang chiếu',
-  movies_coming_soon: 'Sắp chiếu',
-  movies_no_movies: 'Không có phim nào.',
-  movies_loading: 'Đang tải phim...',
-  movies_title: 'Tiêu đề',
-  movies_description: 'Mô tả',
+  // MOVIES
+  MOVIES_NOW_SHOWING: 'Đang chiếu',
+  MOVIES_COMING_SOON: 'Sắp chiếu',
+  MOVIES_NO_MOVIES: 'Không có phim nào.',
+  MOVIES_LOADING: 'Đang tải phim...',
+  MOVIES_TITLE: 'Tiêu đề',
+  MOVIES_DESCRIPTION: 'Mô tả',
 
-  // cinema
-  cinema_choose_cinema: 'Chọn rạp chiếu',
-  cinema_no_cinema: 'Không có rạp nào khả dụng.',
-  cinema_location: 'Địa điểm',
-  cinema_schedule: 'Lịch chiếu',
+  // CINEMA
+  CINEMA_CHOOSE_CINEMA: 'Chọn rạp chiếu',
+  CINEMA_NO_CINEMA: 'Không có rạp nào khả dụng.',
+  CINEMA_LOCATION: 'Địa điểm',
+  CINEMA_SCHEDULE: 'Lịch chiếu',
 
-  // review
-  review_title: 'Đánh giá',
-  review_your_review: 'Đánh giá của bạn',
-  review_submit_review: 'Gửi đánh giá',
-  review_no_reviews: 'Chưa có đánh giá nào.',
+  // REVIEW
+  REVIEW_TITLE: 'Đánh giá',
+  REVIEW_YOUR_REVIEW: 'Đánh giá của bạn',
+  REVIEW_SUBMIT_REVIEW: 'Gửi đánh giá',
+  REVIEW_NO_REVIEWS: 'Chưa có đánh giá nào.',
 
-  // user
-  user_profile: 'Tài khoản',
-  user_my_histories: 'Lịch sử',
-  user_settings: 'Cài đặt',
-  user_logout: 'Đăng xuất',
-  user_change_password: 'Đổi mật khẩu',
+  // USER
+  USER_PROFILE: 'Tài khoản',
+  USER_MY_HISTORIES: 'Lịch sử',
+  USER_SETTINGS: 'Cài đặt',
+  USER_LOGOUT: 'Đăng xuất',
+  USER_CHANGE_PASSWORD: 'Đổi mật khẩu',
 
-  // footer
-  footer_customer_care: 'Chăm sóc khách hàng',
-  footer_address: '123 Đường Rạp Phim, Hà Nội, Việt Nam',
-  footer_hotline: 'Hotline: +84 123 456 789',
-  footer_email: 'Email: support@cinema.com',
-  footer_buy_ticket: 'Mua vé',
-  footer_schedule: 'Lịch chiếu',
-  footer_cinema: 'Rạp chiếu',
-  footer_movie: 'Phim',
-  footer_review: 'Đánh giá',
-  footer_blog: 'Blog',
-  footer_connect: 'Kết nối với chúng tôi',
-  footer_copyright: 'Bản quyền © 2025',
-  footer_dmca: 'DMCA',
-  footer_terms: 'Điều khoản sử dụng',
-  footer_contact: 'Liên hệ với chúng tôi',
-  footer_privacy: 'Chính sách bảo mật',
-  footer_terms_of_service: 'Điều khoản dịch vụ',
+  // FOOTER
+  FOOTER_CUSTOMER_CARE: 'Chăm sóc khách hàng',
+  FOOTER_ADDRESS: '123 Đường Rạp Phim, Hà Nội, Việt Nam',
+  FOOTER_HOTLINE: 'Hotline: +84 123 456 789',
+  FOOTER_EMAIL: 'Email: support@cinema.com',
+  FOOTER_BUY_TICKET: 'Mua vé',
+  FOOTER_SCHEDULE: 'Lịch chiếu',
+  FOOTER_CINEMA: 'Rạp chiếu',
+  FOOTER_MOVIE: 'Phim',
+  FOOTER_REVIEW: 'Đánh giá',
+  FOOTER_BLOG: 'Blog',
+  FOOTER_CONNECT: 'Kết nối với chúng tôi',
+  FOOTER_COPYRIGHT: 'Bản quyền © 2025',
+  FOOTER_DMCA: 'DMCA',
+  FOOTER_TERMS: 'Điều khoản sử dụng',
+  FOOTER_CONTACT: 'Liên hệ với chúng tôi',
+  FOOTER_PRIVACY: 'Chính sách bảo mật',
+  FOOTER_TERMS_OF_SERVICE: 'Điều khoản dịch vụ',
 
-  // messages
-  messages_error: 'Đã xảy ra lỗi',
-  messages_loading: 'Đang tải...',
+  // MESSAGES
+  MESSAGES_ERROR: 'Đã xảy ra lỗi',
+  MESSAGES_LOADING: 'Đang tải...',
 
-  // login
-  login_title: 'Đăng nhập tài khoản',
-  login_google_login: 'Đăng nhập với Google',
-  login_facebook_login: 'Đăng nhập với Facebook',
-  login_email_placeholder: 'Nhập email',
-  login_password_placeholder: 'Nhập mật khẩu',
-  login_forgot_password: 'Quên mật khẩu?',
-  login_login_button: 'Đăng nhập',
-  login_register_prompt: 'Bạn chưa có tài khoản?',
-  login_register_link: 'Đăng ký?',
-  login_or: 'Hoặc',
-  login_email_invalid: 'Email không đúng định dạng',
-  login_email_required: 'Email không được để trống',
-  login_password_required: 'Mật khẩu không được để trống',
+  // LOGIN
+  LOGIN_TITLE: 'Đăng nhập tài khoản',
+  LOGIN_GOOGLE_LOGIN: 'Đăng nhập với Google',
+  LOGIN_FACEBOOK_LOGIN: 'Đăng nhập với Facebook',
+  LOGIN_EMAIL_PLACEHOLDER: 'Nhập email',
+  LOGIN_PASSWORD_PLACEHOLDER: 'Nhập mật khẩu',
+  LOGIN_FORGOT_PASSWORD: 'Quên mật khẩu?',
+  LOGIN_LOGIN_BUTTON: 'Đăng nhập',
+  LOGIN_REGISTER_PROMPT: 'Bạn chưa có tài khoản?',
+  LOGIN_REGISTER_LINK: 'Đăng ký?',
+  LOGIN_OR: 'Hoặc',
+  LOGIN_EMAIL_INVALID: 'Email không đúng định dạng',
+  LOGIN_EMAIL_REQUIRED: 'Email không được để trống',
+  LOGIN_PASSWORD_REQUIRED: 'Mật khẩu không được để trống',
   ACCOUNT_NOT_ACTIVATED:
     'Tài khoản của bạn chưa được kích hoạt. Vui lòng kiểm tra email để nhận liên kết kích hoạt.',
   INVALID_CREDENTIALS: 'Email hoặc mật khẩu không hợp lệ. Vui lòng thử lại.',
-  messages_login_success: 'Đăng nhập thành công',
-  messages_logout_success: 'Đăng xuất thành công',
+  MESSAGES_LOGIN_SUCCESS: 'Đăng nhập thành công',
+  MESSAGES_LOGOUT_SUCCESS: 'Đăng xuất thành công',
 
-  // search
-  search_placeholder: 'Tìm kiếm phim hoặc rạp',
+  // SEARCH
+  SEARCH_PLACEHOLDER: 'Tìm kiếm phim hoặc rạp',
 
-  // register
-  register_title: 'Đăng ký Tài khoản',
-  register_name: 'Họ tên',
-  register_name_placeholder: 'Nhập họ tên',
-  register_name_required: 'Họ tên không được để trống',
-  register_email: 'Email',
-  register_email_placeholder: 'Nhập email',
-  register_email_required: 'Email không được để trống',
-  register_email_invalid: 'Email không đúng định dạng',
-  register_phone: 'Số điện thoại',
-  register_phone_placeholder: 'Nhập số điện thoại',
-  register_phone_required: 'Số điện thoại không được để trống',
-  register_phone_invalid: 'Số điện thoại không đúng định dạng',
-  register_password: 'Mật khẩu',
-  register_password_placeholder: 'Nhập mật khẩu',
-  register_password_required: 'Mật khẩu không được để trống',
-  register_confirm_password: 'Xác nhận mật khẩu',
-  register_confirm_password_placeholder: 'Nhập lại mật khẩu',
-  register_confirm_password_required: 'Xác nhận mật khẩu không được để trống',
-  register_confirm_password_match: 'Mật khẩu xác nhận không trùng khớp',
-  register_submit: 'Đăng ký',
-  register_success_message:
+  // REGISTER
+  REGISTER_TITLE: 'Đăng ký Tài khoản',
+  REGISTER_NAME: 'Họ tên',
+  REGISTER_NAME_PLACEHOLDER: 'Nhập họ tên',
+  REGISTER_NAME_REQUIRED: 'Họ tên không được để trống',
+  REGISTER_EMAIL: 'Email',
+  REGISTER_EMAIL_PLACEHOLDER: 'Nhập email',
+  REGISTER_EMAIL_REQUIRED: 'Email không được để trống',
+  REGISTER_EMAIL_INVALID: 'Email không đúng định dạng',
+  REGISTER_PHONE: 'Số điện thoại',
+  REGISTER_PHONE_PLACEHOLDER: 'Nhập số điện thoại',
+  REGISTER_PHONE_REQUIRED: 'Số điện thoại không được để trống',
+  REGISTER_PHONE_INVALID: 'Số điện thoại không đúng định dạng',
+  REGISTER_PASSWORD: 'Mật khẩu',
+  REGISTER_PASSWORD_PLACEHOLDER: 'Nhập mật khẩu',
+  REGISTER_PASSWORD_REQUIRED: 'Mật khẩu không được để trống',
+  REGISTER_CONFIRM_PASSWORD: 'Xác nhận mật khẩu',
+  REGISTER_CONFIRM_PASSWORD_PLACEHOLDER: 'Nhập lại mật khẩu',
+  REGISTER_CONFIRM_PASSWORD_REQUIRED: 'Xác nhận mật khẩu không được để trống',
+  REGISTER_CONFIRM_PASSWORD_MATCH: 'Mật khẩu xác nhận không trùng khớp',
+  REGISTER_SUBMIT: 'Đăng ký',
+  REGISTER_SUCCESS_MESSAGE:
     'Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản.',
-  register_have_account: 'Bạn đã có tài khoản?',
-  register_login_link: 'Đăng nhập',
-  register_show_password: 'Hiển thị mật khẩu',
+  REGISTER_HAVE_ACCOUNT: 'Bạn đã có tài khoản?',
+  REGISTER_LOGIN_LINK: 'Đăng nhập',
+  REGISTER_SHOW_PASSWORD: 'Hiển thị mật khẩu',
   EMAIL_ALREADY_EXISTS: 'Email đã tồn tại. Vui lòng sử dụng email khác.',
   REGISTER_ACCOUNT_NOT_ACTIVATED:
     'Email đã tồn tại nhưng chưa kích hoạt. Vui lòng kiểm tra email để kích hoạt tài khoản.',
 
-  // verify
-  verify_success_title: 'Xác thực tài khoản',
-  verify_success_message:
+  // VERIFY
+  VERIFY_SUCCESS_TITLE: 'Xác thực tài khoản',
+  VERIFY_SUCCESS_MESSAGE:
     'Tài khoản của bạn đã được xác thực thành công. Bạn có thể đăng nhập ngay bây giờ.',
-  verify_back_home: 'Quay lại trang chủ',
+  VERIFY_BACK_HOME: 'Quay lại trang chủ',
 
-  // forgot password
-  forgot_password_title: 'Quên mật khẩu',
-  forgot_password_placeholder: 'Nhập email của bạn',
-  forgot_password_submit: 'Gửi yêu cầu',
-  forgot_password_sending: 'Đang gửi...',
-  forgot_password_success:
+  // FORGOT PASSWORD
+  FORGOT_PASSWORD_TITLE: 'Quên mật khẩu',
+  FORGOT_PASSWORD_PLACEHOLDER: 'Nhập email của bạn',
+  FORGOT_PASSWORD_SUBMIT: 'Gửi yêu cầu',
+  FORGOT_PASSWORD_SENDING: 'Đang gửi...',
+  FORGOT_PASSWORD_SUCCESS:
     'Vui lòng kiểm tra email để nhận liên kết đặt lại mật khẩu',
-  forgot_password_email_required: 'Vui lòng nhập email',
-  reset_password_title: 'Đặt lại mật khẩu',
-  reset_password_new_password_placeholder: 'Mật khẩu mới',
-  reset_password_confirm_password_placeholder: 'Xác nhận mật khẩu',
-  reset_password_submit: 'Đặt lại mật khẩu',
-  reset_password_strength: 'Độ mạnh mật khẩu',
-  reset_password_tips: 'Sử dụng ít nhất 8 ký tự, bao gồm chữ hoa, số và ký tự đặc biệt',
+  FORGOT_PASSWORD_EMAIL_REQUIRED: 'Vui lòng nhập email',
+  RESET_PASSWORD_TITLE: 'Đặt lại mật khẩu',
+  RESET_PASSWORD_NEW_PASSWORD_PLACEHOLDER: 'Mật khẩu mới',
+  RESET_PASSWORD_CONFIRM_PASSWORD_PLACEHOLDER: 'Xác nhận mật khẩu',
+  RESET_PASSWORD_SUBMIT: 'Đặt lại mật khẩu',
+  RESET_PASSWORD_STRENGTH: 'Độ mạnh mật khẩu',
+  RESET_PASSWORD_TIPS:
+    'Sử dụng ít nhất 8 ký tự, gồm chữ hoa, số và ký tự đặc biệt',
   USER_NOT_FOUND: 'Không tìm thấy người dùng',
   FORGOT_ACCOUNT_NOT_ACTIVATED: 'Tài khoản chưa kích hoạt',
-  PASSWORDS_REQUIRED: 'Mật khẩu là bắt buộc',
+  RESET_PASSWORDS_REQUIRED: 'Mật khẩu là bắt buộc',
+  RESET_CONFIRM_PASSWORDS_REQUIRED: 'Xác nhận mật khẩu là bắt buộc',
+  RESET_CONFIRM_PASSWORDS_NOT_MATCH: 'Mật khẩu xác nhận không trùng khớp',
   PASSWORD_RESET_TOKEN_INVALID: 'Token đặt lại mật khẩu không hợp lệ',
   PASSWORD_RESET_TOKEN_ALREADY_CONFIRMED:
     'Token đặt lại mật khẩu đã được xác nhận',
@@ -155,14 +158,13 @@ const common = {
   PASSWORD_REUSE: 'Mật khẩu mới không được trùng với mật khẩu cũ',
   RESET_PASSWORD_SUCCESS: 'Đặt lại mật khẩu thành công, vui lòng đăng nhập lại',
   RESET_PASSWORD_ERROR: 'Đặt lại mật khẩu không thành công',
-  reset_password_strength_weak: 'Mật khẩu yếu',
-  reset_password_strength_medium: 'Mật khẩu trung bình',
-  reset_password_strength_strong: 'Mật khẩu mạnh',
+  RESET_PASSWORD_STRENGTH_WEAK: 'Mật khẩu yếu',
+  RESET_PASSWORD_STRENGTH_MEDIUM: 'Mật khẩu trung bình',
+  RESET_PASSWORD_STRENGTH_STRONG: 'Mật khẩu mạnh',
 
-
-  //Update Password
+  // UPDATE PASSWORD
   CHANGE_PASSWORD: 'Đổi mật khẩu',
-  CHANGE_PASSWORD_SUBTITLE: 'Nhập mật khẩu mới',
+  CHANGE_PASSWORD_SUBTITLE: 'Hãy đặt mật khẩu an toàn và dễ nhớ',
   ENTER_NEW_PASSWORD: 'Nhập mật khẩu mới',
   CURRENT_PASSWORD: 'Mật khẩu hiện tại',
   CURRENT_PASSWORD_REQUIRED: 'Mật khẩu hiện tại là bắt buộc!',
