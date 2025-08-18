@@ -16,11 +16,9 @@ import LanguageSelector from '@components/language/LanguageSelector';
 import { useEffect, useRef } from 'react';
 import ContentWrapper from '@components/base/ContentWrapper';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { auth, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
@@ -80,6 +78,7 @@ export default function Header() {
 
   const handleLogout = () => {
     dispatch(logout());
+    window.location.href = '/';
   };
 
   return (
