@@ -273,6 +273,7 @@ const Container = styled.div`
   width: 100%;
   position: relative;
   z-index: 1;
+  font-family: ${theme.fontFamily.primary};
 `;
 
 const Card = styled.div`
@@ -295,6 +296,7 @@ const CardTitle = styled.h3`
   font-weight: 600;
   color: ${theme.colors.textPrimary};
   margin: 0 0 ${theme.spacing.sm} 0;
+  font-family: ${theme.fontFamily.display};
 `;
 
 const CardSubtitle = styled.p`
@@ -345,6 +347,7 @@ const PasswordInput = styled.input<{ $hasError: boolean }>`
   padding: 12px ${theme.spacing.md};
   padding-right: 50px;
   font-size: ${theme.fontSize.md};
+  font-family: ${theme.fontFamily.primary};
   border: 1px solid
     ${({ $hasError }) => ($hasError ? theme.colors.error : theme.colors.border)};
   border-radius: ${theme.borderRadius.small};
@@ -419,6 +422,7 @@ const SubmitButton = styled.button`
   padding: 12px ${theme.spacing.lg};
   font-size: ${theme.fontSize.md};
   font-weight: 600;
+  font-family: ${theme.fontFamily.primary};
   background: linear-gradient(90deg, #6d5edc, #2193b0);
   background-size: 200% 100%;
   background-position: left;

@@ -205,6 +205,7 @@ const Container = styled.header`
   justify-content: space-between;
   align-items: center;
   height: 80px;
+  font-family: ${theme.fontFamily.primary};
 
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;

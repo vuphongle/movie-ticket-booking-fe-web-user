@@ -6,11 +6,19 @@ import { FiUser, FiStar, FiClock, FiLogOut } from 'react-icons/fi';
 import { theme } from '@/theme/Theme';
 import { useTranslation } from 'react-i18next';
 
+export type ProfileTab = 'profile' | 'history' | 'member';
+
 interface SidebarProps {
   onLogout: () => void;
+  activeTab: ProfileTab;
+  onTabChange: (tab: ProfileTab) => void;
 }
 
-const ProfileSidebar: React.FC<SidebarProps> = ({ onLogout }) => {
+const ProfileSidebar: React.FC<SidebarProps> = ({
+  onLogout,
+  activeTab,
+  onTabChange,
+}) => {
   const user = useSelector((state: RootState) => state.auth.auth);
   const { t } = useTranslation();
 
@@ -18,22 +26,44 @@ const ProfileSidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     <SidebarContainer>
       <UserInfo>
         <UserAvatar>
-          <FiUser size={48} />
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover',
+              }}
+            />
+          ) : (
+            <FiUser size={48} />
+          )}
         </UserAvatar>
         <UserName>{user?.name}</UserName>
         <ChangeAvatar>{t('CHANGE_AVATAR')}</ChangeAvatar>
       </UserInfo>
       <CFriendsButton>{t('C_FRIENDS')}</CFriendsButton>
       <Menu>
-        <MenuItem active>
+        <MenuItem
+          active={activeTab === 'profile'}
+          onClick={() => onTabChange('profile')}
+        >
           <FiUser size={20} />
           <span>{t('CUSTOMER_INFO')}</span>
         </MenuItem>
-        <MenuItem>
+        <MenuItem
+          active={activeTab === 'member'}
+          onClick={() => onTabChange('member')}
+        >
           <FiStar size={20} />
           <span>{t('CINESTAR_MEMBER')}</span>
         </MenuItem>
-        <MenuItem>
+        <MenuItem
+          active={activeTab === 'history'}
+          onClick={() => onTabChange('history')}
+        >
           <FiClock size={20} />
           <span>{t('PURCHASE_HISTORY')}</span>
         </MenuItem>

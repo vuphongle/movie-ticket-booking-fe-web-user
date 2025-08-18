@@ -37,6 +37,10 @@ colors: {
     lg: '18px',
     xl: '20px',
   },
+  fontFamily: {
+    primary: "'Inter', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif",
+    display: "'Inter', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif",
+  },
 } as const;
 
 export type ThemeType = typeof theme;
