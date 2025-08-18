@@ -22,6 +22,7 @@ interface RegisterFormData {
   phone: string;
   password: string;
   confirmPassword: string;
+  dob: string;
 }
 
 const RegisterModal: React.FC<RegisterModalProps> = ({
@@ -46,6 +47,20 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
             /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/,
             t('REGISTER_PHONE_INVALID')
           ),
+        dob: yup
+          .string()
+          .required(t('REGISTER_DOB_REQUIRED'))
+          .test('age', t('REGISTER_DOB_TOO_YOUNG'), value => {
+            if (!value) return false;
+            const dob = new Date(value);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const m = today.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+              age--;
+            }
+            return age >= 12;
+          }),
         password: yup.string().required(t('REGISTER_PASSWORD_REQUIRED')),
         confirmPassword: yup
           .string()
@@ -82,10 +97,10 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   }, [open, reset]);
 
   useEffect(() => {
-  if (!open) {
-    clearErrors();
-  }
-}, [open, clearErrors]);
+    if (!open) {
+      clearErrors();
+    }
+  }, [open, clearErrors]);
 
   const [showPassword, setShowPassword] = useState({
     password: false,
@@ -162,6 +177,18 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 {errors.phone && <ErrorText>{errors.phone.message}</ErrorText>}
               </Field>
             </GridTwoCols>
+
+            <Field>
+              <Label htmlFor='dob'>{t('REGISTER_DOB')}</Label>
+              <Input
+                type='date'
+                id='dob'
+                placeholder={t('REGISTER_DOB_PLACEHOLDER')}
+                {...register('dob')}
+                error={!!errors.dob}
+              />
+              {errors.dob && <ErrorText>{errors.dob.message}</ErrorText>}
+            </Field>
 
             <Field>
               <Label htmlFor='password'>{t('REGISTER_PASSWORD')}</Label>

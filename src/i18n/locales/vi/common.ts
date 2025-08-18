@@ -123,6 +123,9 @@ const common = {
   EMAIL_ALREADY_EXISTS: 'Email đã tồn tại. Vui lòng sử dụng email khác.',
   REGISTER_ACCOUNT_NOT_ACTIVATED:
     'Email đã tồn tại nhưng chưa kích hoạt. Vui lòng kiểm tra email để kích hoạt tài khoản.',
+  REGISTER_DOB_TOO_YOUNG: 'Bạn phải ít nhất 12 tuổi để đăng ký.',
+  REGISTER_DOB_REQUIRED: 'Ngày sinh là bắt buộc.',
+  REGISTER_DOB: 'Ngày sinh',
 
   // VERIFY
   VERIFY_SUCCESS_TITLE: 'Xác thực tài khoản',

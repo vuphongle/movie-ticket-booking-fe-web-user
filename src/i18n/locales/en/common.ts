@@ -122,6 +122,9 @@ const common = {
   EMAIL_ALREADY_EXISTS: 'Email already exists. Please use a different email.',
   REGISTER_ACCOUNT_NOT_ACTIVATED:
     'Email already exists but not activated. Please check your email to activate your account.',
+  REGISTER_DOB_TOO_YOUNG: 'You must be at least 12 years old to register.',
+  REGISTER_DOB_REQUIRED: 'Date of birth is required.',
+  REGISTER_DOB: 'Date of Birth',
 
   // VERIFY
   VERIFY_SUCCESS_TITLE: 'Account Verified',
