@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useChangePasswordMutation } from '@app/services/user.api';
-import { useNavigate } from 'react-router-dom';
 import { logout } from '@app/slices/auth.slice';
 import { useDispatch } from 'react-redux';
 import { theme } from '@theme/Theme';
@@ -35,7 +34,6 @@ function scorePassword(pw: string) {
 
 function ChangePassword() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [capsOn, setCapsOn] = useState(false);
@@ -108,10 +106,10 @@ function ChangePassword() {
         newPassword: '',
         confirmPassword: '',
       });
-      dispatch(logout());
 
       setTimeout(() => {
-        navigate('/');
+        dispatch(logout());
+        window.location.href = '/';
       }, 2000);
     } catch (error: any) {
       const code = error?.data?.code;

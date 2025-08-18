@@ -181,7 +181,7 @@ const common = {
   CONFIRM_PASSWORD_REQUIRED: 'Confirm password is required!',
   CONFIRM_NEW_PASSWORD_PLACEHOLDER: 'Confirm new password',
   PASSWORDS_NOT_MATCH: 'Passwords do not match',
-  CHANGE_PASSWORD_SUCCESS: 'Password changed successfully',
+  CHANGE_PASSWORD_SUCCESS: 'Password changed successfully. Logging out...',
   CHANGE_PASSWORD_ERROR: 'Failed to change password',
   CAPSLOCK_ON: 'Caps Lock is on',
   INVALID_OLD_PASSWORD: 'Invalid current password',

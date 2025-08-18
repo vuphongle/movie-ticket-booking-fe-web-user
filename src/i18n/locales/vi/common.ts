@@ -184,7 +184,7 @@ const common = {
   CONFIRM_PASSWORD_REQUIRED: 'Xác nhận mật khẩu là bắt buộc!',
   CONFIRM_NEW_PASSWORD_PLACEHOLDER: 'Xác nhận mật khẩu mới',
   PASSWORDS_NOT_MATCH: 'Mật khẩu không khớp',
-  CHANGE_PASSWORD_SUCCESS: 'Đổi mật khẩu thành công',
+  CHANGE_PASSWORD_SUCCESS: 'Đổi mật khẩu thành công. Đang đăng xuất...',
   CHANGE_PASSWORD_ERROR: 'Đổi mật khẩu không thành công',
   CAPSLOCK_ON: 'Caps Lock đang bật',
   INVALID_OLD_PASSWORD: 'Mật khẩu hiện tại không đúng',
