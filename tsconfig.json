@@ -34,7 +34,8 @@
       "@images/*": ["src/assets/images/*"],
       "@lib/*": ["src/lib/*"],
       "@contexts/*": ["src/contexts/*"],
-      "@types/*": ["src/types/*"]
+      "@types/*": ["src/types/*"],
+      "@theme/*": ["src/theme/*"]
     },
 
     /* Additional options */

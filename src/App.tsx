@@ -1,31 +1,43 @@
+import VerifyAccount from '@pages/verify/VerifyAccount';
 import Footer from '@components/footer/Footer';
 import Header from '@components/header/Header';
-import LanguageSelector from '@components/language/LanguageSelector';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import './i18n';
-import HomePage from './pages/home/Home';
+import HomePage from '@pages/home/Home';
+import { useLocation } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+import './i18n/i18n';
+import './index.css';
+import ContentWrapper from '@components/base/ContentWrapper';
+import ResetPasswordPage from '@/pages/verify/ResetPassword';
+import ChangPasswordPage from '@/pages/verify/ChangePassword';
+
+import AppToastContainer from '@components/base/AppToastContainer';
 
 function App() {
-  return (
-    <Router>
-      <div style={styles.container}>
-        <header style={styles.header}>
-          <Header />
-          <LanguageSelector />
-        </header>
+  const location = useLocation();
+  const hideLayout =
+    location.pathname === '/xac-thuc-tai-khoan' ||
+    location.pathname === '/dat-lai-mat-khau' ||
+    location.pathname === '/doi-mat-khau';
 
-        <main style={styles.main}>
+  return (
+    <div style={styles.container}>
+      <AppToastContainer />
+
+      {!hideLayout && <Header />}
+
+      <main style={styles.main}>
+        <ContentWrapper style={styles.contentWrapper}>
           <Routes>
             <Route path='/' element={<HomePage />} />
-            {/* các route con khác kkkk */}
+            <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />
+            <Route path="/dat-lai-mat-khau" element={<ResetPasswordPage />} />
+            <Route path="/doi-mat-khau" element={<ChangPasswordPage />} />
           </Routes>
-        </main>
+        </ContentWrapper>
+      </main>
 
-        <footer style={styles.footer}>
-          <Footer />
-        </footer>
-      </div>
-    </Router>
+      {!hideLayout && <Footer />}
+    </div>
   );
 }
 
@@ -35,24 +47,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     minHeight: '100vh',
   },
-  header: {
-    padding: '16px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   main: {
-    flex: 1,
-    padding: '16px',
-    width: '100%',
+    flex: 1, 
+    display: 'flex',
     flexDirection: 'column',
   },
-
-  footer: {
-    padding: '16px',
-    borderTop: '1px solid #ccc',
-    marginTop: '32px',
+  contentWrapper: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
   },
 };
 

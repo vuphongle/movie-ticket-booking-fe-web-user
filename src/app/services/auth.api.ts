@@ -1,105 +1,96 @@
-import { API_DOMAIN_PUBLIC, DOMAIN } from '@lib/api';
+import { API_DOMAIN, API_DOMAIN_AUTH_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-// Kiểu dữ liệu cho user
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-}
+const ENDPOINT = API_DOMAIN_AUTH_PUBLIC;
 
-// Kiểu dữ liệu phản hồi từ login
 interface LoginResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+    [key: string]: any;
+  };
   accessToken: string;
   refreshToken: string;
-  user: User;
-}
-
-// Kiểu dữ liệu truyền vào login
-interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-// Kiểu dữ liệu truyền vào đăng ký
-interface RegisterRequest {
-  name: string;
-  email: string;
-  password: string;
-}
-
-// Kiểu dữ liệu quên mật khẩu
-interface ForgotPasswordRequest {
-  email: string;
-}
-
-// Kiểu dữ liệu đổi mật khẩu
-interface ChangePasswordRequest {
-  token: string;
-  newPassword: string;
 }
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({ baseUrl: API_DOMAIN_PUBLIC }),
+  baseQuery: fetchBaseQuery({ baseUrl: ENDPOINT }),
   endpoints: builder => ({
-    login: builder.mutation<LoginResponse, LoginRequest>({
-      query: credentials => ({
-        url: 'auth/login',
-        method: 'POST',
-        body: credentials,
-      }),
-      transformResponse: (response: LoginResponse): LoginResponse => {
-        return {
-          ...response,
-          user: {
-            ...response.user,
-            avatar: response.user.avatar.startsWith('/api')
-              ? `${DOMAIN}${response.user.avatar}`
-              : response.user.avatar,
-          },
-        };
-      },
-    }),
-
-    registerAccount: builder.mutation<void, RegisterRequest>({
-      query: data => ({
-        url: 'auth/register',
-        method: 'POST',
-        body: data,
-      }),
-    }),
-
-    forgotPassword: builder.mutation<void, ForgotPasswordRequest>({
-      query: ({ email }) => ({
-        url: 'auth/forgot-password',
-        method: 'POST',
-        params: {
-          email,
+    login: builder.mutation<LoginResponse, { email: string; password: string }>(
+      {
+        query: credentials => ({
+          url: 'login',
+          method: 'POST',
+          body: credentials,
+        }),
+        transformResponse: (response: LoginResponse) => {
+          return {
+            ...response,
+            user: {
+              ...response.user,
+              avatar: response.user.avatar.startsWith('/api')
+                ? `${API_DOMAIN}${response.user.avatar}`
+                : response.user.avatar,
+            },
+          };
         },
-      }),
-    }),
-
-    checkForgotPasswordToken: builder.query<void, string>({
-      query: token => ({
-        url: `auth/check-forgot-password-token/${token}`,
-        method: 'GET',
-      }),
-    }),
-
-    checkRegisterToken: builder.query<void, string>({
-      query: token => ({
-        url: `auth/check-register-token/${token}`,
-        method: 'GET',
-      }),
-    }),
-
-    changePassword: builder.mutation<void, ChangePasswordRequest>({
+      }
+    ),
+    registerAccount: builder.mutation<
+      void,
+      {
+        name: string;
+        email: string;
+        phone: string;
+        password: string;
+        confirmPassword: string;
+      }
+    >({
       query: data => ({
-        url: 'auth/change-password',
+        url: 'register',
         method: 'POST',
         body: data,
+      }),
+    }),
+    verifyAccount: builder.mutation<void, string>({
+      query: token => ({
+        url: `check-register-token/${encodeURIComponent(token)}`,
+        method: 'GET',
+      }),
+    }),
+    forgotPassword: builder.mutation<void, { email: string }>({
+      query: data => ({
+        url: 'forgot-password',
+        method: 'GET',
+        params: { email: data.email },
+      }),
+    }),
+
+    checkForgotPasswordToken: builder.query<
+      { token: string; success: boolean; message: string },
+      string
+    >({
+      query: token => ({
+        url: `check-forgot-password-token/${encodeURIComponent(token)}`,
+        method: 'GET',
+      }),
+    }),
+
+    resetPassword: builder.mutation<
+      void,
+      { token: string; newPassword: string; confirmPassword: string }
+    >({
+      query: data => ({
+        url: 'change-password',
+        method: 'POST',
+        body: {
+          token: data.token,
+          newPassword: data.newPassword,
+          confirmPassword: data.confirmPassword,
+        },
       }),
     }),
   }),
@@ -108,8 +99,8 @@ export const authApi = createApi({
 export const {
   useLoginMutation,
   useRegisterAccountMutation,
+  useVerifyAccountMutation,
   useForgotPasswordMutation,
   useCheckForgotPasswordTokenQuery,
-  useChangePasswordMutation,
-  useCheckRegisterTokenQuery,
+  useResetPasswordMutation,
 } = authApi;

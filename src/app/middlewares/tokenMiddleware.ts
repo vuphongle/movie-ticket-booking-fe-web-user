@@ -19,7 +19,6 @@ export const tokenMiddleware: Middleware<{}, RootState> =
           store.dispatch(logout());
         }
       } catch (error) {
-        console.error('Token decode error:', error);
         store.dispatch(logout());
       }
     }
