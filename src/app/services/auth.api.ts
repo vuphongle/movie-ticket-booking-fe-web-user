@@ -10,6 +10,7 @@ interface LoginResponse {
     email: string;
     avatar: string;
     [key: string]: any;
+    dob: string;
   };
   accessToken: string;
   refreshToken: string;
@@ -47,6 +48,7 @@ export const authApi = createApi({
         phone: string;
         password: string;
         confirmPassword: string;
+        dob: string;
       }
     >({
       query: data => ({

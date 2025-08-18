@@ -183,6 +183,9 @@ const common = {
   CAPSLOCK_ON: 'Caps Lock is on',
   INVALID_OLD_PASSWORD: 'Invalid current password',
   NEW_PASSWORD_SAME_AS_OLD: 'New password must be different from old password',
+  WEAK: 'Weak',
+  MEDIUM: 'Medium',
+  STRONG: 'Strong',
 };
 
 export default common;

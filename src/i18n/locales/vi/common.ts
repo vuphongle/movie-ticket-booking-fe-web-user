@@ -186,6 +186,9 @@ const common = {
   CAPSLOCK_ON: 'Caps Lock đang bật',
   INVALID_OLD_PASSWORD: 'Mật khẩu hiện tại không đúng',
   NEW_PASSWORD_SAME_AS_OLD: 'Mật khẩu mới không được trùng với mật khẩu cũ',
+  WEAK: 'Yếu',
+  MEDIUM: 'Trung bình',
+  STRONG: 'Mạnh',
 };
 
 export default common;

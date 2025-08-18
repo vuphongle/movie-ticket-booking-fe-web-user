@@ -2,13 +2,13 @@ import VerifyAccount from '@pages/verify/VerifyAccount';
 import Footer from '@components/footer/Footer';
 import Header from '@components/header/Header';
 import HomePage from '@pages/home/Home';
+import ProfilePage from '@pages/profile/Profile';
 import { useLocation } from 'react-router-dom';
 import { Route, Routes } from 'react-router-dom';
 import './i18n/i18n';
 import './index.css';
 import ContentWrapper from '@components/base/ContentWrapper';
 import ResetPasswordPage from '@/pages/verify/ResetPassword';
-import ChangPasswordPage from '@/pages/verify/ChangePassword';
 
 import AppToastContainer from '@components/base/AppToastContainer';
 
@@ -30,8 +30,8 @@ function App() {
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />
-            <Route path="/dat-lai-mat-khau" element={<ResetPasswordPage />} />
-            <Route path="/doi-mat-khau" element={<ChangPasswordPage />} />
+            <Route path='/dat-lai-mat-khau' element={<ResetPasswordPage />} />
+            <Route path='/profile' element={<ProfilePage />} />
           </Routes>
         </ContentWrapper>
       </main>
@@ -46,9 +46,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     minHeight: '100vh',
+    background: 'linear-gradient(135deg, #10172a, #4a4499)',
   },
   main: {
-    flex: 1, 
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
   },

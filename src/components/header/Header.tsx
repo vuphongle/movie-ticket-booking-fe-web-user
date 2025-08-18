@@ -78,10 +78,6 @@ export default function Header() {
     openLoginModal();
   };
 
-  const handleChangePassword = () => {
-    navigate('/doi-mat-khau');
-  };
-
   const handleLogout = () => {
     dispatch(logout());
   };
@@ -165,11 +161,7 @@ export default function Header() {
 
                 <RightArea>
                   {isAuthenticated && auth ? (
-                    <UserMenu
-                      auth={auth}
-                      onLogout={handleLogout}
-                      onChangePassword={handleChangePassword}
-                    />
+                    <UserMenu auth={auth} onLogout={handleLogout} />
                   ) : (
                     <>
                       <ButtonOutline onClick={openRegisterModal}>
