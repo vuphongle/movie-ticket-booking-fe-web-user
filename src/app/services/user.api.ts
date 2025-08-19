@@ -15,6 +15,14 @@ interface UserResponse {
   cinema: any;
 }
 
+interface UploadAvatarResponse {
+  url: string;
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+  message: string;
+}
+
 export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({
@@ -50,18 +58,28 @@ export const userApi = createApi({
         },
       }),
     }),
-      updateProfile: builder.mutation<
-        UserResponse,
-        { name: string; phone: string; dob: string }
-      >({
-        query: data => ({
-          url: 'users/update-profile',
-          method: 'PUT',
-          body: data,
-        }),
-        invalidatesTags: ['User'],
+    
+    uploadAvatar: builder.mutation<UploadAvatarResponse, FormData>({
+      query: (formData) => ({
+        url: 'users/upload-avatar',
+        method: 'POST',
+        body: formData,
       }),
+      invalidatesTags: ['User'],
+    }),
+    
+    updateProfile: builder.mutation<
+      UserResponse,
+      { name: string; phone: string; dob: string; avatar?: string }
+    >({
+      query: data => ({
+        url: 'users/update-profile',
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
   }),
 });
 
-export const { useChangePasswordMutation, useUpdateProfileMutation } = userApi;
+export const { useChangePasswordMutation, useUpdateProfileMutation, useUploadAvatarMutation } = userApi;

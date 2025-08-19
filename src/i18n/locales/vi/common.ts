@@ -195,6 +195,7 @@ const common = {
   STRONG: 'Mạnh',
 
   // UPDATE PROFILE
+  CHANGE_AVATAR: 'Thay đổi avatar',
   UPDATE_PROFILE_SUCCESS: 'Cập nhật thông tin thành công!',
   UPDATE_PROFILE_ERROR: 'Có lỗi xảy ra khi cập nhật thông tin!',
   SAVING: 'Đang lưu...',

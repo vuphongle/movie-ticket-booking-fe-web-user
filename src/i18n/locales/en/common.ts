@@ -192,6 +192,7 @@ const common = {
   STRONG: 'Strong',
 
   // UPDATE PROFILE
+  CHANGE_AVATAR: 'Change Avatar',
   UPDATE_PROFILE_SUCCESS: 'Profile updated successfully!',
   UPDATE_PROFILE_ERROR: 'Error occurred while updating profile!',
   SAVING: 'Saving...',
