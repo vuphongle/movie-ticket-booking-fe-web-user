@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '@/app/Store';
 import ChangePassword from './ChangePassword';
 import { theme } from '@/theme/Theme';
 import { useTranslation } from 'react-i18next';
+import { useUpdateProfileMutation } from '@/app/services/user.api';
+import { updateAuth } from '@/app/slices/auth.slice';
+import { toast } from 'react-toastify';
 
 function toISODate(input?: string | Date | null): string {
   if (!input) return new Date().toISOString().slice(0, 10);
@@ -34,7 +37,9 @@ type FormState = {
 
 const ProfileInfo: React.FC = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.auth);
+  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   const todayISO = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const initialForm: FormState = useMemo(
@@ -65,8 +70,13 @@ const ProfileInfo: React.FC = () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
       errs.email = t('EMAIL_INVALID');
     if (!data.dob) errs.dob = t('DOB_REQUIRED');
-    else if (calcAge(data.dob) < 12) errs.dob = t('DOB_TOO_YOUNG');
-    else if (data.dob > todayISO) errs.dob = t('DOB_INVALID_FUTURE');
+    else {
+      const dobYear = new Date(data.dob).getFullYear();
+      if (dobYear < 1900)
+        errs.dob = t('DOB_YEAR_TOO_OLD') || 'Năm sinh không được nhỏ hơn 1900';
+      else if (calcAge(data.dob) < 12) errs.dob = t('DOB_TOO_YOUNG');
+      else if (data.dob > todayISO) errs.dob = t('DOB_INVALID_FUTURE');
+    }
     return errs;
   };
 
@@ -79,9 +89,45 @@ const ProfileInfo: React.FC = () => {
       setForm(prev => ({ ...prev, [key]: value }));
     };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!isValid) return;
-    console.log('Save profile payload:', form);
+
+    try {
+      const updateData = {
+        name: form.name,
+        phone: form.phone,
+        dob: form.dob,
+      };
+
+      const result = await updateProfile(updateData).unwrap();
+
+      // Cập nhật thông tin user trong Redux store
+      dispatch(
+        updateAuth({
+          id: result.id.toString(),
+          name: result.name,
+          email: result.email,
+          phone: result.phone,
+          dob: result.dob,
+          avatar: result.avatar,
+          role: result.role,
+          enabled: result.enabled,
+          createdAt: result.createdAt,
+          updatedAt: result.updatedAt,
+        })
+      );
+
+      toast.success(
+        t('UPDATE_PROFILE_SUCCESS') || 'Cập nhật thông tin thành công!'
+      );
+    } catch (error: any) {
+      console.error('Update profile error:', error);
+      toast.error(
+        error?.data?.message ||
+          t('UPDATE_PROFILE_ERROR') ||
+          'Có lỗi xảy ra khi cập nhật thông tin!'
+      );
+    }
   };
 
   return (
@@ -99,6 +145,7 @@ const ProfileInfo: React.FC = () => {
             <DateInput
               value={form.dob}
               onChange={handleChange('dob')}
+              min='1900-01-01'
               max={todayISO}
             />
             {errors.dob && <ErrorText>{errors.dob}</ErrorText>}
@@ -120,12 +167,14 @@ const ProfileInfo: React.FC = () => {
               type='email'
               value={form.email}
               onChange={handleChange('email')}
+              readOnly
+              disabled
             />
             {errors.email && <ErrorText>{errors.email}</ErrorText>}
           </FormGroup>
         </FormRow>
-        <SaveButton onClick={handleSave} disabled={!isValid}>
-          {t('SAVE_INFO')}
+        <SaveButton onClick={handleSave} disabled={!isValid || isLoading}>
+          {isLoading ? t('SAVING') || 'Đang lưu...' : t('SAVE_INFO')}
         </SaveButton>
       </FormCard>
       <ChangePassword />
@@ -194,6 +243,14 @@ const Input = styled.input`
     outline: none;
     border-color: ${theme.colors.primary};
     box-shadow: 0 0 0 2px ${theme.colors.primary}20;
+  }
+
+  &:disabled {
+    background: #f5f5f5;
+    color: #aaa;
+    cursor: not-allowed;
+    border: 1px solid ${theme.colors.border};
+    opacity: 1;
   }
 `;
 

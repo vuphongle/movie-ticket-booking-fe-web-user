@@ -50,6 +50,11 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
         dob: yup
           .string()
           .required(t('REGISTER_DOB_REQUIRED'))
+          .test('year', t('REGISTER_DOB_YEAR_TOO_OLD'), value => {
+            if (!value) return false;
+            const dobYear = new Date(value).getFullYear();
+            return dobYear >= 1900;
+          })
           .test('age', t('REGISTER_DOB_TOO_YOUNG'), value => {
             if (!value) return false;
             const dob = new Date(value);
@@ -184,6 +189,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 type='date'
                 id='dob'
                 placeholder={t('REGISTER_DOB_PLACEHOLDER')}
+                min='1900-01-01'
+                max={new Date().toISOString().slice(0, 10)}
                 {...register('dob')}
                 error={!!errors.dob}
               />

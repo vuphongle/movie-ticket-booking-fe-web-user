@@ -12,6 +12,9 @@ const profile = {
     EMAIL_INVALID: "Invalid email",
     DOB_REQUIRED: "Date of birth is required",
     DOB_TOO_YOUNG: "You must be at least 12 years old",
+    DOB_INVALID_FUTURE: "Date of birth cannot be in the future",
+    DOB_YEAR_TOO_OLD: "Birth year cannot be before 1900",
+    NAME_TOO_SHORT: "Name must have at least 2 characters",
 
     CHANGE_AVATAR: "Change Avatar",
     C_FRIENDS: "C'Friends",

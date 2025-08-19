@@ -12,6 +12,9 @@ const profile = {
     EMAIL_INVALID: "Email không hợp lệ",
     DOB_REQUIRED: "Ngày sinh là bắt buộc",
     DOB_TOO_YOUNG: "Bạn phải từ 12 tuổi trở lên",
+    DOB_INVALID_FUTURE: "Ngày sinh không thể là ngày trong tương lai",
+    DOB_YEAR_TOO_OLD: "Năm sinh không được nhỏ hơn 1900",
+    NAME_TOO_SHORT: "Tên phải có ít nhất 2 ký tự",
 
     CHANGE_AVATAR: "Thay đổi ảnh đại diện",
     C_FRIENDS: "C'Friends",

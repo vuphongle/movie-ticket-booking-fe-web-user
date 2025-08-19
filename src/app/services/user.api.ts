@@ -2,11 +2,17 @@ import { API_BASE_URL } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 interface UserResponse {
-  id: string;
+  id: number;
   name: string;
+  dob: string;
   email: string;
+  phone: string;
   avatar: string;
-  [key: string]: any;
+  role: string;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+  cinema: any;
 }
 
 export const userApi = createApi({
@@ -27,6 +33,7 @@ export const userApi = createApi({
       }
     },
   }),
+  tagTypes: ['User'],
 
   endpoints: builder => ({
     changePassword: builder.mutation<
@@ -43,7 +50,18 @@ export const userApi = createApi({
         },
       }),
     }),
+      updateProfile: builder.mutation<
+        UserResponse,
+        { name: string; phone: string; dob: string }
+      >({
+        query: data => ({
+          url: 'users/update-profile',
+          method: 'PUT',
+          body: data,
+        }),
+        invalidatesTags: ['User'],
+      }),
   }),
 });
 
-export const { useChangePasswordMutation } = userApi;
+export const { useChangePasswordMutation, useUpdateProfileMutation } = userApi;

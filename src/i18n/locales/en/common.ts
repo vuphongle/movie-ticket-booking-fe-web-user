@@ -123,6 +123,7 @@ const common = {
   REGISTER_ACCOUNT_NOT_ACTIVATED:
     'Email already exists but not activated. Please check your email to activate your account.',
   REGISTER_DOB_TOO_YOUNG: 'You must be at least 12 years old to register.',
+  REGISTER_DOB_YEAR_TOO_OLD: 'Birth year cannot be before 1900.',
   REGISTER_DOB_REQUIRED: 'Date of birth is required.',
   REGISTER_DOB: 'Date of Birth',
 
@@ -189,6 +190,11 @@ const common = {
   WEAK: 'Weak',
   MEDIUM: 'Medium',
   STRONG: 'Strong',
+
+  // UPDATE PROFILE
+  UPDATE_PROFILE_SUCCESS: 'Profile updated successfully!',
+  UPDATE_PROFILE_ERROR: 'Error occurred while updating profile!',
+  SAVING: 'Saving...',
 };
 
 export default common;

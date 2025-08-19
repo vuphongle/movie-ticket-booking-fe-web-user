@@ -124,6 +124,7 @@ const common = {
   REGISTER_ACCOUNT_NOT_ACTIVATED:
     'Email đã tồn tại nhưng chưa kích hoạt. Vui lòng kiểm tra email để kích hoạt tài khoản.',
   REGISTER_DOB_TOO_YOUNG: 'Bạn phải ít nhất 12 tuổi để đăng ký.',
+  REGISTER_DOB_YEAR_TOO_OLD: 'Năm sinh không được nhỏ hơn 1900.',
   REGISTER_DOB_REQUIRED: 'Ngày sinh là bắt buộc.',
   REGISTER_DOB: 'Ngày sinh',
 
@@ -192,6 +193,11 @@ const common = {
   WEAK: 'Yếu',
   MEDIUM: 'Trung bình',
   STRONG: 'Mạnh',
+
+  // UPDATE PROFILE
+  UPDATE_PROFILE_SUCCESS: 'Cập nhật thông tin thành công!',
+  UPDATE_PROFILE_ERROR: 'Có lỗi xảy ra khi cập nhật thông tin!',
+  SAVING: 'Đang lưu...',
 };
 
 export default common;
