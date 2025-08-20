@@ -11,6 +11,8 @@ import ResetPasswordPage from '@/pages/verify/ResetPassword';
 import ChangPasswordPage from '@/pages/verify/ChangePassword';
 
 import AppToastContainer from '@components/base/AppToastContainer';
+import ComingSoon from './pages/movies/MovieComingSoon';
+import NowShowing from './pages/movies/MovieNowShowing';
 
 function App() {
   const location = useLocation();
@@ -32,6 +34,9 @@ function App() {
             <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />
             <Route path="/dat-lai-mat-khau" element={<ResetPasswordPage />} />
             <Route path="/doi-mat-khau" element={<ChangPasswordPage />} />
+
+            <Route path="/movies/now-showing" element={<NowShowing />} />
+            <Route path="/movies/coming-soon" element={<ComingSoon />} />
           </Routes>
         </ContentWrapper>
       </main>

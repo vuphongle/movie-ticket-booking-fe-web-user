@@ -1,52 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { theme } from '@/theme/Theme';
-
-interface Movie {
-  id: number;
-  title: string;
-  posterUrl: string;
-  rating?: string; 
-  showtime?: string; 
-}
+import MovieComponent from '@pages/home/components/MovieComponent';
+import { useNavigate } from 'react-router-dom';
+import {
+  useGetShowingNowMoviesQuery,
+  useGetComingSoonMoviesQuery,
+} from '@app/services/movie.api';
+import { useTranslation } from 'react-i18next';
 
 const HomePage: React.FC = () => {
-  const [hotMovies] = useState<Movie[]>([
-    { id: 1, title: 'Phim Hot 1', posterUrl: '/images/hot1.jpg' },
-    { id: 2, title: 'Phim Hot 2', posterUrl: '/images/hot2.jpg' },
-    { id: 3, title: 'Phim Hot 3', posterUrl: '/images/hot3.jpg' },
-  ]);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
+  const { data: nowShowing = [], isLoading: loadingNow } =
+    useGetShowingNowMoviesQuery();
+  const { data: comingSoon = [], isLoading: loadingSoon } =
+    useGetComingSoonMoviesQuery();
+
+  //   const [hotMovies] = useState<Movie[]>([
+  //     { id: 1, name: 'Phim Hot 1', posterUrl: '/images/hot1.jpg' },
+  //     { id: 2, name: 'Phim Hot 2', posterUrl: '/images/hot2.jpg' },
+  //     { id: 3, name: 'Phim Hot 3', posterUrl: '/images/hot3.jpg' },
+  //   ]);
 
   return (
     <PageContainer>
       {/* Banner */}
       <BannerSection>
         <BannerTitle>Phim Hot Tháng 8</BannerTitle>
-        <BannerCarousel>
+        {/* <BannerCarousel>
           {hotMovies.map(movie => (
             <BannerItem key={movie.id}>
-              <BannerImage src={movie.posterUrl} alt={movie.title} />
+              <BannerImage src={movie.poster} alt={movie.name} />
             </BannerItem>
           ))}
-        </BannerCarousel>
+        </BannerCarousel> */}
       </BannerSection>
 
-      {/* Phim đang chiếu */}
-      <Section>
-        <SectionTitle>Phim Đang Chiếu</SectionTitle>
-      </Section>
+      {loadingNow ? (
+        <p>{t('MOVIE_LOADING_NOW')}</p>
+      ) : (
+        <MovieComponent
+          title={t('MOVIE_NOW_SHOWING')}
+          movies={nowShowing}
+          buttonText={t('MOVIE_BOOK')}
+          onViewMore={() => navigate('/movies/now-showing')}
+        />
+      )}
 
-      {/* Phim sắp chiếu */}
-      <Section>
-        <SectionTitle>Phim Sắp Chiếu</SectionTitle>
-      </Section>
+      {loadingSoon ? (
+        <p>{t('MOVIE_LOADING_SOON')}</p>
+      ) : (
+        <MovieComponent
+          title={t('MOVIE_COMING_SOON')}
+          movies={comingSoon}
+          buttonText={t('MOVIE_LEARN_MORE')}
+          onViewMore={() => navigate('/movies/coming-soon')}
+        />
+      )}
 
       {/* Lịch chiếu phim */}
       <ScheduleSection>
         <ScheduleTitle>Lịch chiếu phim</ScheduleTitle>
-        <ScheduleTable>
-        </ScheduleTable>
+        <ScheduleTable></ScheduleTable>
       </ScheduleSection>
 
       {/* Tin khuyến mãi */}
@@ -54,13 +71,13 @@ const HomePage: React.FC = () => {
         <PromotionTitle>Tin khuyến mãi</PromotionTitle>
       </PromotionSection>
 
-    {/* Góc điện ảnh */}
+      {/* Góc điện ảnh */}
       <CinemaCornerSection>
         <CinemaCornerTitle>Góc điện ảnh</CinemaCornerTitle>
         <nav>
-            <MenuItem>Thông tin phim</MenuItem>
-            <MenuItem>Đánh giá phim</MenuItem>
-            <MenuItem>Tin tức Đạo diên/diễn viên</MenuItem>
+          <MenuItem>Thông tin phim</MenuItem>
+          <MenuItem>Đánh giá phim</MenuItem>
+          <MenuItem>Tin tức Đạo diên/diễn viên</MenuItem>
         </nav>
       </CinemaCornerSection>
     </PageContainer>
@@ -136,7 +153,8 @@ const ScheduleTable = styled.table`
     background-color: ${theme.colors.primary};
     color: white;
   }
-  th, td {
+  th,
+  td {
     border: 1px solid #ddd;
     padding: 8px;
   }

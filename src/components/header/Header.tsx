@@ -17,6 +17,7 @@ import { useEffect, useRef } from 'react';
 import ContentWrapper from '@components/base/ContentWrapper';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -94,9 +95,11 @@ export default function Header() {
             <Nav>
               <LeftGroup>
                 <LogoArea>
-                  <Logo src={LogoImg} alt='GoCinema' />
+                  <Link to='/'>
+                    <Logo src={LogoImg} alt='GoCinema' />
+                  </Link>
                 </LogoArea>
-
+                
                 <SearchBox>
                   <SearchInput
                     placeholder={t('SEARCH_PLACEHOLDER') || 'Tìm phim, rạp'}

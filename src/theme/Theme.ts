@@ -2,6 +2,7 @@ export const theme = {
 colors: {
   primary: '#01274c',
   primaryHover: '#2b4dad',
+  primaryHoverGradient: 'linear-gradient(90deg, #01274c, #2b4dad)',
   backgroundHover: '#e1f3fe', 
   backgroundFocus: '#04132a', 
   textPrimary: '#01274c',
