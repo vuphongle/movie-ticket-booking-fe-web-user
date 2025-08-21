@@ -1,18 +1,20 @@
 import VerifyAccount from '@pages/verify/VerifyAccount';
 import Footer from '@components/footer/Footer';
 import Header from '@components/header/Header';
-import HomePage from '@pages/home/Home';
+import HomePage from '@pages/home/HomePage';
 import { useLocation } from 'react-router-dom';
 import { Route, Routes } from 'react-router-dom';
 import './i18n/i18n';
 import './index.css';
 import ContentWrapper from '@components/base/ContentWrapper';
-import ResetPasswordPage from '@/pages/verify/ResetPassword';
-import ChangPasswordPage from '@/pages/verify/ChangePassword';
+import ResetPasswordPage from '@pages/verify/ResetPassword';
+import ChangPasswordPage from '@pages/verify/ChangePassword';
+import ComingSoon from '@pages/movies/MovieComingSoonPage';
+import NowShowing from '@pages/movies/MovieNowShowingPage';
+import BlogPage from '@pages/blogs/BlogPage';
+import ReviewPage from '@pages/reviews/ReviewPage';
 
 import AppToastContainer from '@components/base/AppToastContainer';
-import ComingSoon from './pages/movies/MovieComingSoon';
-import NowShowing from './pages/movies/MovieNowShowing';
 
 function App() {
   const location = useLocation();
@@ -37,6 +39,8 @@ function App() {
 
             <Route path="/movies/now-showing" element={<NowShowing />} />
             <Route path="/movies/coming-soon" element={<ComingSoon />} />
+            <Route path="/blogs" element={<BlogPage />} />
+            <Route path="/reviews" element={<ReviewPage />} />
           </Routes>
         </ContentWrapper>
       </main>

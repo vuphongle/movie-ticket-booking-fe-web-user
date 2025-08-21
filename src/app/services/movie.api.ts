@@ -44,10 +44,10 @@ export const movieApi = createApi({
 
   endpoints: builder => ({
     getShowingNowMovies: builder.query<Movie[], void>({
-      query: () => '/public/movies/showing-now',
+      query: () => '/showing-now',
     }),
     getComingSoonMovies: builder.query<Movie[], void>({
-      query: () => '/public/movies/coming-soon',
+      query: () => '/coming-soon',
     }),
   }),
 });

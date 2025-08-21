@@ -1,0 +1,273 @@
+import { useState } from 'react';
+import styled from 'styled-components';
+import {
+  useGetMostViewBlogsQuery,
+  useGetLatestBlogsQuery,
+} from '@app/services/blog.api';
+import type { BlogDto } from '@app/services/blog.api';
+import { useGetAllReviewsQuery } from '@app/services/review.api';
+import type { ReviewDto } from '@app/services/review.api';
+import { theme } from '@theme/Theme';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
+export default function CinemaCornerComponent() {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const [activeTab, setActiveTab] = useState<
+    'Blog Phim' | 'Bình luận Phim' | 'Đạo diễn/Diễn viên'
+  >('Blog Phim');
+
+  // Blog queries
+  const { data: mostViewPage, isLoading: loadingMost } =
+    useGetMostViewBlogsQuery({ limit: 4 });
+  const { data: latestPage, isLoading: loadingLatest } = useGetLatestBlogsQuery(
+    { limit: 4 }
+  );
+
+  // Review query
+  const { data: reviewPage, isLoading: loadingReviews } = useGetAllReviewsQuery(
+    { page: 1, limit: 4 }
+  );
+
+  const mostViewBlogs: BlogDto[] = mostViewPage?.content ?? [];
+  const latestBlogs: BlogDto[] = latestPage?.content ?? [];
+  const reviews: ReviewDto[] = reviewPage?.content ?? [];
+
+  if (loadingMost || loadingLatest || loadingReviews)
+    return <div>{t("CINEMACORNER_LOADING")}</div>;
+
+  return (
+    <Container>
+      <Heading>{t("CINEMACORNER_CORNER")}</Heading>
+      <Tabs>
+        <div
+          style={{ color: activeTab === 'Blog Phim' ? '#0a58ca' : '#555' }}
+          onClick={() => setActiveTab('Blog Phim')}
+        >
+          {t("CINEMACORNER_TAB_BLOG")}
+        </div>
+        <div
+          style={{
+            color: activeTab === 'Bình luận Phim' ? '#0a58ca' : '#555',
+          }}
+          onClick={() => setActiveTab('Bình luận Phim')}
+        >
+          {t("CINEMACORNER_TAB_REVIEW")}
+        </div>
+        <div
+          style={{
+            color: activeTab === 'Đạo diễn/Diễn viên' ? '#0a58ca' : '#555',
+          }}
+          onClick={() => setActiveTab('Đạo diễn/Diễn viên')}
+        >
+          {t("CINEMACORNER_TAB_CAST")}
+        </div>
+      </Tabs>
+
+      {/* Content */}
+      <Content>
+        {/* Tab Blog Phim */}
+        {activeTab === 'Blog Phim' && latestBlogs.length > 0 && (
+          <>
+            <MainReview>
+              <ReviewCard>
+                <img
+                  src={latestBlogs[0].thumbnail}
+                  alt={latestBlogs[0].title}
+                />
+                <div className='title'>{latestBlogs[0].title}</div>
+              </ReviewCard>
+            </MainReview>
+            <SideReviews>
+              {latestBlogs.slice(1).map(blog => (
+                <ReviewCard key={blog.id}>
+                  <img src={blog.thumbnail} alt={blog.title} />
+                  <div className='title'>{blog.title}</div>
+                </ReviewCard>
+              ))}
+            </SideReviews>
+          </>
+        )}
+
+        {/* Tab Bình luận Phim */}
+        {activeTab === 'Bình luận Phim' && reviews.length > 0 && (
+          <ReviewList>
+            {reviews.map(r => (
+              <ReviewItem key={r.id}>
+                {r.movie?.poster && (
+                  <img
+                    src={r.movie.poster}
+                    alt={r.movie.name}
+                    className='poster'
+                  />
+                )}
+                <p className='content'>“{r.comment}”</p>
+                <span className='meta'>
+                  — {r.user?.name ?? t("REVIEWS_ANONYMOUS")} ({r.movie?.name ?? t("CINEMACORNER_MOVIE")}), ⭐{' '}
+                  {r.rating}/10 — {new Date(r.createdAt).toLocaleDateString()}
+                </span>
+              </ReviewItem>
+            ))}
+          </ReviewList>
+        )}
+
+        {/* Tab Đạo diễn/Diễn viên */}
+        {activeTab === 'Đạo diễn/Diễn viên' && mostViewBlogs.length > 0 && (
+          <>
+            <MainReview>
+              <ReviewCard>
+                <img
+                  src={mostViewBlogs[0].thumbnail}
+                  alt={mostViewBlogs[0].title}
+                />
+                <div className='title'>{mostViewBlogs[0].title}</div>
+              </ReviewCard>
+            </MainReview>
+            <SideReviews>
+              {mostViewBlogs.slice(1).map(blog => (
+                <ReviewCard key={blog.id}>
+                  <img src={blog.thumbnail} alt={blog.title} />
+                  <div className='title'>{blog.title}</div>
+                </ReviewCard>
+              ))}
+            </SideReviews>
+          </>
+        )}
+      </Content>
+
+      {activeTab === 'Bình luận Phim' ? (
+        <ButtonMore onClick={() => navigate('/reviews')}>
+          {t("CINEMACORNER_ALL_REVIEWS")}
+        </ButtonMore>
+      ) : (
+        <ButtonMore onClick={() => navigate('/blogs')}>
+          {t("CINEMACORNER_SEE_MORE")}
+        </ButtonMore>
+      )}
+    </Container>
+  );
+}
+
+/* ------------------ styles ------------------ */
+const Container = styled.div`
+  margin: ${theme.spacing.xl} 0;
+  text-align: center;
+`;
+
+const Heading = styled.h2`
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: ${theme.colors.textPrimary};
+`;
+
+const Tabs = styled.div`
+  display: flex;
+  gap: ${theme.spacing.xl};
+  font-weight: 600;
+  cursor: pointer;
+  justify-content: center;
+`;
+
+const Content = styled.div`
+  display: flex;
+  margin-top: ${theme.spacing.md};
+  gap: ${theme.spacing.md};
+`;
+
+const MainReview = styled.div`
+  flex: 2;
+`;
+
+const SideReviews = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.md};
+`;
+
+const ReviewCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: ${theme.borderRadius.medium};
+    transition:
+      transform 0.3s ease,
+      filter 0.3s ease;
+  }
+
+  .title {
+    margin-top: ${theme.spacing.sm};
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.03);
+    filter: brightness(0.85);
+  }
+
+  &:hover .title {
+    color: ${theme.colors.primary};
+  }
+`;
+
+/* Tab Bình luận Phim */
+const ReviewList = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.md};
+  text-align: left;
+`;
+
+const ReviewItem = styled.div`
+  padding: ${theme.spacing.md};
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #fafafa;
+
+  .poster {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  .content {
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+
+  .meta {
+    font-size: 13px;
+    color: #666;
+  }
+`;
+
+const ButtonMore = styled.button`
+  margin-top: 12px;
+  padding: 10px 48px;
+  border: 1px solid ${theme.colors.primary};
+  border-radius: 6px;
+  background-color: transparent;
+  color: ${theme.colors.textPrimary};
+  font-weight: 600;
+  cursor: pointer;
+  &:hover {
+    background: ${theme.colors.primaryHoverGradient};
+    color: #ffffff;
+    font-weight: 700;
+  }
+`;

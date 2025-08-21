@@ -13,8 +13,8 @@ export default function LanguageSelector() {
   };
 
   const options = [
-    { value: 'vi', label: 'Tiếng Việt', img: FlagVN },
-    { value: 'en', label: 'English', img: FlagUS },
+    { value: 'vi', label: 'VN', img: FlagVN },
+    { value: 'en', label: 'EN', img: FlagUS },
   ];
 
   const CustomOption = (props: any) => (

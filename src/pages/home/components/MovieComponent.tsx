@@ -6,7 +6,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useTranslation } from 'react-i18next';
 
-import MovieItem from '@/pages/movies/MovieItem';
+import MovieItem from '@/pages/movies/components/MovieItem';
 import { theme } from '@theme/Theme';
 import type { Movie } from '@app/services/movie.api';
 
@@ -25,10 +25,22 @@ export default function MovieComponent({
 }: Props) {
   const { t } = useTranslation();
 
+  const totalDots = 2;
+  const slidesPerView = 4;
+  const slidesPerGroup = Math.ceil(movies.length / totalDots);
+
   return (
     <Section>
       <Heading>{title}</Heading>
-      <Swiper modules={[Navigation, Pagination]} spaceBetween={20} slidesPerView={4} slidesPerGroup={4} pagination={{ clickable: true }} navigation>
+
+      <Swiper
+        modules={[Navigation, Pagination]}
+        spaceBetween={20}
+        slidesPerView={slidesPerView}
+        slidesPerGroup={slidesPerGroup}
+        pagination={{ clickable: true }}
+        navigation
+      >
         {movies.map(movie => (
           <SwiperSlide key={movie.id}>
             <MovieItem
@@ -44,6 +56,7 @@ export default function MovieComponent({
           </SwiperSlide>
         ))}
       </Swiper>
+
       <MoreBtn onClick={onViewMore}>{t('MOVIE_VIEW_MORE')}</MoreBtn>
     </Section>
   );
@@ -56,7 +69,7 @@ const Section = styled.section`
 `;
 
 const Heading = styled.h2`
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 700;
   margin-bottom: 20px;
   color: ${theme.colors.textPrimary};
@@ -71,6 +84,7 @@ const MoreBtn = styled.button`
   color: ${theme.colors.textPrimary};
   font-weight: 600;
   cursor: pointer;
+
   &:hover {
     background: ${theme.colors.primaryHoverGradient};
     color: #ffffff;

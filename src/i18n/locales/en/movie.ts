@@ -1,5 +1,6 @@
 const movie = {
   MOVIE_NOW_SHOWING: 'Now Showing',
+  MOVIE_NO_SHOWING: 'No movies currently showing.',
   MOVIE_COMING_SOON: 'Coming Soon',
   MOVIE_LOADING: 'Loading movie...',
   MOVIE_LOADING_NOW: 'Loading now showing movie...',

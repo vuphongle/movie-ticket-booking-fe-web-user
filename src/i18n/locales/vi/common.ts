@@ -186,6 +186,16 @@ const common = {
   CAPSLOCK_ON: 'Caps Lock đang bật',
   INVALID_OLD_PASSWORD: 'Mật khẩu hiện tại không đúng',
   NEW_PASSWORD_SAME_AS_OLD: 'Mật khẩu mới không được trùng với mật khẩu cũ',
+
+  //CinemaCorner
+  CINEMACORNER_CORNER: 'Góc điện ảnh',
+  CINEMACORNER_LOADING: 'Đang tải...',
+  CINEMACORNER_TAB_BLOG: 'Blog phim',
+  CINEMACORNER_TAB_REVIEW: 'Đánh giá phim',
+  CINEMACORNER_TAB_CAST: 'Diễn viên / Đạo diễn',
+  CINEMACORNER_MOVIE: 'Phim',
+  CINEMACORNER_SEE_MORE: 'Xem thêm',
+  CINEMACORNER_ALL_REVIEWS: 'Tất cả đánh giá',
 };
 
 export default common;

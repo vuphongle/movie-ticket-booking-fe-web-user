@@ -135,8 +135,8 @@ export default function Header() {
                     </MenuItem>
                     {hoveredMenu === 'movies' && (
                       <SubMenu>
-                        <SubMenuItem>{t('NAV_MOVIES_NOW_SHOWING')}</SubMenuItem>
-                        <SubMenuItem>{t('NAV_MOVIES_COMING_SOON')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/movies/now-showing')}>{t('NAV_MOVIES_NOW_SHOWING')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/movies/coming-soon')}>{t('NAV_MOVIES_COMING_SOON')}</SubMenuItem>
                       </SubMenu>
                     )}
                   </MenuItemWrapper>
@@ -158,8 +158,8 @@ export default function Header() {
                     </MenuItem>
                     {hoveredMenu === 'cinema_corner' && (
                       <SubMenu>
-                        <SubMenuItem>{t('NAV_BLOG_MOVIES')}</SubMenuItem>
-                        <SubMenuItem>{t('NAV_REVIEWS_MOVIES')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/blogs')}>{t('NAV_BLOG_MOVIES')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/reviews')}>{t('NAV_REVIEWS_MOVIES')}</SubMenuItem>
                         <SubMenuItem>{t('NAV_ACTORS_DIRECTORS')}</SubMenuItem>
                       </SubMenu>
                     )}
@@ -280,7 +280,7 @@ const Nav = styled.nav`
 `;
 
 const LanguageSelectorWrapper = styled.div`
-  width: 160px;
+  width: 90px;
   flex-shrink: 0;
 
   @media (max-width: 768px) {

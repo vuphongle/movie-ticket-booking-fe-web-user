@@ -108,7 +108,9 @@ const Poster = styled.img`
   transition: all 0.3s ease;
 `;
 
-const ActionButton = styled.button<{ primary?: boolean }>`
+const ActionButton = styled.button.withConfig({
+  shouldForwardProp: (prop) => prop !== 'primary',
+})<{ primary?: boolean }>`
   width: 180px;
   padding: 10px 24px;
   border: none;

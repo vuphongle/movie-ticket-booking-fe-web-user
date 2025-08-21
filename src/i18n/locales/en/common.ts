@@ -183,6 +183,16 @@ const common = {
   CAPSLOCK_ON: 'Caps Lock is on',
   INVALID_OLD_PASSWORD: 'Invalid current password',
   NEW_PASSWORD_SAME_AS_OLD: 'New password must be different from old password',
+
+  //CinemaCorner
+  CINEMACORNER_CORNER: 'Cinema Corner',
+  CINEMACORNER_LOADING: 'Loading...',
+  CINEMACORNER_TAB_BLOG: 'Blog',
+  CINEMACORNER_TAB_REVIEW: 'Review',
+  CINEMACORNER_TAB_CAST: 'Cast',
+  CINEMACORNER_MOVIE: 'Movie',
+  CINEMACORNER_SEE_MORE: 'See more',
+  CINEMACORNER_ALL_REVIEWS: 'All reviews',
 };
 
 export default common;

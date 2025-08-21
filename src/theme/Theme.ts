@@ -31,6 +31,7 @@ colors: {
     sm: '8px',
     md: '16px',
     lg: '24px',
+    xl: '32px',
   },
   fontSize: {
     sm: '14px',

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import MovieList from './MovieList';
+import MovieList from './components/MovieList';
 import { theme } from '@theme/Theme';
 import { useGetShowingNowMoviesQuery } from '@app/services/movie.api';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +29,11 @@ export default function NowShowing() {
   return (
     <Wrapper>
       <Heading>{t('MOVIE_NOW_SHOWING')}</Heading>
-      <MovieList movies={movies} buttonText={t('MOVIE_BOOK')} />
+      {movies && movies.length > 0 ? (
+        <MovieList movies={movies} buttonText={t('MOVIE_BOOK')} />
+      ) : (
+        <p>{t('MOVIE_NO_SHOWING')}</p>
+      )}
     </Wrapper>
   );
 }

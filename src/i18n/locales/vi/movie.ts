@@ -7,6 +7,7 @@ const movie = {
   MOVIE_ERROR: 'Lỗi khi tải phim',
   MOVIE_ERROR_SOON: 'Lỗi tải dữ liệu!',
   MOVIE_NO_COMING: 'Hiện chưa có phim sắp chiếu.',
+  MOVIE_NO_SHOWING: 'Hiện chưa có phim đang chiếu.',
   MOVIE_BOOK: 'Đặt vé',
   MOVIE_TRAILER: 'Xem Trailer',
   MOVIE_LEARN_MORE: 'Tìm hiểu thêm',
