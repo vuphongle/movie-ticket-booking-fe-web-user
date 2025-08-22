@@ -25,8 +25,8 @@ export default function MovieComponent({
 }: Props) {
   const { t } = useTranslation();
 
-  const totalDots = 2;
   const slidesPerView = 4;
+  const totalDots = Math.min(2, Math.ceil(movies.length / slidesPerView));
   const slidesPerGroup = Math.ceil(movies.length / totalDots);
 
   return (

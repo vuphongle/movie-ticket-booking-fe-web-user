@@ -1,4 +1,4 @@
-import { API_DOMAIN_MOVIE_PUBLIC } from '@lib/api';
+import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export enum MovieAge {
@@ -26,7 +26,7 @@ export interface Movie {
 export const movieApi = createApi({
   reducerPath: 'movieApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: API_DOMAIN_MOVIE_PUBLIC,
+    baseUrl: API_DOMAIN_PUBLIC,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -44,10 +44,10 @@ export const movieApi = createApi({
 
   endpoints: builder => ({
     getShowingNowMovies: builder.query<Movie[], void>({
-      query: () => '/showing-now',
+      query: () => '/movies/showing-now',
     }),
     getComingSoonMovies: builder.query<Movie[], void>({
-      query: () => '/coming-soon',
+      query: () => '/movies/coming-soon',
     }),
   }),
 });

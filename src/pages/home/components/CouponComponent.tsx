@@ -16,7 +16,7 @@ export default function CouponComponent() {
 
   return (
     <Section>
-      <Heading>{t('COUPON_TITLE') ?? 'Coupons'}</Heading>
+      <Heading>{t('COUPON_TITLE')}</Heading>
       <Swiper
         modules={[Autoplay, EffectCards]}
         effect="cards"

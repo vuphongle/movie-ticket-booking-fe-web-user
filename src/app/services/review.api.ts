@@ -1,4 +1,4 @@
-import { API_DOMAIN_REVIEW_PUBLIC } from '@lib/api';
+import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export interface UserDto {
@@ -37,7 +37,7 @@ export interface Page<T> {
 export const reviewApi = createApi({
   reducerPath: 'reviewApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: API_DOMAIN_REVIEW_PUBLIC,
+    baseUrl: API_DOMAIN_PUBLIC,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -58,7 +58,7 @@ export const reviewApi = createApi({
         const params = new URLSearchParams();
         params.append('page', page.toString());
         params.append('limit', limit.toString());
-        return `?${params.toString()}`;
+        return `/reviews?${params.toString()}`;
       },
     }),
   }),

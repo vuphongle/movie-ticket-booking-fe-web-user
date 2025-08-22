@@ -1,10 +1,5 @@
 export const API_DOMAIN = import.meta.env.VITE_DOMAIN;
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const API_DOMAIN_PUBLIC = import.meta.env.VITE_API_DOMAIN_PUBLIC;
-export const API_DOMAIN_AUTH_PUBLIC = import.meta.env.VITE_API_DOMAIN_AUTH_PUBLIC;
-export const API_DOMAIN_MOVIE_PUBLIC = import.meta.env.VITE_API_DOMAIN_MOVIE_PUBLIC;
-export const API_DOMAIN_BLOG_PUBLIC = import.meta.env.VITE_API_DOMAIN_BLOG_PUBLIC;
-export const API_DOMAIN_REVIEW_PUBLIC = import.meta.env.VITE_API_DOMAIN_REVIEW_PUBLIC;
-export const API_DOMAIN_COUPON_PUBLIC = import.meta.env.VITE_API_DOMAIN_COUPON_PUBLIC;
 
 export const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;

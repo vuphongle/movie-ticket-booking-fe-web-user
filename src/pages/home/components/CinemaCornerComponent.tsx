@@ -11,13 +11,19 @@ import { theme } from '@theme/Theme';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+enum CinemaCornerTab {
+  BLOG = 'BLOG',
+  REVIEW = 'REVIEW',
+  CAST = 'CAST',
+}
+
 export default function CinemaCornerComponent() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [activeTab, setActiveTab] = useState<
-    'Blog Phim' | 'Bình luận Phim' | 'Đạo diễn/Diễn viên'
-  >('Blog Phim');
+  const [activeTab, setActiveTab] = useState<CinemaCornerTab>(
+    CinemaCornerTab.BLOG
+  );
 
   // Blog queries
   const { data: mostViewPage, isLoading: loadingMost } =
@@ -36,40 +42,42 @@ export default function CinemaCornerComponent() {
   const reviews: ReviewDto[] = reviewPage?.content ?? [];
 
   if (loadingMost || loadingLatest || loadingReviews)
-    return <div>{t("CINEMACORNER_LOADING")}</div>;
+    return <div>{t('CINEMACORNER_LOADING')}</div>;
 
   return (
     <Container>
-      <Heading>{t("CINEMACORNER_CORNER")}</Heading>
+      <Heading>{t('CINEMACORNER_CORNER')}</Heading>
       <Tabs>
         <div
-          style={{ color: activeTab === 'Blog Phim' ? '#0a58ca' : '#555' }}
-          onClick={() => setActiveTab('Blog Phim')}
+          style={{
+            color: activeTab === CinemaCornerTab.BLOG ? '#0a58ca' : '#555',
+          }}
+          onClick={() => setActiveTab(CinemaCornerTab.BLOG)}
         >
-          {t("CINEMACORNER_TAB_BLOG")}
+          {t('CINEMACORNER_TAB_BLOG')}
         </div>
         <div
           style={{
-            color: activeTab === 'Bình luận Phim' ? '#0a58ca' : '#555',
+            color: activeTab === CinemaCornerTab.REVIEW ? '#0a58ca' : '#555',
           }}
-          onClick={() => setActiveTab('Bình luận Phim')}
+          onClick={() => setActiveTab(CinemaCornerTab.REVIEW)}
         >
-          {t("CINEMACORNER_TAB_REVIEW")}
+          {t('CINEMACORNER_TAB_REVIEW')}
         </div>
         <div
           style={{
-            color: activeTab === 'Đạo diễn/Diễn viên' ? '#0a58ca' : '#555',
+            color: activeTab === CinemaCornerTab.CAST ? '#0a58ca' : '#555',
           }}
-          onClick={() => setActiveTab('Đạo diễn/Diễn viên')}
+          onClick={() => setActiveTab(CinemaCornerTab.CAST)}
         >
-          {t("CINEMACORNER_TAB_CAST")}
+          {t('CINEMACORNER_TAB_CAST')}
         </div>
       </Tabs>
 
       {/* Content */}
       <Content>
-        {/* Tab Blog Phim */}
-        {activeTab === 'Blog Phim' && latestBlogs.length > 0 && (
+        {/* Tab Blog */}
+        {activeTab === CinemaCornerTab.BLOG && latestBlogs.length > 0 && (
           <>
             <MainReview>
               <ReviewCard>
@@ -91,8 +99,8 @@ export default function CinemaCornerComponent() {
           </>
         )}
 
-        {/* Tab Bình luận Phim */}
-        {activeTab === 'Bình luận Phim' && reviews.length > 0 && (
+        {/* Tab Review */}
+        {activeTab === CinemaCornerTab.REVIEW && reviews.length > 0 && (
           <ReviewList>
             {reviews.map(r => (
               <ReviewItem key={r.id}>
@@ -105,16 +113,17 @@ export default function CinemaCornerComponent() {
                 )}
                 <p className='content'>“{r.comment}”</p>
                 <span className='meta'>
-                  — {r.user?.name ?? t("REVIEWS_ANONYMOUS")} ({r.movie?.name ?? t("CINEMACORNER_MOVIE")}), ⭐{' '}
-                  {r.rating}/10 — {new Date(r.createdAt).toLocaleDateString()}
+                  — {r.user?.name ?? t('REVIEWS_ANONYMOUS')} (
+                  {r.movie?.name ?? t('CINEMACORNER_MOVIE')}), ⭐ {r.rating}/10
+                  — {new Date(r.createdAt).toLocaleDateString()}
                 </span>
               </ReviewItem>
             ))}
           </ReviewList>
         )}
 
-        {/* Tab Đạo diễn/Diễn viên */}
-        {activeTab === 'Đạo diễn/Diễn viên' && mostViewBlogs.length > 0 && (
+        {/* Tab Cast */}
+        {activeTab === CinemaCornerTab.CAST && mostViewBlogs.length > 0 && (
           <>
             <MainReview>
               <ReviewCard>
@@ -137,13 +146,13 @@ export default function CinemaCornerComponent() {
         )}
       </Content>
 
-      {activeTab === 'Bình luận Phim' ? (
+      {activeTab === CinemaCornerTab.REVIEW ? (
         <ButtonMore onClick={() => navigate('/reviews')}>
-          {t("CINEMACORNER_ALL_REVIEWS")}
+          {t('CINEMACORNER_ALL_REVIEWS')}
         </ButtonMore>
       ) : (
         <ButtonMore onClick={() => navigate('/blogs')}>
-          {t("CINEMACORNER_SEE_MORE")}
+          {t('CINEMACORNER_SEE_MORE')}
         </ButtonMore>
       )}
     </Container>

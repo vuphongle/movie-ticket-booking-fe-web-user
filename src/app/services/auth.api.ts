@@ -1,7 +1,7 @@
-import { API_DOMAIN, API_DOMAIN_AUTH_PUBLIC } from '@lib/api';
+import { API_DOMAIN, API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const ENDPOINT = API_DOMAIN_AUTH_PUBLIC;
+const ENDPOINT = API_DOMAIN_PUBLIC;
 
 interface LoginResponse {
   user: {
@@ -22,7 +22,7 @@ export const authApi = createApi({
     login: builder.mutation<LoginResponse, { email: string; password: string }>(
       {
         query: credentials => ({
-          url: 'login',
+          url: 'auth/login',
           method: 'POST',
           body: credentials,
         }),
@@ -50,20 +50,20 @@ export const authApi = createApi({
       }
     >({
       query: data => ({
-        url: 'register',
+        url: 'auth/register',
         method: 'POST',
         body: data,
       }),
     }),
     verifyAccount: builder.mutation<void, string>({
       query: token => ({
-        url: `check-register-token/${encodeURIComponent(token)}`,
+        url: `auth/check-register-token/${encodeURIComponent(token)}`,
         method: 'GET',
       }),
     }),
     forgotPassword: builder.mutation<void, { email: string }>({
       query: data => ({
-        url: 'forgot-password',
+        url: 'auth/forgot-password',
         method: 'GET',
         params: { email: data.email },
       }),
@@ -74,7 +74,7 @@ export const authApi = createApi({
       string
     >({
       query: token => ({
-        url: `check-forgot-password-token/${encodeURIComponent(token)}`,
+        url: `auth/check-forgot-password-token/${encodeURIComponent(token)}`,
         method: 'GET',
       }),
     }),
@@ -84,7 +84,7 @@ export const authApi = createApi({
       { token: string; newPassword: string; confirmPassword: string }
     >({
       query: data => ({
-        url: 'change-password',
+        url: `auth/change-password`,
         method: 'POST',
         body: {
           token: data.token,

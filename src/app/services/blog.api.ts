@@ -1,4 +1,4 @@
-import { API_DOMAIN_BLOG_PUBLIC } from '@lib/api';
+import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export interface BlogDto {
@@ -23,7 +23,7 @@ export interface Page<T> {
 export const blogApi = createApi({
   reducerPath: 'blogApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: API_DOMAIN_BLOG_PUBLIC,
+    baseUrl: API_DOMAIN_PUBLIC,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -48,7 +48,7 @@ export const blogApi = createApi({
         if (type) params.append('type', type);
         params.append('page', page.toString());
         params.append('limit', limit.toString());
-        return `?${params.toString()}`;
+        return `/blogs?${params.toString()}`;
       },
     }),
 
@@ -61,7 +61,7 @@ export const blogApi = createApi({
         if (type) params.append('type', type);
         params.append('page', page.toString());
         params.append('limit', limit.toString());
-        return `/latest?${params.toString()}`;
+        return `/blogs/latest?${params.toString()}`;
       },
     }),
 
@@ -73,7 +73,7 @@ export const blogApi = createApi({
         const params = new URLSearchParams();
         if (type) params.append('type', type);
         params.append('limit', limit.toString());
-        return `/most-view?${params.toString()}`;
+        return `/blogs/most-view?${params.toString()}`;
       },
     }),
   }),

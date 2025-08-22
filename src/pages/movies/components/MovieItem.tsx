@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
-import { MovieAge } from '@/app/services/movie.api';
+import { MovieAge } from '@app/services/movie.api';
 import { FaTicketAlt, FaPlay } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
+import { formatGraphicLabel  } from '@utils/functionUtils';
 
 interface Props {
   title: string;
@@ -46,7 +47,7 @@ export default function MovieItem({
         </Overlay>
         <TopLeft>
           {graphics.map((g, idx) => (
-            <Badge key={idx}>{g.replace('_', '')}</Badge>
+            <Badge key={idx}>{formatGraphicLabel(g)}</Badge>
           ))}
         </TopLeft>
         <TopRight>

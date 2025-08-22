@@ -1,4 +1,4 @@
-import { API_DOMAIN_COUPON_PUBLIC } from '@lib/api';
+import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export interface CouponDto {
@@ -17,7 +17,7 @@ export interface CouponDto {
 export const couponApi = createApi({
   reducerPath: 'couponApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: API_DOMAIN_COUPON_PUBLIC,
+    baseUrl: API_DOMAIN_PUBLIC,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -34,7 +34,7 @@ export const couponApi = createApi({
   }),
   endpoints: builder => ({
     getAllCoupons: builder.query<CouponDto[], void>({
-      query: () => '',
+      query: () => 'coupons',
     }),
   }),
 });
