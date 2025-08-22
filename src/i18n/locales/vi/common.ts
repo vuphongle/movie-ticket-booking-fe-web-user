@@ -123,6 +123,10 @@ const common = {
   EMAIL_ALREADY_EXISTS: 'Email đã tồn tại. Vui lòng sử dụng email khác.',
   REGISTER_ACCOUNT_NOT_ACTIVATED:
     'Email đã tồn tại nhưng chưa kích hoạt. Vui lòng kiểm tra email để kích hoạt tài khoản.',
+  REGISTER_DOB_TOO_YOUNG: 'Bạn phải ít nhất 12 tuổi để đăng ký.',
+  REGISTER_DOB_YEAR_TOO_OLD: 'Năm sinh không được nhỏ hơn 1900.',
+  REGISTER_DOB_REQUIRED: 'Ngày sinh là bắt buộc.',
+  REGISTER_DOB: 'Ngày sinh',
 
   // VERIFY
   VERIFY_SUCCESS_TITLE: 'Xác thực tài khoản',
@@ -181,11 +185,20 @@ const common = {
   CONFIRM_PASSWORD_REQUIRED: 'Xác nhận mật khẩu là bắt buộc!',
   CONFIRM_NEW_PASSWORD_PLACEHOLDER: 'Xác nhận mật khẩu mới',
   PASSWORDS_NOT_MATCH: 'Mật khẩu không khớp',
-  CHANGE_PASSWORD_SUCCESS: 'Đổi mật khẩu thành công',
+  CHANGE_PASSWORD_SUCCESS: 'Đổi mật khẩu thành công. Đang đăng xuất...',
   CHANGE_PASSWORD_ERROR: 'Đổi mật khẩu không thành công',
   CAPSLOCK_ON: 'Caps Lock đang bật',
   INVALID_OLD_PASSWORD: 'Mật khẩu hiện tại không đúng',
   NEW_PASSWORD_SAME_AS_OLD: 'Mật khẩu mới không được trùng với mật khẩu cũ',
+  WEAK: 'Yếu',
+  MEDIUM: 'Trung bình',
+  STRONG: 'Mạnh',
+
+  // UPDATE PROFILE
+  CHANGE_AVATAR: 'Thay đổi avatar',
+  UPDATE_PROFILE_SUCCESS: 'Cập nhật thông tin thành công!',
+  UPDATE_PROFILE_ERROR: 'Có lỗi xảy ra khi cập nhật thông tin!',
+  SAVING: 'Đang lưu...',
 };
 
 export default common;

@@ -6,8 +6,8 @@ interface Movie {
   id: number;
   title: string;
   posterUrl: string;
-  rating?: string; 
-  showtime?: string; 
+  rating?: string;
+  showtime?: string;
 }
 
 const HomePage: React.FC = () => {
@@ -16,7 +16,6 @@ const HomePage: React.FC = () => {
     { id: 2, title: 'Phim Hot 2', posterUrl: '/images/hot2.jpg' },
     { id: 3, title: 'Phim Hot 3', posterUrl: '/images/hot3.jpg' },
   ]);
-
 
   return (
     <PageContainer>
@@ -45,8 +44,7 @@ const HomePage: React.FC = () => {
       {/* Lịch chiếu phim */}
       <ScheduleSection>
         <ScheduleTitle>Lịch chiếu phim</ScheduleTitle>
-        <ScheduleTable>
-        </ScheduleTable>
+        <ScheduleTable></ScheduleTable>
       </ScheduleSection>
 
       {/* Tin khuyến mãi */}
@@ -54,13 +52,13 @@ const HomePage: React.FC = () => {
         <PromotionTitle>Tin khuyến mãi</PromotionTitle>
       </PromotionSection>
 
-    {/* Góc điện ảnh */}
+      {/* Góc điện ảnh */}
       <CinemaCornerSection>
         <CinemaCornerTitle>Góc điện ảnh</CinemaCornerTitle>
         <nav>
-            <MenuItem>Thông tin phim</MenuItem>
-            <MenuItem>Đánh giá phim</MenuItem>
-            <MenuItem>Tin tức Đạo diên/diễn viên</MenuItem>
+          <MenuItem>Thông tin phim</MenuItem>
+          <MenuItem>Đánh giá phim</MenuItem>
+          <MenuItem>Tin tức Đạo diên/diễn viên</MenuItem>
         </nav>
       </CinemaCornerSection>
     </PageContainer>
@@ -72,7 +70,7 @@ const PageContainer = styled.div`
   background: ${theme.colors.background};
   color: ${theme.colors.textPrimary};
   padding: ${theme.spacing.md};
-  font-family: 'Roboto', sans-serif;
+  font-family: ${theme.fontFamily.primary};
   margin-bottom: ${theme.spacing.lg};
 `;
 
@@ -136,7 +134,8 @@ const ScheduleTable = styled.table`
     background-color: ${theme.colors.primary};
     color: white;
   }
-  th, td {
+  th,
+  td {
     border: 1px solid #ddd;
     padding: 8px;
   }

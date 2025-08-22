@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   Menu as MuiMenu,
@@ -8,8 +9,6 @@ import {
   ListItemIcon,
 } from '@mui/material';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import LockIcon from '@mui/icons-material/Lock';
-import HistoryIcon from '@mui/icons-material/History';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { theme } from '@theme/Theme';
 import { useTranslation } from 'react-i18next';
@@ -20,15 +19,11 @@ interface UserMenuProps {
     avatar?: string;
   };
   onLogout: () => void;
-  onChangePassword: () => void;
 }
 
-export default function UserMenu({
-  auth,
-  onLogout,
-  onChangePassword,
-}: UserMenuProps) {
+export default function UserMenu({ auth, onLogout }: UserMenuProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -46,8 +41,8 @@ export default function UserMenu({
     handleClose();
   };
 
-  const handleChangePasswordClick = () => {
-    onChangePassword();
+  const handleProfileClick = () => {
+    navigate('/profile');
     handleClose();
   };
 
@@ -59,25 +54,11 @@ export default function UserMenu({
       </Trigger>
 
       <StyledMenu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <StyledMenuItem onClick={handleClose}>
+        <StyledMenuItem onClick={handleProfileClick}>
           <ListItemIcon>
             <AccountBoxIcon fontSize='small' />
           </ListItemIcon>
           {t('USER_PROFILE')}
-        </StyledMenuItem>
-
-        <StyledMenuItem onClick={handleChangePasswordClick}>
-          <ListItemIcon>
-            <LockIcon fontSize='small' />
-          </ListItemIcon>
-          {t('USER_CHANGE_PASSWORD')}
-        </StyledMenuItem>
-
-        <StyledMenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <HistoryIcon fontSize='small' />
-          </ListItemIcon>
-          {t('USER_MY_HISTORIES')}
         </StyledMenuItem>
 
         <StyledDivider />
