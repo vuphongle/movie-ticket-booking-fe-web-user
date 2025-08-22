@@ -80,7 +80,7 @@ const ProfileInfo: React.FC = () => {
     return errs;
   };
 
-  const errors = useMemo(() => validateForm(form), [form]);
+  const errors = useMemo(() => validateForm(form), [form, t]);
   const isValid = Object.keys(errors).length === 0;
 
   const handleChange =
