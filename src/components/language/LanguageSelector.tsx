@@ -36,6 +36,11 @@ export default function LanguageSelector() {
       onChange={opt => changeLanguage(opt?.value || 'vi')}
       components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
       styles={{
+        menuList: base => ({
+          ...base,
+          paddingTop: 0,
+          paddingBottom: 0,
+        }),
         control: (base, state) => ({
           ...base,
           borderRadius: theme.borderRadius.large,

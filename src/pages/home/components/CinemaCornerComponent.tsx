@@ -50,7 +50,7 @@ export default function CinemaCornerComponent() {
       <Tabs>
         <div
           style={{
-            color: activeTab === CinemaCornerTab.BLOG ? '#0a58ca' : '#555',
+            color: activeTab === CinemaCornerTab.BLOG ? '#FFFFFF' : '#B0B0B0',
           }}
           onClick={() => setActiveTab(CinemaCornerTab.BLOG)}
         >
@@ -58,7 +58,7 @@ export default function CinemaCornerComponent() {
         </div>
         <div
           style={{
-            color: activeTab === CinemaCornerTab.REVIEW ? '#0a58ca' : '#555',
+            color: activeTab === CinemaCornerTab.REVIEW ? '#FFFFFF' : '#B0B0B0',
           }}
           onClick={() => setActiveTab(CinemaCornerTab.REVIEW)}
         >
@@ -66,7 +66,7 @@ export default function CinemaCornerComponent() {
         </div>
         <div
           style={{
-            color: activeTab === CinemaCornerTab.CAST ? '#0a58ca' : '#555',
+            color: activeTab === CinemaCornerTab.CAST ? '#FFFFFF' : '#B0B0B0',
           }}
           onClick={() => setActiveTab(CinemaCornerTab.CAST)}
         >
@@ -169,7 +169,7 @@ const Heading = styled.h2`
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 20px;
-  color: ${theme.colors.textPrimary};
+  color: ${theme.colors.headingLight};
 `;
 
 const Tabs = styled.div`
@@ -178,6 +178,7 @@ const Tabs = styled.div`
   font-weight: 600;
   cursor: pointer;
   justify-content: center;
+  color: ${theme.colors.textLight};
 `;
 
 const Content = styled.div`
@@ -203,6 +204,7 @@ const ReviewCard = styled.div`
   cursor: pointer;
   text-align: left;
   overflow: hidden;
+  color: ${theme.colors.textLight};
 
   img {
     width: 100%;
@@ -227,11 +229,10 @@ const ReviewCard = styled.div`
   }
 
   &:hover .title {
-    color: ${theme.colors.primary};
+    color: ${theme.colors.textPrimary};
   }
 `;
 
-/* Tab Bình luận Phim */
 const ReviewList = styled.div`
   flex: 1;
   display: flex;
@@ -242,9 +243,10 @@ const ReviewList = styled.div`
 
 const ReviewItem = styled.div`
   padding: ${theme.spacing.md};
-  border: 1px solid #eee;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.05);
+  color: ${theme.colors.textLight};
 
   .poster {
     width: 100%;
@@ -261,22 +263,35 @@ const ReviewItem = styled.div`
 
   .meta {
     font-size: 13px;
-    color: #666;
+    color: ${theme.colors.gray};
   }
 `;
 
 const ButtonMore = styled.button`
   margin-top: 12px;
   padding: 10px 48px;
-  border: 1px solid ${theme.colors.primary};
+  border: 1px solid ${theme.colors.white};
   border-radius: 6px;
   background-color: transparent;
-  color: ${theme.colors.textPrimary};
+  color: ${theme.colors.textLight};
   font-weight: 600;
   cursor: pointer;
   &:hover {
     background: ${theme.colors.primaryHoverGradient};
-    color: #ffffff;
+    color: ${theme.colors.white};
     font-weight: 700;
   }
 `;
+
+export {
+  Container,
+  Heading,
+  Tabs,
+  Content,
+  MainReview,
+  SideReviews,
+  ReviewCard,
+  ReviewList,
+  ReviewItem,
+  ButtonMore,
+};

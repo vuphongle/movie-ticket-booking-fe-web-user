@@ -7,20 +7,35 @@ export default function QuickBookingComponent() {
 
   return (
     <Wrapper>
-      <Title>{t('QUICKBOOKING_TITLE')}</Title>
       <Form>
-        <Select>
-          <option>1. {t('QUICKBOOKING_SELECT_CINEMA')}</option>
-        </Select>
-        <Select>
-          <option>2. {t('QUICKBOOKING_SELECT_MOVIE')}</option>
-        </Select>
-        <Select>
-          <option>3. {t('QUICKBOOKING_SELECT_DATE')}</option>
-        </Select>
-        <Select>
-          <option>4. {t('QUICKBOOKING_SELECT_TIME')}</option>
-        </Select>
+        <SelectWrapper>
+          <StepBadge>1</StepBadge>
+          <Select>
+            <option>{t('QUICKBOOKING_SELECT_CINEMA')}</option>
+          </Select>
+        </SelectWrapper>
+
+        <SelectWrapper>
+          <StepBadge>2</StepBadge>
+          <Select>
+            <option>{t('QUICKBOOKING_SELECT_MOVIE')}</option>
+          </Select>
+        </SelectWrapper>
+
+        <SelectWrapper>
+          <StepBadge>3</StepBadge>
+          <Select>
+            <option>{t('QUICKBOOKING_SELECT_DATE')}</option>
+          </Select>
+        </SelectWrapper>
+
+        <SelectWrapper>
+          <StepBadge>4</StepBadge>
+          <Select>
+            <option>{t('QUICKBOOKING_SELECT_TIME')}</option>
+          </Select>
+        </SelectWrapper>
+
         <Button>{t('QUICKBOOKING_BUTTON_BOOK')}</Button>
       </Form>
     </Wrapper>
@@ -33,7 +48,7 @@ const Wrapper = styled.div`
   max-width: 100%;
   box-sizing: border-box;
 
-  background: ${theme.colors.bgLight};
+  background: linear-gradient(135deg, #6d5edc, #2193b0);
   padding: ${theme.spacing.md} ${theme.spacing.lg};
   border-radius: ${theme.borderRadius.medium};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -49,17 +64,10 @@ const Wrapper = styled.div`
   }
 `;
 
-const Title = styled.h3`
-  font-size: ${theme.fontSize.lg};
-  font-weight: 700;
-  color: ${theme.colors.textPrimary};
-  white-space: nowrap;
-`;
-
 const Form = styled.div`
   display: flex;
   flex: 1;
-  min-width: 0; /* fix tràn ngang */
+  min-width: 0;
   gap: ${theme.spacing.sm};
   flex-wrap: wrap;
 
@@ -68,10 +76,35 @@ const Form = styled.div`
   }
 `;
 
+const SelectWrapper = styled.div`
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+`;
+
+const StepBadge = styled.span`
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #6d5edc, #2193b0);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const Select = styled.select`
   flex: 1;
-  min-width: 0; /* fix tràn ngang khi co hẹp */
+  min-width: 0;
   padding: ${theme.spacing.sm} ${theme.spacing.md};
+  padding-left: 36px;\
   border: 1px solid ${theme.colors.border};
   border-radius: ${theme.borderRadius.small};
   font-size: ${theme.fontSize.sm};
@@ -79,15 +112,16 @@ const Select = styled.select`
   background: ${theme.colors.white};
   outline: none;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
 
   &:hover {
     background: ${theme.colors.backgroundHover};
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
   &:focus {
     border-color: ${theme.colors.primary};
-    background: ${theme.colors.white};
+    box-shadow: 0 0 0 3px rgba(109, 94, 220, 0.25);
   }
 `;
 
@@ -104,10 +138,12 @@ const Button = styled.button`
   transition: all 0.3s;
 
   &:hover {
-    background: ${theme.colors.primaryHover};
+    background: ${theme.colors.primaryHoverGradient};
+    transform: translateY(-1px);
   }
 
   &:active {
+    transform: translateY(0);
     background: ${theme.colors.primaryHoverGradient};
   }
 `;

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useGetAllBlogsQuery } from "@app/services/blog.api";
 import type { BlogDto } from "@app/services/blog.api";
 import { useTranslation } from "react-i18next";
+import { theme } from "@/theme/Theme";
 
 export default function BlogPage() {
   const { t } = useTranslation();
@@ -19,9 +20,8 @@ export default function BlogPage() {
 
   return (
     <Container>
-      <h2>{t("BLOG_TITLE")}</h2>
+      <Heading>{t("BLOG_TITLE")}</Heading>
 
-      {/* Ô tìm kiếm */}
       <SearchBox>
         <input
           type="text"
@@ -34,9 +34,8 @@ export default function BlogPage() {
         />
       </SearchBox>
 
-      {/* Danh sách blog */}
       <BlogList>
-        {!blogs?.content?.length && <p>{t("BLOG_EMPTY")}</p>}
+        {!blogs?.content?.length && <EmptyText>{t("BLOG_EMPTY")}</EmptyText>}
         {blogs?.content?.map((blog: BlogDto) => (
           <BlogCard key={blog.id}>
             <img src={blog.thumbnail} alt={blog.title} />
@@ -48,7 +47,6 @@ export default function BlogPage() {
         ))}
       </BlogList>
 
-      {/* Pagination */}
       {blogs && (
         <Pagination>
           <button
@@ -76,6 +74,14 @@ const Container = styled.div`
   max-width: 1000px;
   margin: 2rem auto;
   padding: 0 1rem;
+  color: ${theme.colors.white};
+`;
+
+const Heading = styled.h2`
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: ffffff;
 `;
 
 const SearchBox = styled.div`
@@ -84,27 +90,40 @@ const SearchBox = styled.div`
     width: 100%;
     padding: 0.6rem;
     font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border: 1px solid ${theme.colors.border};
+    border-radius: ${theme.borderRadius.medium};
+    background: ${theme.colors.backgroundFocus};
+    color: ${theme.colors.white};
+    ::placeholder {
+      color: ${theme.colors.gray};
+    }
   }
 `;
 
 const BlogList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: ${theme.spacing.lg};
+`;
+
+const EmptyText = styled.p`
+  text-align: center;
+  color: ${theme.colors.gray};
 `;
 
 const BlogCard = styled.div`
   display: flex;
   gap: 1rem;
   cursor: pointer;
+  background: ${theme.colors.backgroundFocus};
+  padding: ${theme.spacing.md};
+  border-radius: ${theme.borderRadius.medium};
 
   img {
     width: 180px;
     height: 120px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: ${theme.borderRadius.small};
   }
 
   .info {
@@ -112,11 +131,11 @@ const BlogCard = styled.div`
     h3 {
       margin: 0 0 0.5rem;
       font-size: 1.1rem;
-      color: #0a58ca;
+      color: ${theme.colors.primaryHover};
     }
     p {
       margin: 0;
-      color: #555;
+      color: ${theme.colors.textSecondary};
       font-size: 0.95rem;
     }
   }
@@ -126,18 +145,24 @@ const Pagination = styled.div`
   margin-top: 2rem;
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: ${theme.spacing.md};
+  color: ${theme.colors.white};
 
   button {
     padding: 0.5rem 1rem;
-    border: 1px solid #ccc;
-    background: #f8f8f8;
-    border-radius: 5px;
+    border: 1px solid ${theme.colors.border};
+    background: ${theme.colors.backgroundFocus};
+    border-radius: ${theme.borderRadius.small};
+    color: ${theme.colors.white};
     cursor: pointer;
 
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
+  }
+
+  span {
+    align-self: center;
   }
 `;

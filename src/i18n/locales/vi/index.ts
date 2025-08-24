@@ -3,16 +3,17 @@ import common from "./common";
 import menu from "./menu";
 import movie from "./movie";
 import review from "./review";
-import coupon from "./coupon";
-    
+import coupon from "./coupon";    
+import profile from "./profile";
 
-const en = {
+const vi = {
   ...common,
   ...menu,
   ...movie,
-  ...blog   ,
+  ...blog,
   ...review,
-  ...coupon
+  ...coupon,
+  ...profile,
 };
 
-export default en;
+export default vi;

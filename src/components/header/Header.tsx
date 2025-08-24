@@ -16,8 +16,8 @@ import LanguageSelector from '@components/language/LanguageSelector';
 import { useEffect, useRef } from 'react';
 import ContentWrapper from '@components/base/ContentWrapper';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -79,12 +79,9 @@ export default function Header() {
     openLoginModal();
   };
 
-  const handleChangePassword = () => {
-    navigate('/doi-mat-khau');
-  };
-
   const handleLogout = () => {
     dispatch(logout());
+    window.location.href = '/';
   };
 
   return (
@@ -168,11 +165,7 @@ export default function Header() {
 
                 <RightArea>
                   {isAuthenticated && auth ? (
-                    <UserMenu
-                      auth={auth}
-                      onLogout={handleLogout}
-                      onChangePassword={handleChangePassword}
-                    />
+                    <UserMenu auth={auth} onLogout={handleLogout} />
                   ) : (
                     <>
                       <ButtonOutline onClick={openRegisterModal}>
@@ -217,6 +210,7 @@ const Container = styled.header`
   justify-content: space-between;
   align-items: center;
   height: 80px;
+  font-family: ${theme.fontFamily.primary};
 
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
@@ -475,7 +469,7 @@ const MenuItemWrapper = styled.div`
 const SubMenu = styled.ul<{ nested?: boolean }>`
   list-style: none;
   margin: 0;
-  padding: 8px 0;
+  padding: 0;
   background: ${theme.colors.white};
   border: 1px solid ${theme.colors.border};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -483,7 +477,7 @@ const SubMenu = styled.ul<{ nested?: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
-  top: calc(100% + 1px);
+  top: calc(100%);
   min-width: 180px;
   z-index: 1000;
 

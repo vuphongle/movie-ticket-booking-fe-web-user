@@ -4,6 +4,7 @@ import menu from "./menu";
 import movie from "./movie";
 import review from "./review";
 import coupon from "./coupon";
+import profile from "./profile";
 
 const en = {
   ...common,
@@ -11,7 +12,8 @@ const en = {
   ...movie,
   ...blog,
   ...review,
-  ...coupon
+  ...coupon,
+  ...profile,
 };
 
 export default en;

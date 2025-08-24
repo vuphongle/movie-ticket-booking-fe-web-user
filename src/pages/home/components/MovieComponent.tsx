@@ -67,27 +67,24 @@ const Section = styled.section`
   margin: 40px 0;
   text-align: center;
 `;
-
 const Heading = styled.h2`
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 20px;
-  color: ${theme.colors.textPrimary};
+  color: ${theme.colors.headingLight};
 `;
-
 const MoreBtn = styled.button`
   margin-top: 12px;
   padding: 10px 48px;
-  border: 1px solid ${theme.colors.primary};
+  border: 1px solid ${theme.colors.white};
   border-radius: 6px;
   background-color: transparent;
-  color: ${theme.colors.textPrimary};
+  color: ${theme.colors.textLight};
   font-weight: 600;
   cursor: pointer;
-
   &:hover {
     background: ${theme.colors.primaryHoverGradient};
-    color: #ffffff;
+    color: ${theme.colors.white};
     font-weight: 700;
   }
 `;

@@ -32,5 +32,5 @@ const Wrapper = styled.div`
 const Heading = styled.h1`
   font-size: 26px;
   font-weight: 700;
-  color: ${theme.colors.textPrimary};
+  color: #ffffff;
 `;

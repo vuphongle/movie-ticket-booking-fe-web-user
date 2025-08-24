@@ -68,10 +68,10 @@ const HomePage: React.FC = () => {
 
 // Styled components
 const PageContainer = styled.div`
-  background: ${theme.colors.background};
+  background: transparent;
   color: ${theme.colors.textPrimary};
   padding: ${theme.spacing.md};
-  font-family: 'Roboto', sans-serif;
+  font-family: ${theme.fontFamily.primary};
   margin-bottom: ${theme.spacing.lg};
 `;
 

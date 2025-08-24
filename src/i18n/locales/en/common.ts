@@ -122,6 +122,10 @@ const common = {
   EMAIL_ALREADY_EXISTS: 'Email already exists. Please use a different email.',
   REGISTER_ACCOUNT_NOT_ACTIVATED:
     'Email already exists but not activated. Please check your email to activate your account.',
+  REGISTER_DOB_TOO_YOUNG: 'You must be at least 12 years old to register.',
+  REGISTER_DOB_YEAR_TOO_OLD: 'Birth year cannot be before 1900.',
+  REGISTER_DOB_REQUIRED: 'Date of birth is required.',
+  REGISTER_DOB: 'Date of Birth',
 
   // VERIFY
   VERIFY_SUCCESS_TITLE: 'Account Verified',
@@ -178,7 +182,7 @@ const common = {
   CONFIRM_PASSWORD_REQUIRED: 'Confirm password is required!',
   CONFIRM_NEW_PASSWORD_PLACEHOLDER: 'Confirm new password',
   PASSWORDS_NOT_MATCH: 'Passwords do not match',
-  CHANGE_PASSWORD_SUCCESS: 'Password changed successfully',
+  CHANGE_PASSWORD_SUCCESS: 'Password changed successfully. Logging out...',
   CHANGE_PASSWORD_ERROR: 'Failed to change password',
   CAPSLOCK_ON: 'Caps Lock is on',
   INVALID_OLD_PASSWORD: 'Invalid current password',
@@ -201,6 +205,15 @@ const common = {
   QUICKBOOKING_SELECT_DATE: 'Select Date',
   QUICKBOOKING_SELECT_TIME: 'Select Time',
   QUICKBOOKING_BUTTON_BOOK: 'Book Now',
+  WEAK: 'Weak',
+  MEDIUM: 'Medium',
+  STRONG: 'Strong',
+
+  // UPDATE PROFILE
+  CHANGE_AVATAR: 'Change Avatar',
+  UPDATE_PROFILE_SUCCESS: 'Profile updated successfully!',
+  UPDATE_PROFILE_ERROR: 'Error occurred while updating profile!',
+  SAVING: 'Saving...',
 };
 
 export default common;

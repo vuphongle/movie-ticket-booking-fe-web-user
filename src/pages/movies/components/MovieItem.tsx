@@ -112,7 +112,7 @@ const Poster = styled.img`
 const ActionButton = styled.button.withConfig({
   shouldForwardProp: (prop) => prop !== 'primary',
 })<{ primary?: boolean }>`
-  width: 180px;
+  width: 190px;
   padding: 10px 24px;
   border: none;
   border-radius: 6px;
@@ -132,7 +132,7 @@ const ActionButton = styled.button.withConfig({
     background: ${({ primary }) =>
       primary ? theme.colors.primaryHoverGradient : 'rgba(0,0,0,0.25)'};
     color: #fff;
-    font-weight: 600;
+    font-weight: bold;
   }
 `;
 
