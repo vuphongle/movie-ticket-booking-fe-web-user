@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import MovieList from './components/MovieList';
-import { theme } from '@theme/Theme';
 import { useGetShowingNowMoviesQuery } from '@app/services/movie.api';
 import { useTranslation } from 'react-i18next';
 
