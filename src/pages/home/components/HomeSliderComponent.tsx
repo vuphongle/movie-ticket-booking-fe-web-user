@@ -1,8 +1,7 @@
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
 interface SliderItem {
@@ -19,10 +18,10 @@ export default function HomeSliderComponent({ slides }: Props) {
   return (
     <SliderWrapper>
       <Swiper
-        modules={[Autoplay, Pagination, Navigation]}
+        modules={[Autoplay, Navigation]}
         autoplay={{ delay: 3000, disableOnInteraction: false }}
+        speed={1000}
         loop={true}
-        pagination={{ clickable: true }}
         navigation
         slidesPerView={1}
       >
@@ -45,20 +44,25 @@ const SliderWrapper = styled.div`
   max-height: 500px;
   position: relative;
 
-  .swiper-pagination-bullet {
-    background: rgba(255, 255, 255, 0.7);
-    opacity: 1;
+  .swiper-pagination {
+    display: none !important;
   }
 
-  .swiper-pagination-bullet-active {
-    background: #ff6b00;
-  }
-
+  /* Nút điều hướng */
   .swiper-button-prev,
   .swiper-button-next {
     color: white;
-    width: 44px;
-    height: 44px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .swiper-button-prev:hover,
+  .swiper-button-next:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
   }
 `;
 
@@ -70,7 +74,7 @@ const SlideContainer = styled.div`
 
 const SlideImage = styled.img`
   width: 100%;
-  height: 500px;
+  height: 100%;
   object-fit: cover;
 `;
 
@@ -83,4 +87,3 @@ const GradientOverlay = styled.div`
     rgba(0, 255, 0, 0.2) 100%
   );
 `;
-

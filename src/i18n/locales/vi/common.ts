@@ -196,6 +196,15 @@ const common = {
   CINEMACORNER_MOVIE: 'Phim',
   CINEMACORNER_SEE_MORE: 'Xem thêm',
   CINEMACORNER_ALL_REVIEWS: 'Tất cả đánh giá',
+
+  //QuickBooking
+  QUICKBOOKING_TITLE: 'Đặt vé nhanh',
+  QUICKBOOKING_SELECT_CINEMA: 'Chọn rạp',
+  QUICKBOOKING_SELECT_MOVIE: 'Chọn phim',
+  QUICKBOOKING_SELECT_DATE: 'Chọn ngày',
+  QUICKBOOKING_SELECT_TIME: 'Chọn giờ',
+  QUICKBOOKING_BUTTON_BOOK: 'Đặt vé ngay',
+
 };
 
 export default common;

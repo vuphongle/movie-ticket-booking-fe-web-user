@@ -5,3 +5,9 @@ export function formatGraphicLabel(value: string): string {
 
   return formatted;
 }
+
+export const formatDate = (dateStr?: string): string => {
+  if (!dateStr) return 'N/A';
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
+};

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { theme } from '@/theme/Theme';
 import HomeSliderComponent from '@pages/home/components/HomeSliderComponent';
+import QuickBookingComponent from '@pages/home/components/QuickBookingComponent';
 import MovieComponent from '@pages/home/components/MovieComponent';
 import CinemaCornerComponent from '@pages/home/components/CinemaCornerComponent';
 import CouponComponent from '@pages/home/components/CouponComponent';
@@ -31,6 +32,8 @@ const HomePage: React.FC = () => {
           alt: movie.name,
         }))}
       />
+
+      <QuickBookingComponent />
 
       {loadingNow ? (
         <p>{t('MOVIE_LOADING_NOW')}</p>

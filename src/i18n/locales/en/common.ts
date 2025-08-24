@@ -193,6 +193,14 @@ const common = {
   CINEMACORNER_MOVIE: 'Movie',
   CINEMACORNER_SEE_MORE: 'See more',
   CINEMACORNER_ALL_REVIEWS: 'All reviews',
+
+  //QuickBooking
+  QUICKBOOKING_TITLE: 'Quick Booking',
+  QUICKBOOKING_SELECT_CINEMA: 'Select Cinema',
+  QUICKBOOKING_SELECT_MOVIE: 'Select Movie',
+  QUICKBOOKING_SELECT_DATE: 'Select Date',
+  QUICKBOOKING_SELECT_TIME: 'Select Time',
+  QUICKBOOKING_BUTTON_BOOK: 'Book Now',
 };
 
 export default common;
