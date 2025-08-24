@@ -187,6 +187,24 @@ const common = {
   CAPSLOCK_ON: 'Caps Lock is on',
   INVALID_OLD_PASSWORD: 'Invalid current password',
   NEW_PASSWORD_SAME_AS_OLD: 'New password must be different from old password',
+
+  //CinemaCorner
+  CINEMACORNER_CORNER: 'Cinema Corner',
+  CINEMACORNER_LOADING: 'Loading...',
+  CINEMACORNER_TAB_BLOG: 'Blog',
+  CINEMACORNER_TAB_REVIEW: 'Review',
+  CINEMACORNER_TAB_CAST: 'Cast',
+  CINEMACORNER_MOVIE: 'Movie',
+  CINEMACORNER_SEE_MORE: 'See more',
+  CINEMACORNER_ALL_REVIEWS: 'All reviews',
+
+  //QuickBooking
+  QUICKBOOKING_TITLE: 'Quick Booking',
+  QUICKBOOKING_SELECT_CINEMA: 'Select Cinema',
+  QUICKBOOKING_SELECT_MOVIE: 'Select Movie',
+  QUICKBOOKING_SELECT_DATE: 'Select Date',
+  QUICKBOOKING_SELECT_TIME: 'Select Time',
+  QUICKBOOKING_BUTTON_BOOK: 'Book Now',
   WEAK: 'Weak',
   MEDIUM: 'Medium',
   STRONG: 'Strong',

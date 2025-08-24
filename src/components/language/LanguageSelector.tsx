@@ -13,8 +13,8 @@ export default function LanguageSelector() {
   };
 
   const options = [
-    { value: 'vi', label: 'Tiếng Việt', img: FlagVN },
-    { value: 'en', label: 'English', img: FlagUS },
+    { value: 'vi', label: 'VN', img: FlagVN },
+    { value: 'en', label: 'EN', img: FlagUS },
   ];
 
   const CustomOption = (props: any) => (
@@ -36,6 +36,11 @@ export default function LanguageSelector() {
       onChange={opt => changeLanguage(opt?.value || 'vi')}
       components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
       styles={{
+        menuList: base => ({
+          ...base,
+          paddingTop: 0,
+          paddingBottom: 0,
+        }),
         control: (base, state) => ({
           ...base,
           borderRadius: theme.borderRadius.large,

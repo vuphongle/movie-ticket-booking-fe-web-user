@@ -1,24 +1,26 @@
 export const theme = {
-colors: {
-  primary: '#01274c',
-  primaryHover: '#2b4dad',
-  backgroundHover: '#e1f3fe', 
-  backgroundFocus: '#04132a', 
-  textPrimary: '#01274c',
-  textPrimaryHover: '#2b4dad',
-  border: '#cbd5e1',
-  error: '#ef4444',
-  white: '#ffffff',
-  bgLight: '#f8fafc',
-  gray: '#64748b',
-  background: '#f1f5f9',
-  textSecondary: '#64748b',
-  success: '#4caf50',
-  closeButtonBg: '#f1f5f9',
-  closeButtonBgHover: '#e2e8f0',
-  closeButtonText: '#0b1e44', 
-}
-,
+  colors: {
+    primary: '#01274c',
+    primaryHover: '#2b4dad',
+    primaryHoverGradient: 'linear-gradient(90deg, #01274c, #2b4dad)',
+    backgroundHover: '#e1f3fe',
+    backgroundFocus: '#04132a',
+    textPrimary: '#01274c',
+    textPrimaryHover: '#2b4dad',
+    textSecondary: '#64748b',
+    textLight: '#f9fafb',
+    headingLight: '#ffffff',
+    border: '#cbd5e1',
+    error: '#ef4444',
+    white: '#ffffff',
+    bgLight: '#f8fafc',
+    gray: '#64748b',
+    background: '#f1f5f9',
+    success: '#4caf50',
+    closeButtonBg: '#f1f5f9',
+    closeButtonBgHover: '#e2e8f0',
+    closeButtonText: '#0b1e44',
+  },
 
   borderRadius: {
     small: '4px',
@@ -30,6 +32,7 @@ colors: {
     sm: '8px',
     md: '16px',
     lg: '24px',
+    xl: '32px',
   },
   fontSize: {
     sm: '14px',
@@ -38,8 +41,10 @@ colors: {
     xl: '20px',
   },
   fontFamily: {
-    primary: "'Inter', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif",
-    display: "'Inter', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif",
+    primary:
+      "'Inter', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif",
+    display:
+      "'Inter', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif",
   },
 } as const;
 

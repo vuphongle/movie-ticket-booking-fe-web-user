@@ -16,9 +16,12 @@ import LanguageSelector from '@components/language/LanguageSelector';
 import { useEffect, useRef } from 'react';
 import ContentWrapper from '@components/base/ContentWrapper';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { auth, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
@@ -89,9 +92,11 @@ export default function Header() {
             <Nav>
               <LeftGroup>
                 <LogoArea>
-                  <Logo src={LogoImg} alt='GoCinema' />
+                  <Link to='/'>
+                    <Logo src={LogoImg} alt='GoCinema' />
+                  </Link>
                 </LogoArea>
-
+                
                 <SearchBox>
                   <SearchInput
                     placeholder={t('SEARCH_PLACEHOLDER') || 'Tìm phim, rạp'}
@@ -127,8 +132,8 @@ export default function Header() {
                     </MenuItem>
                     {hoveredMenu === 'movies' && (
                       <SubMenu>
-                        <SubMenuItem>{t('NAV_MOVIES_NOW_SHOWING')}</SubMenuItem>
-                        <SubMenuItem>{t('NAV_MOVIES_COMING_SOON')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/movies/now-showing')}>{t('NAV_MOVIES_NOW_SHOWING')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/movies/coming-soon')}>{t('NAV_MOVIES_COMING_SOON')}</SubMenuItem>
                       </SubMenu>
                     )}
                   </MenuItemWrapper>
@@ -150,8 +155,8 @@ export default function Header() {
                     </MenuItem>
                     {hoveredMenu === 'cinema_corner' && (
                       <SubMenu>
-                        <SubMenuItem>{t('NAV_BLOG_MOVIES')}</SubMenuItem>
-                        <SubMenuItem>{t('NAV_REVIEWS_MOVIES')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/blogs')}>{t('NAV_BLOG_MOVIES')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/reviews')}>{t('NAV_REVIEWS_MOVIES')}</SubMenuItem>
                         <SubMenuItem>{t('NAV_ACTORS_DIRECTORS')}</SubMenuItem>
                       </SubMenu>
                     )}
@@ -269,7 +274,7 @@ const Nav = styled.nav`
 `;
 
 const LanguageSelectorWrapper = styled.div`
-  width: 160px;
+  width: 90px;
   flex-shrink: 0;
 
   @media (max-width: 768px) {
@@ -464,7 +469,7 @@ const MenuItemWrapper = styled.div`
 const SubMenu = styled.ul<{ nested?: boolean }>`
   list-style: none;
   margin: 0;
-  padding: 8px 0;
+  padding: 0;
   background: ${theme.colors.white};
   border: 1px solid ${theme.colors.border};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -472,7 +477,7 @@ const SubMenu = styled.ul<{ nested?: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
-  top: calc(100% + 1px);
+  top: calc(100%);
   min-width: 180px;
   z-index: 1000;
 
