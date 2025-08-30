@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import MovieItem from './MovieItem';
 import type { Movie } from '@app/services/movie.api';
 import { useTranslation } from "react-i18next";
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   movies: Movie[];
@@ -10,6 +11,7 @@ interface Props {
 
 export default function MovieList({ movies, buttonText }: Props) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   return (
     <Grid>
       {movies.map(movie => (
@@ -22,7 +24,7 @@ export default function MovieList({ movies, buttonText }: Props) {
           graphics={movie.graphics}
           buttonText={buttonText}
           onTrailer={() => console.log(t('MOVIE_TRAILER'), movie.name)}
-          onAction={() => console.log(buttonText, movie.name)}
+          onAction={() => navigate(`/movies/${movie.id}/${movie.slug}`)}
         />
       ))}
     </Grid>

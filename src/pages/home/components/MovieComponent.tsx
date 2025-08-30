@@ -5,6 +5,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 import MovieItem from '@/pages/movies/components/MovieItem';
 import { theme } from '@theme/Theme';
@@ -24,6 +25,8 @@ export default function MovieComponent({
   onViewMore,
 }: Props) {
   const { t } = useTranslation();
+
+  const navigate = useNavigate();
 
   const slidesPerView = 4;
   const totalDots = Math.min(2, Math.ceil(movies.length / slidesPerView));
@@ -51,7 +54,7 @@ export default function MovieComponent({
               graphics={movie.graphics ?? []}
               buttonText={buttonText}
               onTrailer={() => console.log(t('MOVIE_TRAILER'), movie.name)}
-              onAction={() => console.log(buttonText, movie.name)}
+              onAction={() => navigate(`/movies/${movie.id}/${movie.slug}`)}
             />
           </SwiperSlide>
         ))}

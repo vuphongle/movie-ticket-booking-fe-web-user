@@ -11,6 +11,7 @@ import ContentWrapper from '@components/base/ContentWrapper';
 import ResetPasswordPage from '@pages/verify/ResetPassword';
 import ComingSoon from '@pages/movies/MovieComingSoonPage';
 import NowShowing from '@pages/movies/MovieNowShowingPage';
+import MovieDetailPage from './pages/movies/MovieDetailPage';
 import BlogPage from '@pages/blogs/BlogPage';
 import ReviewPage from '@pages/reviews/ReviewPage';
 
@@ -38,6 +39,7 @@ function App() {
 
             <Route path='/movies/now-showing' element={<NowShowing />} />
             <Route path='/movies/coming-soon' element={<ComingSoon />} />
+            <Route path='/movies/:id/:slug' element={<MovieDetailPage />} />
             <Route path='/blogs' element={<BlogPage />} />
             <Route path='/reviews' element={<ReviewPage />} />
           </Routes>
