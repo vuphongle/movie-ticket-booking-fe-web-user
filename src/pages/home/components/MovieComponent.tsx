@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import MovieItem from '@/pages/movies/components/MovieItem';
 import { theme } from '@theme/Theme';
 import type { Movie } from '@app/services/movie.api';
+import { useState } from 'react';
 
 interface Props {
   title: string;
@@ -32,6 +33,19 @@ export default function MovieComponent({
   const totalDots = Math.min(2, Math.ceil(movies.length / slidesPerView));
   const slidesPerGroup = Math.ceil(movies.length / totalDots);
 
+  const [activeTrailer, setActiveTrailer] = useState<string | null>(null);
+
+  if (!movies || movies.length === 0) {
+    return <p>{t('MOVIE_NO_MOVIES')}</p>;
+  }
+
+  const getEmbedUrl = (url: string) => {
+    if (url.includes('youtube.com/watch')) {
+      return url.replace('watch?v=', 'embed/');
+    }
+    return url;
+  };
+
   return (
     <Section>
       <Heading>{title}</Heading>
@@ -53,7 +67,7 @@ export default function MovieComponent({
               rating={movie.rating ?? 0}
               graphics={movie.graphics ?? []}
               buttonText={buttonText}
-              onTrailer={() => console.log(t('MOVIE_TRAILER'), movie.name)}
+              onTrailer={() => setActiveTrailer(getEmbedUrl(movie.trailer))}
               onAction={() => navigate(`/movies/${movie.id}/${movie.slug}`)}
             />
           </SwiperSlide>
@@ -61,6 +75,16 @@ export default function MovieComponent({
       </Swiper>
 
       <MoreBtn onClick={onViewMore}>{t('MOVIE_VIEW_MORE')}</MoreBtn>
+
+      {activeTrailer && (
+        <TrailerModal onClick={() => setActiveTrailer(null)}>
+          <iframe
+            src={activeTrailer}
+            allowFullScreen
+            onClick={e => e.stopPropagation()}
+          />
+        </TrailerModal>
+      )}
     </Section>
   );
 }
@@ -89,5 +113,24 @@ const MoreBtn = styled.button`
     background: ${theme.colors.primaryHoverGradient};
     color: ${theme.colors.white};
     font-weight: 700;
+  }
+`;
+
+const TrailerModal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  iframe {
+    width: 70%;
+    height: 70%;
+    border: none;
   }
 `;

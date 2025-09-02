@@ -28,6 +28,8 @@ export const theme = {
     darkCardBg: 'rgba(255,255,255,0.05)',
     darkBorder: 'rgba(255,255,255,0.1)',
     darkShadow: '0 6px 16px rgba(0,0,0,0.6)',
+    darkTitleBar: '#439aaa',
+    darkTextTertiary: '#adb5bd',
     rating: '#facc15',
   },
 

@@ -18,6 +18,7 @@ import ContentWrapper from '@components/base/ContentWrapper';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useLoginModal } from '@contexts/LoginContext';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -27,14 +28,15 @@ export default function Header() {
     (state: RootState) => state.auth
   );
 
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const { isLoginOpen, openLogin, closeLogin } = useLoginModal();
+
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
 
-  const openLoginModal = () => setIsLoginOpen(true);
-  const closeLoginModal = () => setIsLoginOpen(false);
+  const openLoginModal = () => openLogin();
+  const closeLoginModal = () => closeLogin();
   const openRegisterModal = () => setIsRegisterOpen(true);
   const closeRegisterModal = () => setIsRegisterOpen(false);
   const openForgotModal = () => setIsForgotOpen(true);

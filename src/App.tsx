@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import { Route, Routes } from 'react-router-dom';
 import './i18n/i18n';
 import './index.css';
+import { LoginProvider } from './contexts/LoginContext';
 import ContentWrapper from '@components/base/ContentWrapper';
 import ResetPasswordPage from '@pages/verify/ResetPassword';
 import ComingSoon from '@pages/movies/MovieComingSoonPage';
@@ -24,30 +25,32 @@ function App() {
     location.pathname === '/dat-lai-mat-khau';
 
   return (
-    <div style={styles.container}>
-      <AppToastContainer />
+    <LoginProvider>
+      <div style={styles.container}>
+        <AppToastContainer />
 
-      {!hideLayout && <Header />}
+        {!hideLayout && <Header />}
 
-      <main style={styles.main}>
-        <ContentWrapper style={styles.contentWrapper}>
-          <Routes>
-            <Route path='/' element={<HomePage />} />
-            <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />
-            <Route path='/dat-lai-mat-khau' element={<ResetPasswordPage />} />
-            <Route path='/profile' element={<ProfilePage />} />
+        <main style={styles.main}>
+          <ContentWrapper style={styles.contentWrapper}>
+            <Routes>
+              <Route path='/' element={<HomePage />} />
+              <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />
+              <Route path='/dat-lai-mat-khau' element={<ResetPasswordPage />} />
+              <Route path='/profile' element={<ProfilePage />} />
 
-            <Route path='/movies/now-showing' element={<NowShowing />} />
-            <Route path='/movies/coming-soon' element={<ComingSoon />} />
-            <Route path='/movies/:id/:slug' element={<MovieDetailPage />} />
-            <Route path='/blogs' element={<BlogPage />} />
-            <Route path='/reviews' element={<ReviewPage />} />
-          </Routes>
-        </ContentWrapper>
-      </main>
+              <Route path='/movies/now-showing' element={<NowShowing />} />
+              <Route path='/movies/coming-soon' element={<ComingSoon />} />
+              <Route path='/movies/:id/:slug' element={<MovieDetailPage />} />
+              <Route path='/blogs' element={<BlogPage />} />
+              <Route path='/reviews' element={<ReviewPage />} />
+            </Routes>
+          </ContentWrapper>
+        </main>
 
-      {!hideLayout && <Footer />}
-    </div>
+        {!hideLayout && <Footer />}
+      </div>
+    </LoginProvider>
   );
 }
 

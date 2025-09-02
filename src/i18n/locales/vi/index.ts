@@ -5,6 +5,8 @@ import movie from "./movie";
 import review from "./review";
 import coupon from "./coupon";    
 import profile from "./profile";
+import movieDetail from "./movieDetail";
+
 
 const vi = {
   ...common,
@@ -14,6 +16,7 @@ const vi = {
   ...review,
   ...coupon,
   ...profile,
+  ...movieDetail,
 };
 
 export default vi;

@@ -4,6 +4,7 @@ import { MovieAge } from '@app/services/movie.api';
 import { FaTicketAlt, FaPlay } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { formatGraphicLabel } from '@utils/functionUtils';
+import { useEffect } from 'react';
 
 interface Props {
   title: string;
@@ -29,6 +30,10 @@ export default function MovieItem({
   compact = false,
 }: Props) {
   const { t } = useTranslation();
+
+  useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
 
   return (
     <Card compact={compact}>
@@ -95,7 +100,7 @@ const PosterWrapper = styled.div.withConfig({
 })<{ compact?: boolean }>`
   position: relative;
   width: 100%;
-  height: ${({ compact }) => (compact ? '230px' : '400px')};
+  height: ${({ compact }) => (compact ? '320px' : '400px')};
   overflow: hidden;
 
   &:hover ${Overlay} {
@@ -119,9 +124,9 @@ const Poster = styled.img`
 const ActionButton = styled.button.withConfig({
   shouldForwardProp: (prop) => prop !== 'primary' && prop !== 'compact',
 })<{ primary?: boolean; compact?: boolean }>`
-  width: ${({ compact }) => (compact ? '120px' : '190px')};
-  padding: ${({ compact }) => (compact ? '6px 12px' : '10px 24px')};
-  font-size: ${({ compact }) => (compact ? '12px' : '14px')};
+  width: 170px;
+  padding: 10px 24px;
+  font-size: 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
