@@ -52,7 +52,7 @@ export default function MovieComponent({
 
       <Swiper
         modules={[Navigation, Pagination]}
-        spaceBetween={20}
+        spaceBetween={40}
         slidesPerView={slidesPerView}
         slidesPerGroup={slidesPerGroup}
         pagination={{ clickable: true }}
@@ -129,8 +129,8 @@ const TrailerModal = styled.div`
   z-index: 1000;
 
   iframe {
-    width: 70%;
-    height: 70%;
+    width: 80%;
+    height: 80%;
     border: none;
   }
 `;

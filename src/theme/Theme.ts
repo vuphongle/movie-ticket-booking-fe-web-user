@@ -31,6 +31,10 @@ export const theme = {
     darkTitleBar: '#439aaa',
     darkTextTertiary: '#adb5bd',
     rating: '#facc15',
+
+    red: '#ef4444',
+    orange: '#ff9800',
+    gold: '#ffd700',
   },
 
   borderRadius: {
@@ -44,6 +48,8 @@ export const theme = {
     md: '16px',
     lg: '24px',
     xl: '32px',
+    xxl: '48px',
+    xxxl: '105px',
   },
   fontSize: {
     sm: '14px',

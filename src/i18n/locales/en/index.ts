@@ -6,7 +6,7 @@ import review from "./review";
 import coupon from "./coupon";
 import profile from "./profile";
 import movieDetail from "./movieDetail";
-
+import booking from "./booking";
 
 const en = {
   ...common,
@@ -17,6 +17,7 @@ const en = {
   ...coupon,
   ...profile,
   ...movieDetail,
+  ...booking,
 };
 
 export default en;

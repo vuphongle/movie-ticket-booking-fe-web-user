@@ -62,7 +62,7 @@ const MovieDetailPage: React.FC = () => {
             <Description>{movie.description}</Description>
           </Block>
 
-          <MovieShowtimes movieId={movieId} />
+          <MovieShowtimes movieId={movieId} slug={slug!} />
 
           <MovieReviews reviews={movie.reviews} />
         </LeftColumn>

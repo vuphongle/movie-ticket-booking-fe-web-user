@@ -15,6 +15,7 @@ import NowShowing from '@pages/movies/MovieNowShowingPage';
 import MovieDetailPage from './pages/movies/MovieDetailPage';
 import BlogPage from '@pages/blogs/BlogPage';
 import ReviewPage from '@pages/reviews/ReviewPage';
+import BookingPage from '@pages/orders/BookingPage';
 
 import AppToastContainer from '@components/base/AppToastContainer';
 
@@ -44,6 +45,7 @@ function App() {
               <Route path='/movies/:id/:slug' element={<MovieDetailPage />} />
               <Route path='/blogs' element={<BlogPage />} />
               <Route path='/reviews' element={<ReviewPage />} />
+              <Route path="/booking/:slug/:showtimeId" element={<BookingPage />} />
             </Routes>
           </ContentWrapper>
         </main>

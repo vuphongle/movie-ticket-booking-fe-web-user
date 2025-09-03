@@ -10,6 +10,14 @@ export interface ShowtimeDto {
     name: string;
     location: string;
   };
+  auditorium: {
+    id: number;
+    name: string;
+    totalSeats: number;
+    totalRows: number;
+    totalColumns: number;
+    type: string;
+  };
   format: string;
   date: string;
   startTime: string;
@@ -48,6 +56,14 @@ export const showtimeApi = createApi({
             id: st.auditorium?.cinema?.id,
             name: st.auditorium?.cinema?.name,
             location: st.auditorium?.cinema?.address,
+          },
+          auditorium: {
+            id: st.auditorium?.id,
+            name: st.auditorium?.name,
+            totalSeats: st.auditorium?.totalSeats,
+            totalRows: st.auditorium?.totalRows,
+            totalColumns: st.auditorium?.totalColumns,
+            type: st.auditorium?.type,
           },
           format: `${formatGraphicLabel(st.graphicsType)}  ${st.translationType}`,
           date: st.date,

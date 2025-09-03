@@ -80,8 +80,8 @@ const TrailerModal = styled.div`
   z-index: 1000;
 
   iframe {
-    width: 70%;
-    height: 70%;
+    width: 80%;
+    height: 80%;
     border: none;
   }
 `;

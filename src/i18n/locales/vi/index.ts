@@ -6,6 +6,7 @@ import review from "./review";
 import coupon from "./coupon";    
 import profile from "./profile";
 import movieDetail from "./movieDetail";
+import booking from "./booking";
 
 
 const vi = {
@@ -17,6 +18,7 @@ const vi = {
   ...coupon,
   ...profile,
   ...movieDetail,
+  ...booking,
 };
 
 export default vi;

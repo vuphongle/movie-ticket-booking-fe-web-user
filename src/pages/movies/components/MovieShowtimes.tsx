@@ -19,6 +19,7 @@ import { useLoginModal } from '@contexts/LoginContext';
 
 export interface MovieShowtimesProps {
   movieId: number;
+  slug: string;
 }
 
 const pad = (n: number) => n.toString().padStart(2, '0');
@@ -33,23 +34,41 @@ const WEEKDAYS = [
   'MOVIE_SUNDAY',
 ];
 
-const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId }) => {
+const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const { setPendingRoute } = useLoginModal();
+  const { openLogin } = useLoginModal();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
-  const handleTimeClick = (cinemaId: number, time: string) => {
-    const targetRoute = `/booking/${movieId}?cinemaId=${cinemaId}&time=${time}`;
-
+  const handleTimeClick = (
+    showtimeId: number,
+    cinema: number,
+    auditorium: number,
+    time: string,
+    date: string
+  ) => {
     if (!isAuthenticated) {
-      setPendingRoute(targetRoute);
+      setDataToLocalStorage('pendingBooking', {
+        showtimeId,
+        cinema,
+        auditorium,
+        time,
+        date,
+      });
+      openLogin();
       return;
     }
 
-    navigate(targetRoute);
+    navigate(`/booking/${slug}/${showtimeId}`, {
+      state: {
+        showtimeId,
+        cinema,
+        auditorium,
+        time,
+        date,
+      },
+    });
   };
-
-  const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const today = useMemo(() => new Date(), []);
   const next6Days = useMemo(
@@ -71,7 +90,9 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId }) => {
 
   const showDateStr = useMemo(
     () =>
-      `${pad(selectedDate.getDate())}/${pad(selectedDate.getMonth() + 1)}/${selectedDate.getFullYear()}`,
+      `${pad(selectedDate.getDate())}/${pad(
+        selectedDate.getMonth() + 1
+      )}/${selectedDate.getFullYear()}`,
     [selectedDate]
   );
 
@@ -121,14 +142,17 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId }) => {
         });
       }
       const group = map.get(st.cinema.id);
+
       let formatGroup = group.formats.find(
-        (f: { format: string; times: string[] }) => f.format === st.format
+        (f: { format: string; times: any[] }) => f.format === st.format
       );
+
       if (!formatGroup) {
-        formatGroup = { format: st.format, times: [] as string[] };
+        formatGroup = { format: st.format, times: [] as any[] };
         group.formats.push(formatGroup);
       }
-      formatGroup.times.push(st.startTime as string);
+
+      formatGroup.times.push({ id: st.id, cinema: st.cinema, auditorium: st.auditorium, time: st.startTime, date: st.date });
     });
 
     return Array.from(map.values());
@@ -204,16 +228,18 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId }) => {
               <CinemaBlock key={group.cinema.id}>
                 <CinemaName>{group.cinema.name}</CinemaName>
 
-                {group.formats.map((f: any, idx: number) => (
-                  <FormatBlock key={idx}>
+                {group.formats.map((f: any) => (
+                  <FormatBlock key={f.format}>
                     <FormatName>{f.format}</FormatName>
                     <Times>
-                      {f.times.map((time: string, tIdx: number) => (
+                      {f.times.map((t: any) => (
                         <TimeButton
-                          key={tIdx}
-                          onClick={() => handleTimeClick(group.cinema.id, time)}
+                          key={t.id}
+                          onClick={() =>
+                            handleTimeClick(t.id, t.cinema, t.auditorium, t.time, t.date)
+                          }
                         >
-                          {time}
+                          {t.time}
                         </TimeButton>
                       ))}
                     </Times>
