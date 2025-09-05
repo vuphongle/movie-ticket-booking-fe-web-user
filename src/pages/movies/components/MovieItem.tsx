@@ -3,7 +3,8 @@ import { theme } from '@theme/Theme';
 import { MovieAge } from '@app/services/movie.api';
 import { FaTicketAlt, FaPlay } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import { formatGraphicLabel  } from '@utils/functionUtils';
+import { formatGraphicLabel } from '@utils/functionUtils';
+import { useEffect } from 'react';
 
 interface Props {
   title: string;
@@ -14,6 +15,7 @@ interface Props {
   buttonText: string;
   onTrailer?: () => void;
   onAction?: () => void;
+  compact?: boolean;
 }
 
 export default function MovieItem({
@@ -25,22 +27,26 @@ export default function MovieItem({
   buttonText,
   onTrailer,
   onAction,
+  compact = false,
 }: Props) {
-    
   const { t } = useTranslation();
 
+  useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
+
   return (
-    <Card>
-      <PosterWrapper>
+    <Card compact={compact}>
+      <PosterWrapper compact={compact}>
         <Poster src={poster} alt={title} />
         <Overlay>
           {onTrailer && (
-            <ActionButton>
+            <ActionButton compact={compact} onClick={onTrailer}>
               <FaPlay style={{ marginRight: 8 }} /> {t('MOVIE_TRAILER')}
             </ActionButton>
           )}
           {onAction && (
-            <ActionButton primary>
+            <ActionButton primary onClick={onAction}>
               <FaTicketAlt style={{ marginRight: 8 }} /> {buttonText}
             </ActionButton>
           )}
@@ -54,16 +60,18 @@ export default function MovieItem({
           <AgeBadge>{age}</AgeBadge>
         </TopRight>
       </PosterWrapper>
-      <Info>
+      <Info compact={compact}>
         <Title>{title}</Title>
-        <Detail>⭐ {rating.toFixed(1)}</Detail>
+        {!compact && <Detail>⭐ {rating.toFixed(1)}</Detail>}
       </Info>
     </Card>
   );
 }
 
 /* styled */
-const Card = styled.div`
+const Card = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'compact',
+})<{ compact?: boolean }>`
   display: flex;
   flex-direction: column;
   border-radius: 8px;
@@ -71,7 +79,8 @@ const Card = styled.div`
   background: ${theme.colors.white};
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   position: relative;
-  margin-bottom: 36px;
+  margin-bottom: ${({ compact }) => (compact ? '0px' : '36px')};
+  max-width: ${({ compact }) => (compact ? '220px' : '260px')};
 `;
 
 const Overlay = styled.div`
@@ -86,19 +95,22 @@ const Overlay = styled.div`
   transition: opacity 0.3s ease;
 `;
 
-const PosterWrapper = styled.div`
+const PosterWrapper = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'compact',
+})<{ compact?: boolean }>`
   position: relative;
   width: 100%;
-  height: 400px;
+  height: ${({ compact }) => (compact ? '320px' : '400px')};
   overflow: hidden;
 
   &:hover ${Overlay} {
     opacity: 1;
+    background: rgba(0, 0, 0, 0.5);
   }
 
   &:hover img {
-    filter: brightness(50%);
-    transform: scale(1.05);
+    filter: ${({ compact }) => (compact ? 'none' : 'brightness(50%)')};
+    transform: ${({ compact }) => (compact ? 'none' : 'scale(1.05)')};
   }
 `;
 
@@ -110,10 +122,11 @@ const Poster = styled.img`
 `;
 
 const ActionButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== 'primary',
-})<{ primary?: boolean }>`
-  width: 190px;
+  shouldForwardProp: (prop) => prop !== 'primary' && prop !== 'compact',
+})<{ primary?: boolean; compact?: boolean }>`
+  width: 170px;
   padding: 10px 24px;
+  font-size: 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -135,6 +148,7 @@ const ActionButton = styled.button.withConfig({
     font-weight: bold;
   }
 `;
+
 
 const TopLeft = styled.div`
   position: absolute;
@@ -163,8 +177,10 @@ const AgeBadge = styled(Badge)`
   background: red;
 `;
 
-const Info = styled.div`
-  padding: 12px;
+const Info = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'compact',
+})<{ compact?: boolean }>`
+  padding: ${({ compact }) => (compact ? '8px' : '12px')};
   text-align: center;
 `;
 
@@ -179,7 +195,6 @@ const Title = styled.h3`
   overflow: hidden;
   text-overflow: ellipsis;
 `;
-
 
 const Detail = styled.p`
   font-size: 14px;

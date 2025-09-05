@@ -10,6 +10,12 @@ export enum MovieAge {
   C = 'C',
 }
 
+export interface Genre {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export interface Movie {
   id: number;
   name: string;
@@ -19,8 +25,45 @@ export interface Movie {
   trailer: string;
   age: MovieAge;
   rating: number;
-  genres: string[];
+  genres: Genre[];
   graphics: string[];
+}
+
+export interface MovieDetail extends Movie {
+  nameEn: string;
+  releaseYear: number;
+  duration: number;
+  status: boolean;
+  showDate: string;
+  translations: string[];
+  country: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+  directors: {
+    id: number;
+    name: string;
+    avatar: string;
+  }[];
+  actors: {
+    id: number;
+    name: string;
+    avatar: string;
+  }[];
+  reviews: {
+    id: number;
+    comment: string;
+    rating: number;
+    images: string[];
+    createdAt: string;
+    user: {
+      id: number;
+      name: string;
+      avatar: string;
+      role: string;
+    };
+  }[];
 }
 
 export const movieApi = createApi({
@@ -41,7 +84,6 @@ export const movieApi = createApi({
       }
     },
   }),
-
   endpoints: builder => ({
     getShowingNowMovies: builder.query<Movie[], void>({
       query: () => '/movies/showing-now',
@@ -49,11 +91,18 @@ export const movieApi = createApi({
     getComingSoonMovies: builder.query<Movie[], void>({
       query: () => '/movies/coming-soon',
     }),
+    getMovieDetail: builder.query<MovieDetail, { id: number; slug: string }>({
+      query: ({ id, slug }) => `/movies/${id}/${slug}`,
+    }),
+    getMovieByShowtime: builder.query<Movie, number>({
+      query: (id) => `/movie-by-showtimeId/${id}`,
+    }),
   }),
 });
-
 
 export const {
   useGetShowingNowMoviesQuery,
   useGetComingSoonMoviesQuery,
+  useGetMovieDetailQuery,
+  useGetMovieByShowtimeQuery,
 } = movieApi;

@@ -20,6 +20,21 @@ export const theme = {
     closeButtonBg: '#f1f5f9',
     closeButtonBgHover: '#e2e8f0',
     closeButtonText: '#0b1e44',
+
+    /** 🎬 Bổ sung cho nền tối */
+    darkTextPrimary: '#f9fafb',
+    darkTextSecondary: '#cbd5e1',
+    darkTextMuted: '#94a3b8',
+    darkCardBg: 'rgba(255,255,255,0.05)',
+    darkBorder: 'rgba(255,255,255,0.1)',
+    darkShadow: '0 6px 16px rgba(0,0,0,0.6)',
+    darkTitleBar: '#439aaa',
+    darkTextTertiary: '#adb5bd',
+    rating: '#facc15',
+
+    red: '#ef4444',
+    orange: '#ff9800',
+    gold: '#ffd700',
   },
 
   borderRadius: {
@@ -33,6 +48,8 @@ export const theme = {
     md: '16px',
     lg: '24px',
     xl: '32px',
+    xxl: '48px',
+    xxxl: '105px',
   },
   fontSize: {
     sm: '14px',
