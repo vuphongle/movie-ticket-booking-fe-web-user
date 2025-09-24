@@ -31,6 +31,11 @@ const movieDetail = {
   MOVIE_SATURDAY: 'Thứ 7',
   MOVIE_SUNDAY: 'Chủ nhật',
 
+  SHOWTIME_ROOM: 'Phòng',
+  SHOWTIME_2D_SUBTITLING: '2D Phụ đề',
+  SHOWTIME_2D_DUBBING: '2D Lồng tiếng',
+  SHOWTIME_3D_SUBTITLING: '3D Phụ đề',
+  SHOWTIME_3D_DUBBING: '3D Lồng tiếng',
 };
 
 export default movieDetail;

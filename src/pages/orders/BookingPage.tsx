@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { theme } from '@theme/Theme';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -6,13 +6,26 @@ import { useGetSeatsByAuditoriumAndShowtimeQuery } from '@app/services/auditoriu
 import type { SeatDto } from '@app/services/auditorium.api';
 import { useGetMovieByShowtimeQuery } from '@app/services/movie.api';
 import { BookingMovieInfo } from './components/BookingMovieInfo';
-import { useGetAllAdditionalServicesQuery } from '@app/services/additionalService.api';
+import {
+  useGetAllAdditionalServicesQuery,
+  useLazyGetAdditionalServicePriceQuery,
+} from '@app/services/additionalService.api';
 import { formatDate } from '@utils/functionUtils';
 import { useTranslation } from 'react-i18next';
+import {
+  useBookSeatMutation,
+  useCancelSeatMutation,
+} from '@/app/services/reservation.api';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { HeldSeatModal } from './components/modals/HeldSeatModal';
+import { SelectSeatModal } from './components/modals/SelectSeatModal';
+import { AgeConfirmModal } from './components/modals/AgeConfirmModal';
 
 /** ---- UI types ---- */
-type SeatType = 'normal' | 'vip' | 'double';
-type SeatStatus = 'available' | 'booked';
+type SeatType = 'normal' | 'vip' | 'couple';
+type SeatStatus = 'active' | 'inactive' | 'booked';
+type ReservationStatus = 'booked' | 'held' | 'cancelled';
 
 interface Seat {
   id: number;
@@ -20,6 +33,7 @@ interface Seat {
   number: number;
   type: SeatType;
   status: SeatStatus;
+  reservationStatus: ReservationStatus;
   price: number;
 }
 
@@ -34,29 +48,63 @@ interface Combo {
 /** Utils */
 const letterFromIndex = (idx: number) =>
   String.fromCharCode('A'.charCodeAt(0) + (idx - 1));
+
 const mapSeatType = (t: SeatDto['type']): SeatType =>
-  t === 'VIP' ? 'vip' : t === 'DOUBLE' ? 'double' : 'normal';
+  t === 'VIP' ? 'vip' : t === 'COUPLE' ? 'couple' : 'normal';
+
+const mapSeatStatus = (
+  status: boolean,
+  reservation: SeatDto['reservationStatus']
+): SeatStatus => {
+  if (!status) return 'inactive';
+  if (reservation === 'BOOKED') return 'booked';
+  return 'active';
+};
+
+const mapReservationStatus = (
+  reservation: SeatDto['reservationStatus']
+): ReservationStatus => {
+  switch (reservation) {
+    case 'BOOKED':
+      return 'booked';
+    case 'HELD':
+      return 'held';
+    case 'CANCELLED':
+      return 'cancelled';
+    default:
+      return 'cancelled';
+  }
+};
 
 export default function BookingPage() {
   const { t } = useTranslation();
-
   const navigate = useNavigate();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectSeatModalVisible, setSelectSeatModalVisible] = useState(false);
+  const [ageModalVisible, setAgeModalVisible] = useState(false);
+  const [modalContent, setModalContent] = useState('');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const location = useLocation();
-  const { showtimeId, cinema, auditorium, time, date } = location.state || {};
+  const { showtimeId, cinema, auditorium, time, date, format } =
+    location.state || {};
 
   const {
     data: seatDtos = [],
     isLoading,
     isError,
-  } = useGetSeatsByAuditoriumAndShowtimeQuery({
-    auditoriumId: Number(auditorium.id),
-    showtimeId: Number(showtimeId),
-  });
+  } = useGetSeatsByAuditoriumAndShowtimeQuery(
+    {
+      auditoriumId: Number(auditorium.id),
+      showtimeId: Number(showtimeId),
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const { data: movie } = useGetMovieByShowtimeQuery(Number(showtimeId));
 
@@ -69,7 +117,7 @@ export default function BookingPage() {
   const combos: Combo[] = useMemo(
     () =>
       comboDtos
-        .filter((c: any) => c.status) // chỉ lấy combo đang active
+        .filter((c: any) => c.status)
         .map((c: any) => ({
           id: c.id,
           name: c.name,
@@ -80,22 +128,40 @@ export default function BookingPage() {
     [comboDtos]
   );
 
-  const seats: Seat[] = useMemo(() => {
-    return seatDtos.map(d => {
-      const row = d.code?.charAt(0) || letterFromIndex(d.rowIndex);
-      const numFromCode = Number(d.code?.slice(1));
-      const number = Number.isFinite(numFromCode) ? numFromCode : d.colIndex;
+  const [triggerPrice] = useLazyGetAdditionalServicePriceQuery();
 
-      const isBooked = !d.status || d.reservationStatus !== null;
-      return {
-        id: d.id,
-        row,
-        number,
-        type: mapSeatType(d.type),
-        status: isBooked ? 'booked' : 'available',
-        price: d.price,
-      };
+  const [prices, setPrices] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+    comboDtos.forEach(combo => {
+      if (combo.status) {
+        triggerPrice(combo.id)
+          .unwrap()
+          .then(price => setPrices(prev => ({ ...prev, [combo.id]: price })))
+          .catch(() => setPrices(prev => ({ ...prev, [combo.id]: -1 })));
+      }
     });
+  }, [comboDtos, triggerPrice]);
+
+  const [seats, setSeats] = useState<Seat[]>([]);
+
+  useEffect(() => {
+    setSeats(
+      seatDtos.map(d => {
+        const row = d.code?.charAt(0) || letterFromIndex(d.rowIndex);
+        const numFromCode = Number(d.code?.slice(1));
+        const number = Number.isFinite(numFromCode) ? numFromCode : d.colIndex;
+        return {
+          id: d.id,
+          row,
+          number,
+          type: mapSeatType(d.type),
+          status: mapSeatStatus(d.status, d.reservationStatus),
+          reservationStatus: mapReservationStatus(d.reservationStatus),
+          price: d.price,
+        };
+      })
+    );
   }, [seatDtos]);
 
   const rows = useMemo(
@@ -111,13 +177,151 @@ export default function BookingPage() {
     {}
   );
 
-  const toggleSeat = (seat: Seat) => {
-    if (seat.status === 'booked') return;
-    setSelectedSeats(prev =>
-      prev.find(s => s.id === seat.id)
-        ? prev.filter(s => s.id !== seat.id)
-        : [...prev, seat]
-    );
+  const [bookSeat] = useBookSeatMutation();
+  const [cancelSeat] = useCancelSeatMutation();
+
+  const [timer, setTimer] = useState<number>(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const socket = new SockJS('http://localhost:8080/ws');
+    const client = new Client({
+      webSocketFactory: () => socket as any,
+      reconnectDelay: 5000,
+    });
+
+    client.onConnect = () => {
+      client.subscribe('/topic/seatUpdate', message => {
+        const data = JSON.parse(message.body);
+        setSeats(prev =>
+          prev.map(seat =>
+            seat.id === data.seatId
+              ? {
+                  ...seat,
+                  reservationStatus: data.status
+                    ? data.status.toLowerCase()
+                    : 'cancelled',
+                }
+              : seat
+          )
+        );
+      });
+    };
+
+    client.activate();
+
+    return () => {
+      client.deactivate();
+    };
+  }, []);
+
+  const selectedSeatsRef = useRef<Seat[]>([]);
+  useEffect(() => {
+    selectedSeatsRef.current = selectedSeats;
+  }, [selectedSeats]);
+
+  // Kiểm tra nếu chuyển đến trang BookingConfirm thì không hủy ghế khi unmount
+  useEffect(() => {
+    return () => {
+      const goingToConfirm =
+        sessionStorage.getItem('navigatingToConfirm') === 'true';
+      sessionStorage.removeItem('navigatingToConfirm'); // reset
+
+      if (!goingToConfirm) {
+        selectedSeatsRef.current.forEach(seat => {
+          cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
+        });
+      }
+    };
+  }, [showtimeId, cancelSeat]);
+
+  // Hủy thao tác khi reload/đóng tab
+  useEffect(() => {
+    const handleUnload = () => {
+      if (selectedSeats.length > 0) {
+        selectedSeats.forEach(seat => {
+          cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
+        });
+      }
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleUnload);
+    };
+  }, [selectedSeats, showtimeId, cancelSeat]);
+
+  const toggleSeat = async (seat: Seat) => {
+    if (seat.reservationStatus === 'booked') return;
+
+    const isSelected = selectedSeats.find(s => s.id === seat.id);
+
+    try {
+      if (seat.reservationStatus === 'held') {
+        if (isSelected) {
+          // ghế đang held nhưng đã được chọn => hủy hold
+          await cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
+          setSelectedSeats(prev => prev.filter(s => s.id !== seat.id));
+        } else {
+          // ghế held nhưng chưa được chọn => hiện modal
+          setModalContent(t('HELD_SEAT_CONTENT'));
+          setModalVisible(true);
+        }
+        return;
+      }
+
+      if (isSelected) {
+        // ghế bình thường hoặc active, đã chọn => bỏ chọn
+        await cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
+        setSelectedSeats(prev => prev.filter(s => s.id !== seat.id));
+      } else {
+        // ghế bình thường hoặc active, chưa chọn => chọn
+        const bookPayload = { seatId: seat.id, showtimeId: Number(showtimeId) };
+        const response = await bookSeat(bookPayload);
+        if (response) {
+          setSelectedSeats(prev => [...prev, seat]);
+        }
+
+        // bắt đầu timer nếu đây là ghế đầu tiên
+        if (selectedSeats.length === 0) {
+          setTimer(480);
+          if (timerRef.current) clearInterval(timerRef.current);
+
+          timerRef.current = setInterval(() => {
+            setTimer(prev => {
+              if (prev <= 1) {
+                clearInterval(timerRef.current!);
+                selectedSeats.forEach(s =>
+                  cancelSeat({ seatId: s.id, showtimeId: Number(showtimeId) })
+                );
+                setSelectedSeats([]);
+                window.location.reload();
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+      }
+    } catch (err) {
+      console.error('Error booking/canceling seat:', err);
+      alert(t('BOOKING_ERROR_SEAT'));
+    }
+  };
+
+  const formatTimer = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const handleComboChange = (id: number, qty: number) => {
@@ -137,10 +341,59 @@ export default function BookingPage() {
   );
 
   const seatTotal = selectedSeats.reduce((s, x) => s + x.price, 0);
-  const comboTotal = selectedComboList.reduce((s, c) => s + c.price * c.qty, 0);
-  const totalPrice = seatTotal + comboTotal;
+  const comboTotal = selectedComboList.reduce((s, c) => {
+    const price = prices[c.id];
+    if (price === undefined || price === -1) {
+      return s;
+    }
+    return s + price * c.qty;
+  }, 0);
 
- return (
+  const totalPrice = seatTotal + comboTotal;
+  const expireAt = Date.now() + timer * 1000;
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('bookingPageState');
+    if (saved) {
+      const { seats, combos, expireAt } = JSON.parse(saved);
+
+      setSelectedSeats(seats);
+      setSelectedCombos(
+        combos.reduce((acc: Record<number, number>, c: any) => {
+          acc[c.id] = c.qty;
+          return acc;
+        }, {})
+      );
+
+      const remainingTime = Math.max(
+        0,
+        Math.floor((expireAt - Date.now()) / 1000)
+      );
+      setTimer(remainingTime);
+
+      if (seats.length > 0 && remainingTime > 0) {
+        if (timerRef.current) clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => {
+          setTimer(prev => {
+            if (prev <= 1) {
+              clearInterval(timerRef.current!);
+              seats.forEach((s: Seat) =>
+                cancelSeat({ seatId: s.id, showtimeId: Number(showtimeId) })
+              );
+              setSelectedSeats([]);
+              window.location.reload();
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+
+      sessionStorage.removeItem('bookingPageState');
+    }
+  }, []);
+
+  return (
     <Page>
       <Main>
         <HeaderBar>
@@ -149,6 +402,18 @@ export default function BookingPage() {
         </HeaderBar>
 
         <Card>
+          {timer > 0 && (
+            <div
+              style={{
+                textAlign: 'center',
+                fontWeight: 'bold',
+                marginBottom: '10px',
+                color: 'red',
+              }}
+            >
+              {t('BOOKING_SEAT_HELD')} – {formatTimer(timer)}
+            </div>
+          )}
           <Screen>{t('BOOKING_SCREEN')}</Screen>
 
           {isLoading && <InfoLine>{t('BOOKING_LOADING_SEAT')}</InfoLine>}
@@ -165,6 +430,9 @@ export default function BookingPage() {
                         .filter(s => s.row === row)
                         .sort((a, b) => a.number - b.number)
                         .map(seat => {
+                          if (seat.status === 'inactive') {
+                            return <SeatPlaceholder key={seat.id} />;
+                          }
                           const isSelected = !!selectedSeats.find(
                             s => s.id === seat.id
                           );
@@ -175,6 +443,7 @@ export default function BookingPage() {
                               aria-pressed={isSelected}
                               aria-disabled={seat.status === 'booked'}
                               $status={seat.status}
+                              $reservationStatus={seat.reservationStatus}
                               $selected={isSelected}
                               $type={seat.type}
                               onClick={() => toggleSeat(seat)}
@@ -189,18 +458,28 @@ export default function BookingPage() {
                 ))}
               </SeatMap>
               <SeatLegend>
-                <LegendItem $color={theme.colors.red} $filled>
-                  {t('BOOKING_SEAT_SOLD')}
-                </LegendItem>
-                <LegendItem $color={theme.colors.primaryHoverGradient} $filled>
-                  {t('BOOKING_SEAT_SELECTED')}
-                </LegendItem>
-                <LegendItem $color={theme.colors.gold}>
-                  {t('BOOKING_SEAT_VIP')}
-                </LegendItem>
-                <LegendItem $color={theme.colors.gray}>
-                  {t('BOOKING_SEAT_NORMAL')}
-                </LegendItem>
+                <LegendGroupLeft>
+                  <LegendItem $color={theme.colors.red} $filled>
+                    {t('BOOKING_SEAT_SOLD')}
+                  </LegendItem>
+                  <LegendItem
+                    $color={theme.colors.primaryHoverGradient}
+                    $filled
+                  >
+                    {t('BOOKING_SEAT_SELECTED')}
+                  </LegendItem>
+                </LegendGroupLeft>
+                <LegendGroupRight>
+                  <LegendItem $color={theme.colors.gold}>
+                    {t('BOOKING_SEAT_VIP')}
+                  </LegendItem>
+                  <LegendItem $color={theme.colors.gray}>
+                    {t('BOOKING_SEAT_NORMAL')}
+                  </LegendItem>
+                  <LegendItem $color={'#ff66b2'} $filled>
+                    {t('BOOKING_SEAT_COUPLE')}
+                  </LegendItem>
+                </LegendGroupRight>
               </SeatLegend>
             </>
           )}
@@ -208,36 +487,40 @@ export default function BookingPage() {
 
         <Card>
           <SectionTitle>{t('BOOKING_SELECT_COMBO')}</SectionTitle>
-          {isLoadingCombos && (
-            <InfoLine>{t('BOOKING_LOADING_COMBO')}</InfoLine>
-          )}
-          {isErrorCombos && (
-            <InfoLine>{t('BOOKING_ERROR_COMBO')}</InfoLine>
-          )}
+          {isLoadingCombos && <InfoLine>{t('BOOKING_LOADING_COMBO')}</InfoLine>}
+          {isErrorCombos && <InfoLine>{t('BOOKING_ERROR_COMBO')}</InfoLine>}
 
           <ComboList>
-            {combos.map(combo => (
-              <ComboItem key={combo.id}>
-                <ComboInfo>
-                  <Thumbnail src={combo.thumbnail} alt={combo.name} />
-                  <div>
-                    <ComboName>
-                      {combo.name}{' '}
-                      <span className='desc'>({combo.description})</span>
-                    </ComboName>
-                    <ComboPrice>{combo.price.toLocaleString()}đ</ComboPrice>
-                  </div>
-                </ComboInfo>
-                <QtyInput
-                  type='number'
-                  min={0}
-                  value={selectedCombos[combo.id] || 0}
-                  onChange={e =>
-                    handleComboChange(combo.id, Number(e.target.value))
-                  }
-                />
-              </ComboItem>
-            ))}
+            {comboDtos
+              .filter(c => c.status)
+              .map(combo => (
+                <ComboItem key={combo.id}>
+                  <ComboInfo>
+                    <Thumbnail src={combo.thumbnail} alt={combo.name} />
+                    <div>
+                      <ComboName>
+                        {combo.name}{' '}
+                        <span className='desc'>({combo.description})</span>
+                      </ComboName>
+                      <ComboPrice>
+                        {prices[combo.id] === undefined
+                          ? 'Đang tải...'
+                          : prices[combo.id] === -1
+                            ? 'Lỗi giá'
+                            : `${prices[combo.id].toLocaleString()}đ`}
+                      </ComboPrice>
+                    </div>
+                  </ComboInfo>
+                  <QtyInput
+                    type='number'
+                    min={0}
+                    value={selectedCombos[combo.id] || 0}
+                    onChange={e =>
+                      handleComboChange(combo.id, Number(e.target.value))
+                    }
+                  />
+                </ComboItem>
+              ))}
           </ComboList>
         </Card>
       </Main>
@@ -286,15 +569,105 @@ export default function BookingPage() {
             <span>{totalPrice.toLocaleString()} đ</span>
           </Total>
           <Actions>
-            <GhostButton type='button' onClick={() => navigate(-1)}>
+            <GhostButton
+              type='button'
+              onClick={async () => {
+                for (const seat of selectedSeats) {
+                  // chỉ cancel nếu ghế đang được mình giữ
+                  if (selectedSeats.find(s => s.id === seat.id)) {
+                    await cancelSeat({
+                      seatId: seat.id,
+                      showtimeId: Number(showtimeId),
+                    });
+                  }
+                }
+                navigate(-1);
+              }}
+            >
               {t('BOOKING_BACK')}
             </GhostButton>
-            <PrimaryButton type='button'>
+            <PrimaryButton
+              type='button'
+              onClick={() => {
+                if (selectedSeats.length === 0) {
+                  setSelectSeatModalVisible(true);
+                  return;
+                }
+                if (movie?.age && movie?.age !== 'P') {
+                  setAgeModalVisible(true);
+                  return;
+                }
+
+                // Đặt flag trước khi navigate
+                sessionStorage.setItem('navigatingToConfirm', 'true');
+
+                navigate('/booking/confirm', {
+                  state: {
+                    expireAt,
+                    fromConfirmPage: true,
+                    bookingData: {
+                      showtimeId,
+                      format,
+                      movie,
+                      cinema: cinema.name,
+                      auditorium: auditorium.name,
+                      showtime: `${time} - ${formatDate(date)}`,
+                      seats: selectedSeats,
+                      combos: selectedComboList.map(c => ({
+                        ...c,
+                        price: prices[c.id] ?? -1,
+                      })),
+                      total: totalPrice,
+                    },
+                  },
+                });
+              }}
+            >
               {t('BOOKING_CONTINUE')}
             </PrimaryButton>
           </Actions>
         </SummaryCard>
       </Aside>
+      <HeldSeatModal
+        isOpen={modalVisible}
+        onClose={() => setModalVisible(false)}
+        content={modalContent}
+      />
+      <SelectSeatModal
+        isOpen={selectSeatModalVisible}
+        onClose={() => setSelectSeatModalVisible(false)}
+      />
+
+      <AgeConfirmModal
+        isOpen={ageModalVisible}
+        age={movie?.age ?? 'P'}
+        onConfirm={() => {
+          setAgeModalVisible(false);
+          // Đặt flag trước khi navigate
+          sessionStorage.setItem('navigatingToConfirm', 'true');
+          navigate('/booking/confirm', {
+            state: {
+              expireAt,
+              fromConfirmPage: true,
+              bookingData: {
+                showtimeId,
+                format,
+                movie,
+                cinema: cinema.name,
+                auditorium: auditorium.name,
+                showtime: `${time} - ${formatDate(date)}`,
+                seats: selectedSeats,
+                combos: selectedComboList.map(c => ({
+                  ...c,
+                  price: prices[c.id] ?? -1,
+                })),
+                total: totalPrice,
+              },
+            },
+          });
+        }}
+        onReject={() => setAgeModalVisible(false)}
+      />
     </Page>
   );
 }
@@ -350,12 +723,18 @@ const Card = styled.section`
 const Screen = styled.div`
   text-align: center;
   color: ${theme.colors.textPrimary};
-  background: ${theme.colors.background};
-  border: 1px dashed ${theme.colors.border};
-  padding: ${theme.spacing.sm};
-  border-radius: ${theme.borderRadius.small};
-  margin-bottom: ${theme.spacing.xxl};
-  font-weight: 600;
+  background: radial-gradient(circle at center, #4f8076 0%, #2e524c 50%);
+
+  border-radius: 50% / 24%;
+  padding: ${theme.spacing.md};
+  margin: 0 auto ${theme.spacing.xxl};
+  font-weight: 700;
+  font-size: 16px;
+  width: 70%;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.15),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.05);
+  border: none;
 `;
 const InfoLine = styled.p`
   color: ${theme.colors.textSecondary};
@@ -363,9 +742,20 @@ const InfoLine = styled.p`
 `;
 const SeatLegend = styled.div`
   display: flex;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: ${theme.spacing.md};
   margin-top: ${theme.spacing.md};
+`;
+
+const LegendGroupLeft = styled.div`
+  display: flex;
+  gap: ${theme.spacing.md};
+`;
+
+const LegendGroupRight = styled.div`
+  display: flex;
+  gap: ${theme.spacing.md};
 `;
 const LegendItem = styled.span<{ $color: string; $filled?: boolean }>`
   display: inline-flex;
@@ -400,49 +790,52 @@ const RowLabel = styled.span`
 `;
 const RowGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, 44px);
-  gap: 6.5px;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(22px, 1fr));
+  gap: 4px;
+  justify-items: center;
 `;
 const seatBase = css`
-  width: 44px;
-  height: 44px;
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: ${theme.borderRadius.small};
   border: 1px solid ${theme.colors.border};
   background: ${theme.colors.white};
   color: ${theme.colors.textPrimary};
   font-weight: 600;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease,
-    background 0.12s ease,
-    border-color 0.12s ease,
-    color 0.12s ease;
-  outline: none;
-  &:hover {
-    background: ${theme.colors.backgroundHover};
-    border-color: ${theme.colors.primary};
-  }
-  &:focus-visible {
-    box-shadow: var(--ring);
-  }
+  transition: all 0.15s ease;
 `;
+
 const SeatButton = styled.button<{
   $status: SeatStatus;
+  $reservationStatus: ReservationStatus;
   $selected: boolean;
   $type: SeatType;
 }>`
   ${seatBase};
+
   ${({ $type }) =>
     $type === 'vip' &&
     css`
       border-color: ${theme.colors.gold};
       box-shadow: inset 0 0 0 1px rgba(255, 215, 0, 0.35);
     `}
+
+  ${({ $type }) =>
+    $type === 'couple' &&
+    css`
+      background: #ff99cc;
+      border-color: #ff66b2;
+      grid-column: span 2;
+      width: 100%;
+      aspect-ratio: 2 / 0.9;
+      font-size: 12px;
+      gap: 2px;
+    `}
+
   ${({ $status }) =>
     $status === 'booked' &&
     css`
@@ -450,11 +843,21 @@ const SeatButton = styled.button<{
       border-color: ${theme.colors.red};
       color: ${theme.colors.white};
       cursor: not-allowed;
-      opacity: 0.9;
+      opacity: 0.85;
       &:hover {
         background: ${theme.colors.red};
       }
     `}
+
+    /* Ghế đang giữ */
+  ${({ $reservationStatus }) =>
+    $reservationStatus === 'held' &&
+    css`
+      background: #ffeb99; /* vàng nhạt */
+      color: #333;
+      opacity: 0.85;
+    `}
+
   ${({ $selected }) =>
     $selected &&
     css`
@@ -463,8 +866,10 @@ const SeatButton = styled.button<{
       border-color: transparent;
       transform: translateY(-1px);
       box-shadow: 0 6px 14px rgba(1, 39, 76, 0.25);
+      opacity: 0.85;
     `}
 `;
+
 const SectionTitle = styled.h3`
   margin: 0 0 ${theme.spacing.md};
   font-size: ${theme.fontSize.xl};
@@ -518,7 +923,8 @@ const ComboPrice = styled.div`
 `;
 
 const QtyInput = styled.input`
-  width: 72px;
+  margin-left: 16px;
+  width: 35px;
   padding: 8px 10px;
   border-radius: ${theme.borderRadius.small};
   border: 1px solid ${theme.colors.border};
@@ -581,6 +987,8 @@ const PrimaryButton = styled.button`
     filter 0.12s ease;
   &:hover {
     filter: brightness(1.03);
+    transform: translateY(-1px);
+    background: ${theme.colors.primaryHover};
   }
   &:active {
     transform: translateY(1px);
@@ -599,8 +1007,15 @@ const GhostButton = styled.button`
     transform 0.12s ease;
   &:hover {
     background: ${theme.colors.closeButtonBgHover};
+    transform: translateY(-1px);
   }
   &:active {
     transform: translateY(1px);
   }
+`;
+
+const SeatPlaceholder = styled.div`
+  width: 100%;
+  aspect-ratio: 1;
+  visibility: hidden; /* để giữ chỗ nhưng không thấy */
 `;

@@ -1,5 +1,29 @@
+// src/services/additionalService.api.ts
 import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+export interface AdditionalService {
+  id: number;
+  name: string;
+  description: string;
+  thumbnail?: string;
+  type: 'SINGLE' | 'COMBO';
+  productId?: number;
+  defaultQuantity?: number;
+  status: boolean;
+}
+
+export interface AdditionalServiceItem {
+  id: number;
+  quantity: number;
+  product: {
+    id: number;
+    name: string;
+    description?: string;
+    thumbnail?: string;
+    unit?: string;
+  };
+}
 
 export const additionalServiceApi = createApi({
   reducerPath: 'additionalServiceApi',
@@ -10,20 +34,28 @@ export const additionalServiceApi = createApi({
       if (token) headers.set('Authorization', `Bearer ${token}`);
       return headers;
     },
-    responseHandler: async response => {
-      const text = await response.text();
-      try {
-        return JSON.parse(text);
-      } catch {
-        return {};
-      }
-    },
   }),
   endpoints: builder => ({
-    getAllAdditionalServices: builder.query<string[], void>({
+    // Lấy toàn bộ dịch vụ kèm theo (chỉ metadata)
+    getAllAdditionalServices: builder.query<AdditionalService[], void>({
       query: () => `/additional-services`,
+    }),
+
+    // Lấy giá của một service
+    getAdditionalServicePrice: builder.query<number, number>({
+      query: id => `/additional-services/${id}/price`,
+    }),
+
+    // Lấy các items trong combo service
+    getAdditionalServiceItems: builder.query<AdditionalServiceItem[], number>({
+      query: id => `/additional-services/${id}/items`,
     }),
   }),
 });
 
-export const { useGetAllAdditionalServicesQuery } = additionalServiceApi;
+export const {
+  useGetAllAdditionalServicesQuery,
+  useGetAdditionalServicePriceQuery,
+  useLazyGetAdditionalServicePriceQuery,
+  useGetAdditionalServiceItemsQuery,
+} = additionalServiceApi;

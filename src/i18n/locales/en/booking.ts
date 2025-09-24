@@ -10,6 +10,8 @@ const booking = {
   BOOKING_SEAT_SELECTED: 'Selected seat',
   BOOKING_SEAT_VIP: 'VIP seat',
   BOOKING_SEAT_NORMAL: 'Regular seat',
+  BOOKING_SEAT_COUPLE: 'Couple seat',
+  BOOKING_SEAT_HELD_ICON: 'Held seat',
 
   BOOKING_SELECT_COMBO: 'Select Combo',
   BOOKING_LOADING_COMBO: 'Loading combos…',
@@ -24,6 +26,19 @@ const booking = {
 
   BOOKING_BACK: 'Back',
   BOOKING_CONTINUE: 'Continue',
+
+  BOOKING_SEAT_HELD: 'Seats are being held for you',
+  HELD_SEAT_CONTENT:
+    'The seat you selected is being held by someone else. Please choose another seat.',
+
+  SELECT_SEAT_TITLE: 'Select Your Seats',
+  SELECT_SEAT_CONTENT:
+    'Please select your preferred seats from the seat map below.',
+  AGE_CONFIRM_BODY: 'Confirm purchase for age-appropriate audience',
+  AGE_CONFIRM_DESCRIPTION:
+    'I confirm that I am purchasing tickets for an audience aged {{ageNumber}} and above, and agree to provide identification for age verification.',
+  DECLINE: 'Decline',
+  CONFIRM: 'Confirm',
 };
 
 export default booking;

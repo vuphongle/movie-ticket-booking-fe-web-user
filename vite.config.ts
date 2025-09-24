@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: true,
+    host: "0.0.0.0",
+    allowedHosts: true,
   },
   resolve: {
     alias: {
@@ -31,5 +32,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+  },
+  define: {
+    global: 'window',
   },
 });

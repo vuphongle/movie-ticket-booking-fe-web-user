@@ -16,6 +16,8 @@ import MovieDetailPage from './pages/movies/MovieDetailPage';
 import BlogPage from '@pages/blogs/BlogPage';
 import ReviewPage from '@pages/reviews/ReviewPage';
 import BookingPage from '@pages/orders/BookingPage';
+import BookingConfirmPage from '@pages/orders/BookingConfirmPage';
+import PaymentResultPage from '@pages/orders/PaymentResultPage';
 
 import AppToastContainer from '@components/base/AppToastContainer';
 
@@ -45,7 +47,12 @@ function App() {
               <Route path='/movies/:id/:slug' element={<MovieDetailPage />} />
               <Route path='/blogs' element={<BlogPage />} />
               <Route path='/reviews' element={<ReviewPage />} />
-              <Route path="/booking/:slug/:showtimeId" element={<BookingPage />} />
+              <Route
+                path='/booking/:slug/:showtimeId'
+                element={<BookingPage />}
+              />
+              <Route path='/booking/confirm' element={<BookingConfirmPage />} />
+              <Route path="/thanh-toan-don-hang/:id" element={<PaymentResultPage />} />
             </Routes>
           </ContentWrapper>
         </main>
@@ -61,8 +68,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f172a 0%, #2d3748 40%, #1e3a8a 60%, #065f46 90%)',
-
+    background:
+      'linear-gradient(135deg, #0f172a 0%, #2d3748 40%, #1e3a8a 60%, #065f46 90%)',
   },
   main: {
     flex: 1,

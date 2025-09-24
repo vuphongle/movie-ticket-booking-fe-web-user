@@ -30,6 +30,12 @@ const movieDetail = {
   MOVIE_FRIDAY: 'Fri',
   MOVIE_SATURDAY: 'Sat',
   MOVIE_SUNDAY: 'Sun',
+
+  SHOWTIME_ROOM: 'Room',
+  SHOWTIME_2D_SUBTITLING: '2D Subtitling',
+  SHOWTIME_2D_DUBBING: '2D Dubbing',
+  SHOWTIME_3D_SUBTITLING: '3D Subtitling',
+  SHOWTIME_3D_DUBBING: '3D Dubbing',
 };
 
 export default movieDetail;

@@ -45,7 +45,8 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
     cinema: number,
     auditorium: number,
     time: string,
-    date: string
+    date: string,
+    format: string
   ) => {
     if (!isAuthenticated) {
       setDataToLocalStorage('pendingBooking', {
@@ -54,6 +55,7 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
         auditorium,
         time,
         date,
+        format,
       });
       openLogin();
       return;
@@ -66,6 +68,7 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
         auditorium,
         time,
         date,
+        format,
       },
     });
   };
@@ -117,7 +120,7 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
     return Array.from(names);
   }, [showtimes, location, cinemaNames]);
 
-  // Gom nhóm showtimes theo rạp
+  // Gom nhóm showtimes theo rạp -> loại phòng -> format
   const groupedShowtimes = useMemo(() => {
     let filtered = [...showtimes];
 
@@ -134,25 +137,46 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
     }
 
     const map = new Map<number, any>();
+
     filtered.forEach((st: any) => {
       if (!map.has(st.cinema.id)) {
         map.set(st.cinema.id, {
           cinema: st.cinema,
-          formats: [],
+          roomTypes: [], // danh sách loại phòng
         });
       }
-      const group = map.get(st.cinema.id);
+      const cinemaGroup = map.get(st.cinema.id);
 
-      let formatGroup = group.formats.find(
-        (f: { format: string; times: any[] }) => f.format === st.format
+      let roomGroup = cinemaGroup.roomTypes.find(
+        (r: { type: string; formats: any[] }) => r.type === st.auditorium.type
       );
-
-      if (!formatGroup) {
-        formatGroup = { format: st.format, times: [] as any[] };
-        group.formats.push(formatGroup);
+      if (!roomGroup) {
+        roomGroup = { type: st.auditorium.type, formats: [] };
+        cinemaGroup.roomTypes.push(roomGroup);
       }
 
-      formatGroup.times.push({ id: st.id, cinema: st.cinema, auditorium: st.auditorium, time: st.startTime, date: st.date });
+      let formatGroup = roomGroup.formats.find(
+        (f: { format: string; times: any[] }) => f.format === st.format
+      );
+      if (!formatGroup) {
+        formatGroup = { format: st.format, times: [] };
+        roomGroup.formats.push(formatGroup);
+      }
+
+      formatGroup.times.push({
+        id: st.id,
+        cinema: st.cinema,
+        auditorium: st.auditorium,
+        time: st.startTime,
+        date: st.date,
+        format: st.format
+      });
+
+      formatGroup.times.sort((a: { time: string }, b: { time: string }) => {
+        const [ha, ma] = a.time.split(':').map(Number);
+        const [hb, mb] = b.time.split(':').map(Number);
+        return ha * 60 + ma - (hb * 60 + mb);
+      });
     });
 
     return Array.from(map.values());
@@ -228,22 +252,38 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
               <CinemaBlock key={group.cinema.id}>
                 <CinemaName>{group.cinema.name}</CinemaName>
 
-                {group.formats.map((f: any) => (
-                  <FormatBlock key={f.format}>
-                    <FormatName>{f.format}</FormatName>
-                    <Times>
-                      {f.times.map((t: any) => (
-                        <TimeButton
-                          key={t.id}
-                          onClick={() =>
-                            handleTimeClick(t.id, t.cinema, t.auditorium, t.time, t.date)
-                          }
-                        >
-                          {t.time}
-                        </TimeButton>
-                      ))}
-                    </Times>
-                  </FormatBlock>
+                {group.roomTypes.map((room: any) => (
+                  <RoomBlock key={room.type}>
+                    {room.formats.map((f: any) => (
+                      <FormatBlock key={f.format}>
+                        <RoomAndFormat>
+                          <span className="room">{t("SHOWTIME_ROOM")} {room.type}</span>
+                          <span className='separator'> | </span>
+                          <span className="format">{t(f.format)}</span>
+                        </RoomAndFormat>
+
+                        <Times>
+                          {f.times.map((t: any) => (
+                            <TimeButton
+                              key={t.id}
+                              onClick={() =>
+                                handleTimeClick(
+                                  t.id,
+                                  t.cinema,
+                                  t.auditorium,
+                                  t.time,
+                                  t.date,
+                                  t.format
+                                )
+                              }
+                            >
+                              {t.time}
+                            </TimeButton>
+                          ))}
+                        </Times>
+                      </FormatBlock>
+                    ))}
+                  </RoomBlock>
                 ))}
               </CinemaBlock>
             ))}
@@ -375,10 +415,28 @@ const FormatBlock = styled.div`
   margin-bottom: ${theme.spacing.md};
 `;
 
-const FormatName = styled.p`
-  font-weight: 500;
-  color: ${theme.colors.darkTextSecondary};
-  margin-bottom: ${theme.spacing.sm};
+const RoomAndFormat = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+
+  .room {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: ${theme.colors.darkTextSecondary};
+  }
+
+  .separator {
+    font-size: 0.9rem;
+    color: ${theme.colors.darkTextSecondary};
+  }
+
+  .format {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: ${theme.colors.darkTextSecondary};
+  }
 `;
 
 const Times = styled.div`
@@ -424,4 +482,9 @@ const EmptyState = styled.div`
   .icon {
     color: ${theme.colors.darkTextTertiary};
   }
+`;
+
+const RoomBlock = styled.div`
+  margin-left: 12px;
+  margin-bottom: 16px;
 `;
