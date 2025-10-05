@@ -214,6 +214,10 @@ const common = {
   UPDATE_PROFILE_SUCCESS: 'Profile updated successfully!',
   UPDATE_PROFILE_ERROR: 'Error occurred while updating profile!',
   SAVING: 'Saving...',
+
+  // Held Seat Modal
+  HELD_SEAT_TITLE: 'Notification',
+  CLOSE: 'Close',
 };
 
 export default common;

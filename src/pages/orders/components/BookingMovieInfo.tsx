@@ -80,7 +80,7 @@ const TopLeft = styled.div`
 
 const TopRight = styled.div`
   position: absolute;
-  top: 8px;
+  top: 4px;
   right: 8px;
 `;
 

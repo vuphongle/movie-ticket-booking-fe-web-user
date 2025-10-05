@@ -49,26 +49,36 @@ export const showtimeApi = createApi({
       query: ({ movieId, showDate }) =>
         `/movies/${movieId}/showtimes?showDate=${showDate}`,
       transformResponse: (response: any[]) => {
-        return response.map(st => ({
-          id: st.id,
-          movieId: st.movie?.id,
-          cinema: {
-            id: st.auditorium?.cinema?.id,
-            name: st.auditorium?.cinema?.name,
-            location: st.auditorium?.cinema?.address,
-          },
-          auditorium: {
-            id: st.auditorium?.id,
-            name: st.auditorium?.name,
-            totalSeats: st.auditorium?.totalSeats,
-            totalRows: st.auditorium?.totalRows,
-            totalColumns: st.auditorium?.totalColumns,
-            type: st.auditorium?.type,
-          },
-          format: `${formatGraphicLabel(st.graphicsType)}  ${st.translationType}`,
-          date: st.date,
-          startTime: st.startTime,
-        }));
+        return response.map(st => {
+          const graphicsLabel = formatGraphicLabel(st.graphicsType);
+
+          const translation = (st.translationType || '').trim().toUpperCase();
+
+          const formatKey = translation
+            ? `SHOWTIME_${graphicsLabel}_${translation}`
+            : `SHOWTIME_${graphicsLabel}`;
+
+          return {
+            id: st.id,
+            movieId: st.movie?.id,
+            cinema: {
+              id: st.auditorium?.cinema?.id,
+              name: st.auditorium?.cinema?.name,
+              location: st.auditorium?.cinema?.address,
+            },
+            auditorium: {
+              id: st.auditorium?.id,
+              name: st.auditorium?.name,
+              totalSeats: st.auditorium?.totalSeats,
+              totalRows: st.auditorium?.totalRows,
+              totalColumns: st.auditorium?.totalColumns,
+              type: st.auditorium?.type,
+            },
+            format: formatKey,
+            date: st.date,
+            startTime: st.startTime,
+          };
+        });
       },
     }),
 

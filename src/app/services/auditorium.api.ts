@@ -1,8 +1,8 @@
 import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export type SeatKindBE = 'NORMAL' | 'VIP' | 'DOUBLE';
-export type ReservationStatus = 'BOOKED' | 'RESERVED' | null;
+export type SeatKindBE = 'NORMAL' | 'VIP' | 'COUPLE';
+export type ReservationStatus = 'BOOKED' | 'HELD' | 'CANCELLED';
 
 export interface SeatDto {
   id: number;

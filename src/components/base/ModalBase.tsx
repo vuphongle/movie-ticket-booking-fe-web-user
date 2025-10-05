@@ -2,7 +2,7 @@ import { theme } from '@theme/Theme';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 
-type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type ModalSize = 'xs' | 'sm' | 'smm' | 'md' | 'lg' | 'xl';
 
 interface ModalBaseProps {
   isOpen: boolean;
@@ -11,11 +11,13 @@ interface ModalBaseProps {
   children: React.ReactNode;
   zIndex?: number;
   style?: React.CSSProperties;
+  hideCloseButton?: boolean;
 }
 
 const sizeMap: Record<ModalSize, string> = {
   xs: '20%',
   sm: '25%',
+  smm: '30%',
   md: '50%',
   lg: '75%',
   xl: '91.6667%',
@@ -75,6 +77,7 @@ const ModalBase: React.FC<ModalBaseProps> = ({
   children,
   zIndex,
   style,
+  hideCloseButton,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [mouseDownPos, setMouseDownPos] = useState<{
@@ -116,9 +119,11 @@ const ModalBase: React.FC<ModalBaseProps> = ({
         onClick={e => e.stopPropagation()}
         style={style}
       >
-        <CloseButton onClick={onClose} aria-label='Close modal'>
-          &times;
-        </CloseButton>
+        {!hideCloseButton && (
+          <CloseButton onClick={onClose} aria-label='Close modal'>
+            &times;
+          </CloseButton>
+        )}
         {children}
       </ModalWrapper>
     </Overlay>

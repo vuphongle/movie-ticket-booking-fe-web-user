@@ -218,6 +218,10 @@ const common = {
   UPDATE_PROFILE_SUCCESS: 'Cập nhật thông tin thành công!',
   UPDATE_PROFILE_ERROR: 'Có lỗi xảy ra khi cập nhật thông tin!',
   SAVING: 'Đang lưu...',
+
+  // Held Seat Modal
+  HELD_SEAT_TITLE: 'Thông báo',
+  CLOSE: 'Đóng',
 };
 
 export default common;
