@@ -21,6 +21,7 @@ import BookingConfirmPage from '@pages/orders/BookingConfirmPage';
 import PaymentResultPage from '@pages/orders/PaymentResultPage';
 
 import AppToastContainer from '@components/base/AppToastContainer';
+import ChatWidget from '@components/chat/ChatWidget';
 import { useGlobalBookingTimer } from '@hooks/useGlobalBookingTimer';
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
         </main>
 
         {!hideLayout && <Footer />}
+        <ChatWidget />
       </div>
     </LoginProvider>
   );

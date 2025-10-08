@@ -12,6 +12,7 @@ import { auditoriumApi } from './services/auditorium.api';
 import { additionalServiceApi } from './services/additionalService.api';
 import { reservationApi } from './services/reservation.api';
 import {paymentApi} from './services/payment.api';
+import { chatApi } from './services/chat.api';
 
 import { checkStatusMiddleware } from '@app/middlewares/middlewares';
 
@@ -30,6 +31,7 @@ export const Store = configureStore({
     [additionalServiceApi.reducerPath]: additionalServiceApi.reducer,
     [reservationApi.reducerPath]: reservationApi.reducer,
     [paymentApi.reducerPath]: paymentApi.reducer,
+    [chatApi.reducerPath]: chatApi.reducer,
 
   },
   middleware: getDefaultMiddleware =>
@@ -46,6 +48,7 @@ export const Store = configureStore({
         additionalServiceApi.middleware,
         reservationApi.middleware,
         paymentApi.middleware,
+    chatApi.middleware,
         checkStatusMiddleware
     ),
 });
