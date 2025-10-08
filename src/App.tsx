@@ -16,12 +16,16 @@ import MovieDetailPage from './pages/movies/MovieDetailPage';
 import BlogPage from '@pages/blogs/BlogPage';
 import ReviewPage from '@pages/reviews/ReviewPage';
 import BookingPage from '@pages/orders/BookingPage';
+import BookingAdditionalPage from '@pages/orders/BookingAdditonalServicePage';
 import BookingConfirmPage from '@pages/orders/BookingConfirmPage';
 import PaymentResultPage from '@pages/orders/PaymentResultPage';
 
 import AppToastContainer from '@components/base/AppToastContainer';
+import { useGlobalBookingTimer } from '@hooks/useGlobalBookingTimer';
 
 function App() {
+  useGlobalBookingTimer();
+
   const location = useLocation();
   const hideLayout =
     location.pathname === '/xac-thuc-tai-khoan' ||
@@ -51,8 +55,15 @@ function App() {
                 path='/booking/:slug/:showtimeId'
                 element={<BookingPage />}
               />
+              <Route
+                path='/booking/additional'
+                element={<BookingAdditionalPage />}
+              />
               <Route path='/booking/confirm' element={<BookingConfirmPage />} />
-              <Route path="/thanh-toan-don-hang/:id" element={<PaymentResultPage />} />
+              <Route
+                path='/thanh-toan-don-hang/:id'
+                element={<PaymentResultPage />}
+              />
             </Routes>
           </ContentWrapper>
         </main>

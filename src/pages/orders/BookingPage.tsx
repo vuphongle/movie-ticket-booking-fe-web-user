@@ -6,10 +6,6 @@ import { useGetSeatsByAuditoriumAndShowtimeQuery } from '@app/services/auditoriu
 import type { SeatDto } from '@app/services/auditorium.api';
 import { useGetMovieByShowtimeQuery } from '@app/services/movie.api';
 import { BookingMovieInfo } from './components/BookingMovieInfo';
-import {
-  useGetAllAdditionalServicesQuery,
-  useLazyGetAdditionalServicePriceQuery,
-} from '@app/services/additionalService.api';
 import { formatDate } from '@utils/functionUtils';
 import { useTranslation } from 'react-i18next';
 import {
@@ -21,6 +17,7 @@ import SockJS from 'sockjs-client';
 import { HeldSeatModal } from './components/modals/HeldSeatModal';
 import { SelectSeatModal } from './components/modals/SelectSeatModal';
 import { AgeConfirmModal } from './components/modals/AgeConfirmModal';
+import { useBookingTimer } from '@/hooks/useBookingTimer';
 
 /** ---- UI types ---- */
 type SeatType = 'normal' | 'vip' | 'couple';
@@ -35,14 +32,6 @@ interface Seat {
   status: SeatStatus;
   reservationStatus: ReservationStatus;
   price: number;
-}
-
-interface Combo {
-  id: number;
-  name: string;
-  price: number;
-  thumbnail: string;
-  description: string;
 }
 
 /** Utils */
@@ -108,42 +97,8 @@ export default function BookingPage() {
 
   const { data: movie } = useGetMovieByShowtimeQuery(Number(showtimeId));
 
-  const {
-    data: comboDtos = [],
-    isLoading: isLoadingCombos,
-    isError: isErrorCombos,
-  } = useGetAllAdditionalServicesQuery();
-
-  const combos: Combo[] = useMemo(
-    () =>
-      comboDtos
-        .filter((c: any) => c.status)
-        .map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          price: c.price,
-          thumbnail: c.thumbnail,
-          description: c.description,
-        })),
-    [comboDtos]
-  );
-
-  const [triggerPrice] = useLazyGetAdditionalServicePriceQuery();
-
-  const [prices, setPrices] = useState<Record<number, number>>({});
-
-  useEffect(() => {
-    comboDtos.forEach(combo => {
-      if (combo.status) {
-        triggerPrice(combo.id)
-          .unwrap()
-          .then(price => setPrices(prev => ({ ...prev, [combo.id]: price })))
-          .catch(() => setPrices(prev => ({ ...prev, [combo.id]: -1 })));
-      }
-    });
-  }, [comboDtos, triggerPrice]);
-
   const [seats, setSeats] = useState<Seat[]>([]);
+  const selectedSeatsRef = useRef<Seat[]>([]);
 
   useEffect(() => {
     setSeats(
@@ -173,14 +128,22 @@ export default function BookingPage() {
   );
 
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
-  const [selectedCombos, setSelectedCombos] = useState<Record<number, number>>(
-    {}
-  );
 
+  // ====== Timer hook (giữ nguyên khi quay lại trang) ======
   const [bookSeat] = useBookSeatMutation();
   const [cancelSeat] = useCancelSeatMutation();
 
-  const [timer, setTimer] = useState<number>(0);
+  const { timer, expireAt, startTimer, clearTimer } = useBookingTimer({
+    autoCancel: true,
+    onExpire: () => {
+      // Xử lý huỷ ghế
+      selectedSeatsRef.current.forEach(seat => {
+        cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
+      });
+      setSelectedSeats([]);
+    },
+  });
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -223,27 +186,33 @@ export default function BookingPage() {
     };
   }, []);
 
-  const selectedSeatsRef = useRef<Seat[]>([]);
   useEffect(() => {
     selectedSeatsRef.current = selectedSeats;
   }, [selectedSeats]);
 
-  // Kiểm tra nếu chuyển đến trang BookingConfirm thì không hủy ghế khi unmount
+  // ====== Hủy khi rời trang không thuộc luồng đặt vé ======
   useEffect(() => {
-    return () => {
-      const goingToConfirm =
-        sessionStorage.getItem('navigatingToConfirm') === 'true';
-      sessionStorage.removeItem('navigatingToConfirm'); // reset
+  return () => {
+    const goingToConfirm =
+      sessionStorage.getItem('navigatingToConfirm') === 'true';
+    const goingBack =
+      sessionStorage.getItem('navigatingToBack') === 'true';
 
-      if (!goingToConfirm) {
-        selectedSeatsRef.current.forEach(seat => {
-          cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
-        });
-      }
-    };
-  }, [showtimeId, cancelSeat]);
+    if (!goingToConfirm && !goingBack) {
+      selectedSeatsRef.current.forEach(seat => {
+        cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
+      });
+      clearTimer();
+    }
 
-  // Hủy thao tác khi reload/đóng tab
+    // reset flags
+    sessionStorage.removeItem('navigatingToConfirm');
+    sessionStorage.removeItem('navigatingToBack');
+  };
+}, [showtimeId, cancelSeat]);
+
+
+  // ====== Hủy khi reload/đóng tab ======
   useEffect(() => {
     const handleUnload = () => {
       if (selectedSeats.length > 0) {
@@ -251,6 +220,7 @@ export default function BookingPage() {
           cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
         });
       }
+      clearTimer();
     };
 
     window.addEventListener('beforeunload', handleUnload);
@@ -260,6 +230,7 @@ export default function BookingPage() {
     };
   }, [selectedSeats, showtimeId, cancelSeat]);
 
+  // ====== Seat toggle ======
   const toggleSeat = async (seat: Seat) => {
     if (seat.reservationStatus === 'booked') return;
 
@@ -293,23 +264,7 @@ export default function BookingPage() {
 
         // bắt đầu timer nếu đây là ghế đầu tiên
         if (selectedSeats.length === 0) {
-          setTimer(480);
-          if (timerRef.current) clearInterval(timerRef.current);
-
-          timerRef.current = setInterval(() => {
-            setTimer(prev => {
-              if (prev <= 1) {
-                clearInterval(timerRef.current!);
-                selectedSeats.forEach(s =>
-                  cancelSeat({ seatId: s.id, showtimeId: Number(showtimeId) })
-                );
-                setSelectedSeats([]);
-                window.location.reload();
-                return 0;
-              }
-              return prev - 1;
-            });
-          }, 1000);
+          startTimer(80*60);
         }
       }
     } catch (err) {
@@ -324,71 +279,16 @@ export default function BookingPage() {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleComboChange = (id: number, qty: number) => {
-    setSelectedCombos(prev => ({ ...prev, [id]: Math.max(0, qty) }));
-  };
-
-  const selectedComboList = useMemo(
-    () =>
-      Object.entries(selectedCombos)
-        .filter(([_, qty]) => qty > 0)
-        .map(([id, qty]) => {
-          const combo = combos.find(c => c.id === Number(id));
-          return combo ? { ...combo, qty } : null;
-        })
-        .filter(Boolean) as (Combo & { qty: number })[],
-    [selectedCombos, combos]
-  );
-
   const seatTotal = selectedSeats.reduce((s, x) => s + x.price, 0);
-  const comboTotal = selectedComboList.reduce((s, c) => {
-    const price = prices[c.id];
-    if (price === undefined || price === -1) {
-      return s;
-    }
-    return s + price * c.qty;
-  }, 0);
+  const totalPrice = seatTotal;
 
-  const totalPrice = seatTotal + comboTotal;
-  const expireAt = Date.now() + timer * 1000;
-
+  // ====== Restore từ sessionStorage ======
   useEffect(() => {
     const saved = sessionStorage.getItem('bookingPageState');
     if (saved) {
-      const { seats, combos, expireAt } = JSON.parse(saved);
+      const { seats } = JSON.parse(saved);
 
       setSelectedSeats(seats);
-      setSelectedCombos(
-        combos.reduce((acc: Record<number, number>, c: any) => {
-          acc[c.id] = c.qty;
-          return acc;
-        }, {})
-      );
-
-      const remainingTime = Math.max(
-        0,
-        Math.floor((expireAt - Date.now()) / 1000)
-      );
-      setTimer(remainingTime);
-
-      if (seats.length > 0 && remainingTime > 0) {
-        if (timerRef.current) clearInterval(timerRef.current);
-        timerRef.current = setInterval(() => {
-          setTimer(prev => {
-            if (prev <= 1) {
-              clearInterval(timerRef.current!);
-              seats.forEach((s: Seat) =>
-                cancelSeat({ seatId: s.id, showtimeId: Number(showtimeId) })
-              );
-              setSelectedSeats([]);
-              window.location.reload();
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      }
-
       sessionStorage.removeItem('bookingPageState');
     }
   }, []);
@@ -470,11 +370,11 @@ export default function BookingPage() {
                   </LegendItem>
                 </LegendGroupLeft>
                 <LegendGroupRight>
-                  <LegendItem $color={theme.colors.gold}>
-                    {t('BOOKING_SEAT_VIP')}
-                  </LegendItem>
                   <LegendItem $color={theme.colors.gray}>
                     {t('BOOKING_SEAT_NORMAL')}
+                  </LegendItem>
+                  <LegendItem $color={theme.colors.gold}>
+                    {t('BOOKING_SEAT_VIP')}
                   </LegendItem>
                   <LegendItem $color={'#ff66b2'} $filled>
                     {t('BOOKING_SEAT_COUPLE')}
@@ -483,45 +383,6 @@ export default function BookingPage() {
               </SeatLegend>
             </>
           )}
-        </Card>
-
-        <Card>
-          <SectionTitle>{t('BOOKING_SELECT_COMBO')}</SectionTitle>
-          {isLoadingCombos && <InfoLine>{t('BOOKING_LOADING_COMBO')}</InfoLine>}
-          {isErrorCombos && <InfoLine>{t('BOOKING_ERROR_COMBO')}</InfoLine>}
-
-          <ComboList>
-            {comboDtos
-              .filter(c => c.status)
-              .map(combo => (
-                <ComboItem key={combo.id}>
-                  <ComboInfo>
-                    <Thumbnail src={combo.thumbnail} alt={combo.name} />
-                    <div>
-                      <ComboName>
-                        {combo.name}{' '}
-                        <span className='desc'>({combo.description})</span>
-                      </ComboName>
-                      <ComboPrice>
-                        {prices[combo.id] === undefined
-                          ? 'Đang tải...'
-                          : prices[combo.id] === -1
-                            ? 'Lỗi giá'
-                            : `${prices[combo.id].toLocaleString()}đ`}
-                      </ComboPrice>
-                    </div>
-                  </ComboInfo>
-                  <QtyInput
-                    type='number'
-                    min={0}
-                    value={selectedCombos[combo.id] || 0}
-                    onChange={e =>
-                      handleComboChange(combo.id, Number(e.target.value))
-                    }
-                  />
-                </ComboItem>
-              ))}
-          </ComboList>
         </Card>
       </Main>
 
@@ -546,21 +407,6 @@ export default function BookingPage() {
               {selectedSeats.length
                 ? ' ' + selectedSeats.map(s => `${s.row}${s.number}`).join(', ')
                 : t('BOOKING_SEAT_NONE')}
-            </strong>
-          </SummaryLine>
-          <SummaryLine>
-            {t('BOOKING_COMBO')}
-            <strong
-              style={{
-                whiteSpace: 'pre-line',
-                fontWeight: '500',
-                fontSize: '14px',
-              }}
-            >
-              {selectedComboList.length
-                ? '\n' +
-                  selectedComboList.map(c => `• ${c.name} x${c.qty}`).join('\n')
-                : t('BOOKING_COMBO_NONE')}
             </strong>
           </SummaryLine>
           <Divider />
@@ -601,10 +447,20 @@ export default function BookingPage() {
                 // Đặt flag trước khi navigate
                 sessionStorage.setItem('navigatingToConfirm', 'true');
 
-                navigate('/booking/confirm', {
+                // Lưu danh sách ghế được giữ để hủy khi cần thiết
+                sessionStorage.setItem(
+                  'heldSeat',
+                  JSON.stringify({
+                    showtimeId,
+                    seats: selectedSeats.map(s => ({ seatId: s.id })),
+                  })
+                );
+
+                const currentExpireAt = expireAt || startTimer(8 * 60);
+
+                navigate('/booking/additional', {
                   state: {
-                    expireAt,
-                    fromConfirmPage: true,
+                    expireAt: currentExpireAt,
                     bookingData: {
                       showtimeId,
                       format,
@@ -613,11 +469,7 @@ export default function BookingPage() {
                       auditorium: auditorium.name,
                       showtime: `${time} - ${formatDate(date)}`,
                       seats: selectedSeats,
-                      combos: selectedComboList.map(c => ({
-                        ...c,
-                        price: prices[c.id] ?? -1,
-                      })),
-                      total: totalPrice,
+                      seatTotal,
                     },
                   },
                 });
@@ -645,10 +497,21 @@ export default function BookingPage() {
           setAgeModalVisible(false);
           // Đặt flag trước khi navigate
           sessionStorage.setItem('navigatingToConfirm', 'true');
-          navigate('/booking/confirm', {
+
+          // Lưu danh sách ghế được giữ để hủy khi cần thiết
+          sessionStorage.setItem(
+            'heldSeat',
+            JSON.stringify({
+              showtimeId,
+              seats: selectedSeats.map(s => ({ seatId: s.id })),
+            })
+          );
+
+          const currentExpireAt = expireAt || startTimer(8 * 60);
+
+          navigate('/booking/additional', {
             state: {
-              expireAt,
-              fromConfirmPage: true,
+              expireAt: currentExpireAt,
               bookingData: {
                 showtimeId,
                 format,
@@ -657,11 +520,7 @@ export default function BookingPage() {
                 auditorium: auditorium.name,
                 showtime: `${time} - ${formatDate(date)}`,
                 seats: selectedSeats,
-                combos: selectedComboList.map(c => ({
-                  ...c,
-                  price: prices[c.id] ?? -1,
-                })),
-                total: totalPrice,
+                seatTotal,
               },
             },
           });
@@ -790,12 +649,14 @@ const RowLabel = styled.span`
 `;
 const RowGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(22px, 1fr));
-  gap: 4px;
-  justify-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(0px, max-content));
+  gap: 5px;
+  justify-content: center;
 `;
-const seatBase = css`
-  width: 100%;
+
+const seatBase = css<{
+  $type: SeatType;
+}>`
   aspect-ratio: 1;
   border-radius: ${theme.borderRadius.small};
   border: 1px solid ${theme.colors.border};
@@ -807,6 +668,16 @@ const seatBase = css`
   justify-content: center;
   cursor: pointer;
   transition: all 0.15s ease;
+  &:hover {
+    filter: brightness(0.95);
+    box-shadow: 0 4px 12px rgba(1, 39, 76, 0.15);
+  }
+
+  ${({ $type }) =>
+    $type !== 'couple' &&
+    css`
+      max-width: 40px;
+    `}
 `;
 
 const SeatButton = styled.button<{
@@ -853,7 +724,7 @@ const SeatButton = styled.button<{
   ${({ $reservationStatus }) =>
     $reservationStatus === 'held' &&
     css`
-      background: #ffeb99; /* vàng nhạt */
+      background: #dddddd;
       color: #333;
       opacity: 0.85;
     `}
@@ -868,74 +739,6 @@ const SeatButton = styled.button<{
       box-shadow: 0 6px 14px rgba(1, 39, 76, 0.25);
       opacity: 0.85;
     `}
-`;
-
-const SectionTitle = styled.h3`
-  margin: 0 0 ${theme.spacing.md};
-  font-size: ${theme.fontSize.xl};
-  color: ${theme.colors.textPrimary};
-`;
-const ComboList = styled.div`
-  display: grid;
-  gap: ${theme.spacing.sm};
-`;
-const ComboItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${theme.spacing.sm} ${theme.spacing.md};
-  border: 1px solid ${theme.colors.border};
-  border-radius: ${theme.borderRadius.small};
-  background: ${theme.colors.bgLight};
-`;
-
-const ComboInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px; /* Khoảng cách thumbnail và text đều nhau */
-  flex: 1; /* Đảm bảo chiếm hết khoảng trống còn lại */
-`;
-
-const Thumbnail = styled.img`
-  width: 56px; /* tăng kích thước cho dễ nhìn */
-  height: 56px;
-  border-radius: 10px;
-  object-fit: cover;
-  flex-shrink: 0; /* Giữ kích thước cố định */
-`;
-
-const ComboName = styled.div`
-  color: ${theme.colors.textPrimary};
-  font-weight: 600;
-  font-size: ${theme.fontSize.md};
-
-  .desc {
-    font-weight: 400;
-    font-size: ${theme.fontSize.sm};
-    color: ${theme.colors.textSecondary};
-  }
-`;
-
-const ComboPrice = styled.div`
-  color: ${theme.colors.textSecondary};
-  font-size: ${theme.fontSize.sm};
-  margin-top: 4px;
-`;
-
-const QtyInput = styled.input`
-  margin-left: 16px;
-  width: 35px;
-  padding: 8px 10px;
-  border-radius: ${theme.borderRadius.small};
-  border: 1px solid ${theme.colors.border};
-  background: ${theme.colors.white};
-  color: ${theme.colors.textPrimary};
-  font-weight: 600;
-  &:focus {
-    outline: none;
-    box-shadow: var(--ring);
-    border-color: ${theme.colors.primary};
-  }
 `;
 const SummaryCard = styled(Card)`
   padding: ${theme.spacing.lg};
@@ -964,7 +767,7 @@ const Total = styled.div`
   color: ${theme.colors.textSecondary};
   margin: ${theme.spacing.sm} 0 ${theme.spacing.md};
   span {
-    font-size: 28px;
+    font-size: 22px;
     color: ${theme.colors.textPrimary};
     font-weight: 800;
   }

@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
+import { Timer as TimerIcon } from 'lucide-react';
 
 interface TimerBarProps {
   timer: number; // đơn vị: giây
@@ -16,16 +17,21 @@ export default function TimerBar({ timer }: TimerBarProps) {
 
   // Danger khi còn dưới 2 phút
   const danger = timer <= 120;
-  const maxTime = 900; // giả sử giữ chỗ tối đa 15 phút
+  // Warning khi còn dưới 4 phút
+  const warning = timer <= 240;
+  const maxTime = 8 * 60;
   const progress = Math.max(0, (timer / maxTime) * 100);
 
   return (
     <Wrapper>
-      <Bar danger={danger}>
-        ⏳ Thời gian giữ ghế: <strong>{formatTime(timer)}</strong>
+      <Bar danger={danger} warning={warning}>
+        <IconWrapper>
+          <TimerIcon size={20} />
+        </IconWrapper>
+        Thời gian giữ ghế:<strong>{formatTime(timer)}</strong>
       </Bar>
       <ProgressContainer>
-        <ProgressFill danger={danger} style={{ width: `${progress}%` }} />
+        <ProgressFill danger={danger} warning={warning} style={{ width: `${progress}%` }} />
       </ProgressContainer>
     </Wrapper>
   );
@@ -36,12 +42,15 @@ const Wrapper = styled.div`
   margin-bottom: 16px;
 `;
 
-const Bar = styled.div<{ danger?: boolean }>`
-  background: ${({ danger }) =>
-    danger ? theme.colors.error : theme.colors.primary};
+const Bar = styled.div<{ danger?: boolean; warning?: boolean }>`
+  background: ${({ danger, warning }) =>
+    danger ? theme.colors.error : warning ? theme.colors.warning : theme.colors.primary};
   color: white;
   font-weight: bold;
+  display: flex;
+  align-items: center;
   text-align: center;
+  justify-content: center;
   padding: 10px;
   border-radius: 8px;
   font-size: 16px;
@@ -50,16 +59,32 @@ const Bar = styled.div<{ danger?: boolean }>`
 
   strong {
     font-size: 18px;
+    margin-left: 6px;
     ${({ danger }) =>
       danger &&
       `
       animation: blink 1s infinite;
+    `}
+    ${({ warning }) =>
+      warning &&
+      `
+      animation: blink 2s infinite;
     `}
   }
 
   @keyframes blink {
     0%, 100% { color: white; }
     50% { color: yellow; }
+  }
+`;
+
+const IconWrapper = styled.span`
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  svg {
+    stroke: white;
+    stroke-width: 2.5;
   }
 `;
 
@@ -72,9 +97,9 @@ const ProgressContainer = styled.div`
   overflow: hidden;
 `;
 
-const ProgressFill = styled.div<{ danger?: boolean }>`
+const ProgressFill = styled.div<{ danger?: boolean ; warning?: boolean }>`
   height: 100%;
-  background: ${({ danger }) =>
-    danger ? theme.colors.error : theme.colors.primary};
+  background: ${({ danger, warning }) =>
+    danger ? theme.colors.error : warning ? theme.colors.warning : theme.colors.primary};
   transition: width 1s linear;
 `;

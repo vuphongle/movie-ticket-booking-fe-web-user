@@ -39,6 +39,10 @@ const booking = {
     'I confirm that I am purchasing tickets for an audience aged {{ageNumber}} and above, and agree to provide identification for age verification.',
   DECLINE: 'Decline',
   CONFIRM: 'Confirm',
+
+  BOOKING_SELECT_ADDITIONAL: 'Select Additional Services',
+  BOOKING_SELECT_ADDITIONAL_SUB:
+    'You can choose snacks and drinks to enjoy during the movie',
 };
 
 export default booking;
