@@ -219,6 +219,21 @@ const common = {
   UPDATE_PROFILE_ERROR: 'Có lỗi xảy ra khi cập nhật thông tin!',
   SAVING: 'Đang lưu...',
 
+  // CHAT WIDGET
+  CHAT_WIDGET_TITLE: 'Trò chuyện cùng trợ lý phim',
+  CHAT_WIDGET_SUBTITLE: 'Vui lòng cho biết độ tuổi của bạn để có gợi ý phù hợp',
+  CHAT_FLOATING_BUTTON_LABEL: 'Trợ lý gợi ý phim',
+  CHAT_ACTION_RESET: 'Làm mới hội thoại',
+  CHAT_ACTION_CLOSE: 'Đóng',
+  CHAT_INPUT_PLACEHOLDER: 'Bạn muốn xem phim như thế nào?',
+  CHAT_GREETING:
+    'Xin chào! Mình là trợ lý gợi ý phim. Bạn có thể mô tả thể loại, cảm xúc hoặc bất kỳ điều gì bạn muốn xem nhé!',
+  CHAT_ERROR_MESSAGE: 'Xin lỗi, mình không thể phản hồi ngay lúc này. Bạn thử lại sau nhé!',
+  CHAT_LOADING: 'Đang tìm gợi ý phim...',
+  CHAT_RECOMMENDED_MOVIE_FALLBACK: 'Phim đề xuất',
+  CHAT_VIEW_DETAILS: 'Xem chi tiết',
+  CHAT_SEND_LABEL: 'Gửi tin nhắn',
+
   // Held Seat Modal
   HELD_SEAT_TITLE: 'Thông báo',
   CLOSE: 'Đóng',

@@ -215,6 +215,22 @@ const common = {
   UPDATE_PROFILE_ERROR: 'Error occurred while updating profile!',
   SAVING: 'Saving...',
 
+  // CHAT WIDGET
+  CHAT_WIDGET_TITLE: 'Chat with the movie assistant',
+  CHAT_WIDGET_SUBTITLE:
+    'Please share your age so we can recommend suitable films',
+  CHAT_FLOATING_BUTTON_LABEL: 'Movie assistant',
+  CHAT_ACTION_RESET: 'Reset conversation',
+  CHAT_ACTION_CLOSE: 'Close',
+  CHAT_INPUT_PLACEHOLDER: 'What kind of movie are you in the mood for?',
+  CHAT_GREETING:
+    "Hi there! I'm your movie assistant. Tell me about the genres, mood, or anything you feel like watching!",
+  CHAT_ERROR_MESSAGE: "Sorry, I can't respond right now. Please try again later!",
+  CHAT_LOADING: 'Finding movie suggestions...',
+  CHAT_RECOMMENDED_MOVIE_FALLBACK: 'Recommended movie',
+  CHAT_VIEW_DETAILS: 'View details',
+  CHAT_SEND_LABEL: 'Send message',
+
   // Held Seat Modal
   HELD_SEAT_TITLE: 'Notification',
   CLOSE: 'Close',

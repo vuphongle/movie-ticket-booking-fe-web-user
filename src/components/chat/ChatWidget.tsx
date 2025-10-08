@@ -81,11 +81,10 @@ const loadChatHistory = (storageKey: string) => {
   return [];
 };
 
-const createGreetingMessage = (): ChatMessage => ({
+const createGreetingMessage = (content: string): ChatMessage => ({
   id: generateId(),
   sender: 'assistant',
-  content:
-    'Xin chào! Mình là trợ lý gợi ý phim. Bạn có thể mô tả thể loại, cảm xúc hoặc bất kỳ điều gì bạn muốn xem nhé!',
+  content,
 });
 
 const ChatWidget = () => {
@@ -98,11 +97,15 @@ const ChatWidget = () => {
     () => getStorageKey(userId ?? undefined),
     [userId]
   );
+  const { t, i18n } = useTranslation();
+  const buildGreetingMessage = useCallback(
+    () => createGreetingMessage(t('CHAT_GREETING')),
+    [t]
+  );
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    createGreetingMessage(),
+    buildGreetingMessage(),
   ]);
   const [sendRecommendation, { isLoading }] = useGetRecommendationsMutation();
-  const { i18n } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -115,9 +118,9 @@ const ChatWidget = () => {
     if (history.length > 0) {
       setMessages(history);
     } else {
-      setMessages([createGreetingMessage()]);
+      setMessages([buildGreetingMessage()]);
     }
-  }, [storageKey]);
+  }, [storageKey, buildGreetingMessage]);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -135,10 +138,10 @@ const ChatWidget = () => {
   const resetConversation = useCallback(() => {
     const newConversationId = createConversationId(storageKey);
     setConversationId(newConversationId);
-    const greeting = createGreetingMessage();
+    const greeting = buildGreetingMessage();
     setMessages([greeting]);
     persistChatHistory(storageKey, [greeting]);
-  }, [storageKey]);
+  }, [storageKey, buildGreetingMessage]);
 
   const handleSendMessage = async () => {
     const trimmed = inputValue.trim();
@@ -181,8 +184,7 @@ const ChatWidget = () => {
       const assistantMessage: ChatMessage = {
         id: generateId(),
         sender: 'assistant',
-        content:
-          'Xin lỗi, mình không thể phản hồi ngay lúc này. Bạn thử lại sau nhé!',
+        content: t('CHAT_ERROR_MESSAGE'),
         variant: 'error',
       };
       setMessages(prev => [...prev, assistantMessage]);
@@ -198,6 +200,8 @@ const ChatWidget = () => {
 
   const renderMessage = (message: ChatMessage) => {
     const isAssistant = message.sender === 'assistant';
+    const fallbackMovieName = t('CHAT_RECOMMENDED_MOVIE_FALLBACK');
+    const viewDetailsLabel = t('CHAT_VIEW_DETAILS');
     return (
       <MessageBubble
         key={message.id}
@@ -214,7 +218,7 @@ const ChatWidget = () => {
                 typeof movie.rating === 'number'
                   ? movie.rating.toFixed(1)
                   : null;
-              const safeName = movie.name || 'Phim đề xuất';
+              const safeName = movie.name || fallbackMovieName;
               const detailSlug =
                 movie.slug && movie.slug.trim().length
                   ? movie.slug
@@ -251,7 +255,7 @@ const ChatWidget = () => {
                       </ReasonList>
                     ) : null}
                     <StyledLink to={`/movies/${movie.movieId}/${detailSlug}`}>
-                      Xem chi tiết
+                      {viewDetailsLabel}
                     </StyledLink>
                   </MovieInfo>
                 </MovieCard>
@@ -265,23 +269,27 @@ const ChatWidget = () => {
 
   return (
     <>
-      <FloatingButton onClick={toggleWidget} aria-label='Trợ lý gợi ý phim'>
+      <FloatingButton
+        onClick={toggleWidget}
+        aria-label={t('CHAT_FLOATING_BUTTON_LABEL')}
+      >
         <MessageCircle size={26} />
       </FloatingButton>
       {isOpen && (
         <WidgetContainer>
           <WidgetHeader>
             <div>
-              <WidgetTitle>Trò chuyện cùng trợ lý phim</WidgetTitle>
-              <WidgetSubtitle>
-                Vui lòng cho biết độ tuổi của bạn để có gợi ý phù hợp
-              </WidgetSubtitle>
+              <WidgetTitle>{t('CHAT_WIDGET_TITLE')}</WidgetTitle>
+              <WidgetSubtitle>{t('CHAT_WIDGET_SUBTITLE')}</WidgetSubtitle>
             </div>
             <WidgetActions>
-              <IconButton onClick={resetConversation} title='Làm mới hội thoại'>
+              <IconButton
+                onClick={resetConversation}
+                title={t('CHAT_ACTION_RESET')}
+              >
                 <RotateCw size={18} />
               </IconButton>
-              <IconButton onClick={toggleWidget} title='Đóng'>
+              <IconButton onClick={toggleWidget} title={t('CHAT_ACTION_CLOSE')}>
                 <X size={18} />
               </IconButton>
             </WidgetActions>
@@ -293,7 +301,7 @@ const ChatWidget = () => {
           <WidgetFooter>
             <MessageInput
               type='text'
-              placeholder='Bạn muốn xem phim như thế nào?'
+              placeholder={t('CHAT_INPUT_PLACEHOLDER')}
               value={inputValue}
               onChange={event => setInputValue(event.target.value)}
               onKeyDown={handleKeyDown}
@@ -302,12 +310,12 @@ const ChatWidget = () => {
             <SendButton
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
-              aria-label='Gửi tin nhắn'
+              aria-label={t('CHAT_SEND_LABEL')}
             >
               <Send size={20} />
             </SendButton>
           </WidgetFooter>
-          {isLoading && <LoadingOverlay>Đang tìm gợi ý phim...</LoadingOverlay>}
+          {isLoading && <LoadingOverlay>{t('CHAT_LOADING')}</LoadingOverlay>}
         </WidgetContainer>
       )}
     </>
