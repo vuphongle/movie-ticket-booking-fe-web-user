@@ -5,26 +5,32 @@ import PromoSection from './components/PromoSection';
 import PaymentMethods from './components/PaymentMethods';
 import TicketInfo from './components/TicketInfo';
 import TimerBar from './components/TimerBar';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useCreateOrderMutation } from '@app/services/payment.api';
 import BookingConfirmModal from './components/modals/BookingConfirmModal';
+import { useBookingTimer } from '@/hooks/useBookingTimer';
+import { useCancelSeatMutation } from '@/app/services/reservation.api';
 
 export default function BookingConfirmPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
-  const { expireAt, bookingData } = location.state || {};
-  const [timer, setTimer] = useState(
-    Math.max(0, Math.floor((expireAt - Date.now()) / 1000))
-  );
+  const [cancelSeat] = useCancelSeatMutation();
+  const { timer, expireAt } = useBookingTimer({
+    autoCancel: true,
+    onExpire: () => {
+      // Có thể gọi API hủy giữ ghế
+      bookingData.seats.forEach((seat: any) => {
+        cancelSeat({
+          seatId: seat.id,
+          showtimeId: bookingData.showtimeId,
+        });
+      });
+    },
+  });
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer(Math.max(0, Math.floor((expireAt - Date.now()) / 1000)));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [expireAt]);
+  const { bookingData } = location.state || {};
 
   const [selectedPayment, setSelectedPayment] = useState('PAYOS');
   const [createOrder] = useCreateOrderMutation();
@@ -65,6 +71,36 @@ export default function BookingConfirmPage() {
     }
   };
 
+  const handleApplyVoucher = (appliedData: any) => {
+    if (appliedData.removedDetailId) {
+      setAppliedCoupons(prev =>
+        prev.filter(c => c.detailId !== appliedData.removedDetailId)
+      );
+      return;
+    }
+
+    console.log('Voucher áp dụng:', appliedData);
+
+    const discountSum =
+      appliedData.previewResult?.detailResults
+        ?.filter((d: any) => d.applied)
+        ?.reduce((sum: number, d: any) => sum + d.lineDiscount, 0) ?? 0;
+
+    const appliedDetailIds =
+      appliedData.previewResult?.detailResults
+        ?.filter((d: any) => d.applied)
+        ?.map((d: any) => d.detailId) ?? [];
+
+    setAppliedCoupons(prev => [
+      ...prev,
+      {
+        code: appliedData.idempotentToken,
+        discount: discountSum,
+        detailId: appliedDetailIds[0],
+      },
+    ]);
+  };
+
   const handleBack = () => {
     sessionStorage.setItem(
       'bookingPageState',
@@ -83,18 +119,14 @@ export default function BookingConfirmPage() {
       <Main>
         <PromoSection
           bookingData={bookingData}
-          onApplyCoupon={appliedData => {
-            console.log('Voucher áp dụng:', appliedData);
-            const discountSum = appliedData.previewResult.detailResults
-              .filter((d: any) => d.applied)
-              .reduce((sum: number, d: any) => sum + d.lineDiscount, 0);
-
+          onApplyCoupon={data => {
             setAppliedCoupons(prev => [
               ...prev,
-              { code: appliedData.idempotentToken, discount: discountSum },
+              { code: data.code, discount: data.discount },
             ]);
           }}
         />
+
         <PaymentMethods
           selected={selectedPayment}
           onSelect={setSelectedPayment}
@@ -102,7 +134,11 @@ export default function BookingConfirmPage() {
       </Main>
       <Aside>
         <TimerBar timer={timer} />
-        <TicketInfo bookingData={bookingData} appliedCoupons={appliedCoupons} />
+        <TicketInfo
+          bookingData={bookingData}
+          appliedCoupons={appliedCoupons}
+          onApplyVoucher={handleApplyVoucher}
+        />
         <Actions>
           <GhostButton onClick={handleBack}>Quay lại</GhostButton>
           <PrimaryButton onClick={() => setIsConfirmModalOpen(true)}>

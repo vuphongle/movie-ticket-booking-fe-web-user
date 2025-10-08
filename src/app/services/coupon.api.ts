@@ -46,6 +46,29 @@ export interface CouponApplyResponse {
   errorMessage: string | null;
 }
 
+export interface CouponDetailDto {
+  id: number;
+  couponId: number;
+  enabled: boolean;
+  targetType: string;
+  targetRefId: number | null;
+  benefitType: string;
+  percent: number | null;
+  amount: number | null;
+  giftServiceId: number | null;
+  giftQuantity: number | null;
+  lineMaxDiscount: number | null;
+  minQuantity: number | null;
+  limitQuantityApplied: number;
+  minOrderTotal: number | null;
+  detailUsagelimit: number | null;
+  detailUsedCount: number;
+  selectionStrategy: string | null;
+  notes: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export const couponApi = createApi({
   reducerPath: 'couponApi',
   baseQuery: fetchBaseQuery({
@@ -68,12 +91,26 @@ export const couponApi = createApi({
     getAllCoupons: builder.query<CouponDto[], void>({
       query: () => 'coupons',
     }),
-    getCouponByCode: builder.query<CouponDto, string>({ // <-- Thêm API mới
+    getCouponByCode: builder.query<CouponDto, string>({
+      // <-- Thêm API mới
       query: (code: string) => `coupons/coupon-by-code?code=${code}`,
     }),
-    previewCoupon: builder.mutation<CouponPreviewResponse, { id: number; body: CouponPreviewRequest }>({
+    previewCoupon: builder.mutation<
+      CouponPreviewResponse,
+      { id: number; body: CouponPreviewRequest }
+    >({
       query: ({ id, body }) => ({
         url: `coupons/${id}/preview`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    previewAllCouponDisplay: builder.mutation<
+      CouponPreviewResponse,
+      { body: CouponPreviewRequest }
+    >({
+      query: ({ body }) => ({
+        url: `coupons/previews`,
         method: 'POST',
         body,
       }),
@@ -85,12 +122,17 @@ export const couponApi = createApi({
         body,
       }),
     }),
+    getAllCouponDetails: builder.query<CouponDetailDto[], void>({
+      query: () => 'coupon-details',
+    }),
   }),
 });
 
-export const { 
-  useGetAllCouponsQuery, 
+export const {
+  useGetAllCouponsQuery,
   useGetCouponByCodeQuery,
-  usePreviewCouponMutation, 
-  useApplyCouponMutation 
+  usePreviewCouponMutation,
+  usePreviewAllCouponDisplayMutation,
+  useApplyCouponMutation,
+  useGetAllCouponDetailsQuery,
 } = couponApi;

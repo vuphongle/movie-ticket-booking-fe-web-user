@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
 import {
-  usePreviewCouponMutation,
+  useGetAllCouponDetailsQuery,
+  usePreviewAllCouponDisplayMutation,
   useApplyCouponMutation,
-  useGetCouponByCodeQuery,
 } from '@app/services/coupon.api';
 
 interface BookingData {
@@ -34,71 +34,87 @@ export default function PromoSection({
   bookingData,
   onApplyCoupon,
 }: PromoSectionProps) {
-  const [code, setCode] = useState('');
-  const [previewCoupon, { data: previewData, isLoading }] =
-    usePreviewCouponMutation();
-  const [applyCoupon, { isLoading: applying }] = useApplyCouponMutation();
-  const [appliedItems, setAppliedItems] = useState<number[]>([]);
+  // ----- hooks (top-level only) -----
+  const { data: couponDetails = [], isLoading, error } =
+    useGetAllCouponDetailsQuery();
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [applyCoupon] = useApplyCouponMutation();
+  const [previewAllTrigger, previewResult] = usePreviewAllCouponDisplayMutation();
+  const previewData = previewResult?.data;
 
-  const { data: couponInfo } = useGetCouponByCodeQuery(code, {
-    skip: !code,
-  });
-
-  const handleCheck = async () => {
-    if (!code || !bookingData || !couponInfo) return;
-
-    // Lọc ra các vé hợp lệ
-    const tickets =
-      bookingData.seats
-        ?.filter(
-          s => s && typeof s.id === 'number' && typeof s.price === 'number'
-        )
-        .map(s => ({
+  // ----- trigger preview khi bookingData thay đổi -----
+  useEffect(() => {
+    if (!bookingData) return;
+    previewAllTrigger({
+      body: {
+        tickets: bookingData.seats.map(s => ({
           seatTypeId: s.id,
           qty: 1,
           unitPrice: s.price,
-        })) || [];
-
-    // Lọc ra các combo hợp lệ
-    const services =
-      bookingData.combos
-        ?.filter(
-          c =>
-            c &&
-            typeof c.id === 'number' &&
-            typeof c.price === 'number' &&
-            typeof c.qty === 'number'
-        )
-        .map(c => ({
+        })),
+        services: bookingData.combos.map(c => ({
           serviceId: c.id,
           qty: c.qty,
           unitPrice: c.price,
-        })) || [];
+        })),
+      },
+    }).catch(() => {
+      /* ignore preview errors for display */
+    });
+  }, [bookingData, previewAllTrigger]);
 
-    if (tickets.length === 0 && services.length === 0) {
-      console.warn('Không có vé hoặc combo hợp lệ để gửi lên API');
-      return;
-    }
-
-    const payload = { tickets, services };
-    console.log('PreviewCoupon payload:', payload);
-
-    try {
-      await previewCoupon({
-        id: couponInfo.id,
-        body: payload,
+  // ----- prepare quick lookup maps from previewData -----
+  const previewMap = useMemo(() => {
+    const map = new Map<number, any>();
+    if (previewData?.detailResults) {
+      previewData.detailResults.forEach((r: any) => {
+        map.set(r.detailId, r);
       });
-    } catch (err) {
-      console.error('Lỗi khi preview coupon:', err);
     }
-  };
+    return map;
+  }, [previewData]);
 
-  const handleApply = async (detailId: number) => {
-    if (!code || !bookingData) return;
+  const giftsByServiceId = useMemo(() => {
+    const map = new Map<number, any[]>();
+    if (Array.isArray(previewData?.gifts)) {
+      previewData!.gifts.forEach((g: any) => {
+        const arr = map.get(g.serviceId) ?? [];
+        arr.push(g);
+        map.set(g.serviceId, arr);
+      });
+    }
+    return map;
+  }, [previewData]);
 
+  // ----- build displayCoupons: chỉ show coupon có detail áp dụng thành công -----
+  const displayCoupons = useMemo(() => {
+    if (!Array.isArray(couponDetails)) return [];
+    return couponDetails
+      .map((c: any) => {
+        const res = previewMap.get(c.id);
+        const lineDiscount = res?.lineDiscount ?? 0;
+        const applied = !!(res && res.applied && res.reason?.includes('Áp dụng thành công'));
+        return { ...c, lineDiscount, previewDetail: res, applied };
+      })
+      .filter((c: any) => c.applied) // chỉ những coupon có detail áp dụng thành công
+      .sort((a: any, b: any) => (b.lineDiscount || 0) - (a.lineDiscount || 0));
+  }, [couponDetails, previewMap]);
+
+  // ----- auto select best (max lineDiscount) nếu chưa chọn -----
+  useEffect(() => {
+    if (displayCoupons.length > 0 && selectedId === null) {
+      setSelectedId(displayCoupons[0].id);
+    }
+  }, [displayCoupons, selectedId]);
+
+  // ----- handlers -----
+const handleSelect = async (coupon: any) => {
+  if (!bookingData) return;
+  setSelectedId(coupon.id);
+  try {
     const res = await applyCoupon({
       orderId: 123,
-      couponCode: code,
+      couponCode: coupon.code || 'DISPLAY',
       cart: {
         tickets: bookingData.seats.map(s => ({
           seatTypeId: s.id,
@@ -113,227 +129,226 @@ export default function PromoSection({
       },
     }).unwrap();
 
-    onApplyCoupon(res);
-  };
+    // 👉 Gửi dữ liệu dạng thống nhất cho TicketInfo
+    const discountSum =
+      res.previewResult?.detailResults
+        ?.filter((d: any) => d.applied)
+        ?.reduce((sum: number, d: any) => sum + d.lineDiscount, 0) ?? 0;
 
+    onApplyCoupon({
+      code: coupon.code,
+      discount: discountSum,
+    });
+  } catch (err) {
+    console.error('Lỗi áp dụng coupon:', err);
+  }
+};
+
+
+  // ----- loading / error UI -----
+  if (isLoading || previewResult.isLoading)
+    return <Section>Đang tải khuyến mãi...</Section>;
+  if (error) return <Section>Lỗi tải dữ liệu khuyến mãi.</Section>;
+
+  // ----- render -----
   return (
     <Section>
-      <h3>Khuyến mãi</h3>
+      <h2>Khuyến mãi dành cho đơn của bạn</h2>
 
-      <InputRow>
-        <input
-          type='text'
-          placeholder='Nhập mã voucher'
-          value={code}
-          onChange={e => setCode(e.target.value)}
-        />
-        <button onClick={handleCheck} disabled={isLoading || !couponInfo}>
-          {isLoading ? 'Đang kiểm tra...' : 'Kiểm tra'}
-        </button>
-      </InputRow>
+      <CouponList>
+        {displayCoupons.map((c: any, index: number) => {
+          const previewResult = c.previewDetail;
+          const isGift = c.benefitType === 'FREE_PRODUCT';
+          const gifts = c.giftServiceId
+            ? giftsByServiceId.get(c.giftServiceId) ?? []
+            : [];
+          const isBestChoice = index === 0 && (c.lineDiscount ?? 0) > 0;
 
-      {couponInfo && (
-        <CouponInfoBox>
-          <h4>{couponInfo.name}</h4>
-          <p>Mô tả: {couponInfo.description}</p>
-          <small>
-            Thời gian áp dụng:{' '}
-            {new Date(couponInfo.startDate).toLocaleDateString()} -{' '}
-            {new Date(couponInfo.endDate).toLocaleDateString()}
-          </small>
-        </CouponInfoBox>
-      )}
+          return (
+            <CouponRow key={c.id}>
+              {isBestChoice && <BestChoiceTag>Lựa chọn tốt nhất</BestChoiceTag>}
 
-      {previewData && (
-        <PreviewBox>
-          {previewData.detailResults.map((dr, index) => (
-            <PreviewItem key={dr.detailId} applied={dr.applied}>
-              <div>
-                <strong>Khuyến mại {index + 1}</strong>
-              </div>
-              <div>
-                <span>
-                  {dr.applied ? `Giảm ${dr.lineDiscount}đ` : dr.reason}
-                </span>
-                {dr.applied && (
-                  <button
-                    onClick={async () => {
-                      if (appliedItems.includes(dr.detailId)) {
-                        // nếu đã áp dụng -> bỏ chọn
-                        setAppliedItems(prev =>
-                          prev.filter(id => id !== dr.detailId)
-                        );
-                        onApplyCoupon({
-                          removedDetailId: dr.detailId,
-                          discount: dr.lineDiscount,
-                        });
-                      } else {
-                        // nếu chưa áp dụng -> áp dụng
-                        const res = await handleApply(dr.detailId);
-                        setAppliedItems(prev => [...prev, dr.detailId]);
-                        onApplyCoupon(res);
-                      }
-                    }}
-                    disabled={applying}
-                  >
-                    {appliedItems.includes(dr.detailId) ? 'Bỏ chọn' : 'Áp dụng'}
-                  </button>
-                )}
-              </div>
-            </PreviewItem>
-          ))}
-        </PreviewBox>
-      )}
+              <LeftPart>
+                <RadioInput
+                  type="radio"
+                  name="coupon"
+                  checked={selectedId === c.id}
+                  onChange={() => handleSelect(c)}
+                />
+                <ImageWrapper>
+                  <img
+                    src={
+                      c.imageUrl ||
+                      'https://cdn-icons-png.flaticon.com/512/888/888879.png'
+                    }
+                    alt="coupon"
+                    loading="lazy"
+                  />
+                </ImageWrapper>
+              </LeftPart>
 
-      <CheckboxRow>
-        <input type='checkbox' id='cinePoints' />
-        <label htmlFor='cinePoints'>Sử dụng điểm Go Cine</label>
-      </CheckboxRow>
-      <Notice>
-        💡 Lưu ý: Điểm Go Cine không áp dụng đồng thời với một số voucher khuyến
-        mãi.
-      </Notice>
+              <Info>
+                <h4>
+                  {c.targetType === 'TICKET'
+                    ? 'Ưu đãi giá vé'
+                    : c.targetType === 'ADDITIONAL_SERVICE'
+                    ? 'Ưu đãi dịch vụ đi kèm'
+                    : c.targetType === 'PRODUCT'
+                    ? 'Ưu đãi sản phẩm'
+                    : 'Ưu đãi khác'}
+                </h4>
+
+                <p>
+                  {c.benefitType === 'FREE_PRODUCT'
+                    ? 'Tặng sản phẩm'
+                    : c.benefitType === 'DISCOUNT_PERCENT'
+                    ? `Giảm ${c.percent}%`
+                    : c.benefitType === 'DISCOUNT_AMOUNT'
+                    ? `Giảm ${c.amount?.toLocaleString() ?? 0}đ`
+                    : 'Ưu đãi đặc biệt'}
+                </p>
+
+                <small>
+                  Giới hạn áp dụng:{' '}
+                  {c.limitQuantityApplied
+                    ? c.targetType === 'TICKET'
+                      ? `${c.limitQuantityApplied} ghế`
+                      : c.targetType === 'PRODUCT'
+                      ? `${c.limitQuantityApplied} sản phẩm`
+                      : c.targetType === 'ADDITIONAL_SERVICE'
+                      ? `${c.limitQuantityApplied} dịch vụ`
+                      : `${c.limitQuantityApplied} lần`
+                    : 'Không giới hạn'}
+                </small>
+              </Info>
+
+              {/* right box: gift or discount */}
+              {isGift ? (
+                (gifts?.length ?? 0) > 0 ? (
+                  <GiftBox>
+                    🎁 {gifts.map((g: any) => `${g.serviceName} (x${g.quantity})`).join(', ')}
+                  </GiftBox>
+                ) : null
+              ) : previewResult && previewResult.applied ? (
+                <DiscountBox>-{(previewResult.lineDiscount ?? 0).toLocaleString()}đ</DiscountBox>
+              ) : null}
+            </CouponRow>
+          );
+        })}
+      </CouponList>
     </Section>
   );
 }
-
 const Section = styled.div`
   margin-bottom: 20px;
-  background: white;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  border-top: 8px solid ${theme.colors.darkTitleBar};
-
-  h3 {
-    margin-bottom: 12px;
-    font-size: 16px;
-    font-weight: 600;
-  }
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-top: 6px solid ${theme.colors.primary};
 `;
 
-const InputRow = styled.div`
+const CouponList = styled.div`
   display: flex;
-  gap: 8px;
-  margin-bottom: 6px;
-
-  input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-  }
-  button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
-    background: #444; /* xám đậm hơn */
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover {
-      background: #333;
-    }
-  }
+  flex-direction: column;
+  gap: 10px;
 `;
 
-const CouponInfoBox = styled.div`
-  background-color: rgba(255, 255, 255, 0.5);
-  border-left: 4px solid #ff7f50;
-  padding: 12px;
-  margin: 12px 0;
-  border-radius: 8px;
-  color: #000;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-
-  small {
-    display: inline-block;
-    color: #000; /* chữ nổi hơn */
-    font-size: 12px;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-top: 4px;
-  }
-`;
-
-const PreviewBox = styled.div`
-  margin-top: 12px;
-  border: 1px solid #eee;
-  border-radius: 6px;
-  padding: 8px;
-`;
-
-interface PreviewItemProps {
-  applied?: boolean;
-}
-
-const PreviewItem = styled.div<PreviewItemProps>`
+const CouponRow = styled.div`
   display: flex;
+  position: relative;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  font-size: 14px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  /* màu nền theo trạng thái */
-  background-color: ${({ applied }) => (applied ? '#e0f7e9' : '#fff3e0')};
+  background: #f8fafb;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: 0.2s;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  div:first-child {
-    font-weight: 500;
-  }
-
-  button {
-    margin-left: 8px;
-    padding: 4px 10px;
-    background: #ff7f50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover {
-      background: #ff6333;
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+    background: #eef5ff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
   }
 `;
-
-const CheckboxRow = styled.div`
+const LeftPart = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin: 12px 0 6px 0;
+  gap: 10px;
+  flex-shrink: 0;
+`;
 
-  input {
-    accent-color: #444; /* đổi màu checkbox */
-  }
+const ImageWrapper = styled.div`
+  width: 60px;
+  height: 60px;
+  background: #eeeeee;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-  label {
-    font-size: 14px;
+  img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
   }
 `;
 
-const Notice = styled.p`
+const BestChoiceTag = styled.div`
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: ${theme.colors.primary};
+  color: white;
   font-size: 12px;
-  color: #888;
-  margin: 4px 0 12px 0;
-  line-height: 1.4;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+`;
+
+const RadioInput = styled.input`
+  accent-color: ${theme.colors.primary};
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+`;
+const Info = styled.div`
+  flex: 1;
+  margin-left: 10px;
+
+  h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 2px;
+  }
+
+  small {
+    font-size: 12px;
+    color: #777;
+  }
+`;
+
+const DiscountBox = styled.div`
+  background: #4caf50;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  flex-shrink: 0;
+  text-align: center;
+  min-width: 90px;
+`;
+
+const GiftBox = styled.div`
+  margin-top: 12px;
+  font-size: 14px;
+  color: #2e7d32;
+  font-weight: 500;
 `;

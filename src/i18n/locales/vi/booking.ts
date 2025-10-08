@@ -33,10 +33,14 @@ const booking = {
   SELECT_SEAT_CONTENT:
     'Vui lòng chọn ghế bạn muốn từ sơ đồ ghế trước khi tiếp tục.',
   AGE_CONFIRM_BODY: 'Xác nhận mua vé cho người có độ tuổi phù hợp',
-AGE_CONFIRM_DESCRIPTION:
-  'Tôi xác nhận mua vé phim này cho người có độ tuổi từ {{ageNumber}} tuổi trở lên và đồng ý cung cấp giấy tờ tuỳ thân để xác minh độ tuổi.',
+  AGE_CONFIRM_DESCRIPTION:
+    'Tôi xác nhận mua vé phim này cho người có độ tuổi từ {{ageNumber}} tuổi trở lên và đồng ý cung cấp giấy tờ tuỳ thân để xác minh độ tuổi.',
   DECLINE: 'Từ chối',
   CONFIRM: 'Xác nhận',
+
+  BOOKING_SELECT_ADDITIONAL: 'Chọn dịch vụ bổ sung',
+  BOOKING_SELECT_ADDITIONAL_SUB:
+    'Bạn có thể chọn thêm đồ ăn, thức uống để thưởng thức trong lúc xem phim',
 };
 
 export default booking;

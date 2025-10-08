@@ -12,6 +12,7 @@ export const theme = {
     headingLight: '#ffffff',
     border: '#cbd5e1',
     error: '#ef4444',
+    warning: '#f59e0b',
     white: '#ffffff',
     bgLight: '#f8fafc',
     gray: '#64748b',
