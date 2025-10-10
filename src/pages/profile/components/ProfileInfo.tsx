@@ -9,14 +9,46 @@ import { useUpdateProfileMutation } from '@/app/services/user.api';
 import { updateAuth } from '@/app/slices/auth.slice';
 import { toast } from 'react-toastify';
 
-function toISODate(input?: string | Date | null): string {
-  if (!input) return new Date().toISOString().slice(0, 10);
-  if (input instanceof Date) return input.toISOString().slice(0, 10);
+function toISODate(input?: string | number | Date | null): string {
+  const defaultDate = new Date().toISOString().slice(0, 10);
+  if (input === undefined || input === null) return defaultDate;
+
+  if (input instanceof Date) {
+    return input.toISOString().slice(0, 10);
+  }
+
+  if (typeof input === 'number' && !Number.isNaN(input)) {
+    const fromMillis = new Date(input);
+    return Number.isNaN(fromMillis.getTime())
+      ? defaultDate
+      : fromMillis.toISOString().slice(0, 10);
+  }
+
   const s = String(input).trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (!s) {
+    return defaultDate;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    return s;
+  }
+
+  if (/^\d+$/.test(s)) {
+    const millis = Number(s);
+    if (!Number.isNaN(millis)) {
+      const fromMillis = new Date(millis);
+      if (!Number.isNaN(fromMillis.getTime())) {
+        return fromMillis.toISOString().slice(0, 10);
+      }
+    }
+  }
+
   const parsed = new Date(s);
-  if (!isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
-  return new Date().toISOString().slice(0, 10);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().slice(0, 10);
+  }
+
+  return defaultDate;
 }
 
 function calcAge(date: string): number {
