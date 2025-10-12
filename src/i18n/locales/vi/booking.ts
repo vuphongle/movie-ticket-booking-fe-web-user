@@ -41,6 +41,17 @@ const booking = {
   BOOKING_SELECT_ADDITIONAL: 'Chọn dịch vụ bổ sung',
   BOOKING_SELECT_ADDITIONAL_SUB:
     'Bạn có thể chọn thêm đồ ăn, thức uống để thưởng thức trong lúc xem phim',
+
+  BOOKING_CONFIRM_TITLE: 'Xác nhận thông tin vé',
+  BOOKING_CONFIRM_DESCRIPTION:
+    'Vui lòng kiểm tra kỹ thông tin vé trước khi tiếp tục thanh toán.',
+  BOOKING_CONFIRM_AGREEMENT_HTML:
+    "Tôi xác nhận các thông tin đặt vé đã chính xác và đồng ý với <a href='/terms' target='_blank'>Điều khoản dịch vụ</a>, <a href='/privacy' target='_blank'>Chính sách bảo mật</a> &amp; của Go Cinema.",
+  BOOKING_CONFIRM_CANCEL: 'Quay lại',
+  BOOKING_CONFIRM_CONFIRM: 'Xác nhận & Thanh toán',
+
+    BOOKING_ADDITIONAL_TITLE: 'Chọn dịch vụ bổ sung',
+    BOOKING_ADDITIONAL_SUB: 'Vui lòng chọn combo thức ăn, nước uống nếu bạn muốn thêm vào vé của mình.',
 };
 
 export default booking;

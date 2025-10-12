@@ -36,7 +36,7 @@ export default function BookingConfirmPage() {
   const [createOrder] = useCreateOrderMutation();
 
   const [appliedCoupons, setAppliedCoupons] = useState<
-    { code: string; discount: number }[]
+    { detailId: number; type: string; code: string; discount: number }[]
   >([]);
 
   const handleConfirmPayment = async () => {
@@ -72,33 +72,78 @@ export default function BookingConfirmPage() {
   };
 
   const handleApplyVoucher = (appliedData: any) => {
-    if (appliedData.removedDetailId) {
+    if (appliedData?.removedDetailId) {
       setAppliedCoupons(prev =>
         prev.filter(c => c.detailId !== appliedData.removedDetailId)
       );
       return;
     }
 
-    console.log('Voucher áp dụng:', appliedData);
+    const selectedDetail = appliedData.previewResult?.detailResults?.find(
+      (d: any) => d.detailId === appliedData.couponDetailId && d.applied
+    );
 
-    const discountSum =
-      appliedData.previewResult?.detailResults
-        ?.filter((d: any) => d.applied)
-        ?.reduce((sum: number, d: any) => sum + d.lineDiscount, 0) ?? 0;
+    if (!selectedDetail) return;
 
-    const appliedDetailIds =
-      appliedData.previewResult?.detailResults
-        ?.filter((d: any) => d.applied)
-        ?.map((d: any) => d.detailId) ?? [];
+    const discountValue = selectedDetail.lineDiscount ?? 0;
 
-    setAppliedCoupons(prev => [
-      ...prev,
-      {
+    const matchedGift =
+      appliedData.previewResult?.gifts?.find(
+        (g: any) => g.serviceId === selectedDetail.giftServiceId
+      ) ?? null;
+
+    setAppliedCoupons(prev => {
+      const exists = prev.some(c => c.detailId === selectedDetail.detailId);
+      if (exists) return prev;
+      return [
+        ...prev,
+        {
+          code: appliedData.idempotentToken,
+          type: 'voucher',
+          discount: discountValue,
+          detailId: selectedDetail.detailId,
+          gifts: matchedGift ? [matchedGift] : [],
+        },
+      ];
+    });
+  };
+
+  const handleApplyCoupon = (appliedData: any) => {
+    if (appliedData?.removedDetailId) {
+      setAppliedCoupons(prev =>
+        prev.filter(
+          c =>
+            !(c.type === 'promo' && c.detailId === appliedData.removedDetailId)
+        )
+      );
+      return;
+    }
+
+    const selectedDetail = appliedData.previewResult?.detailResults?.find(
+      (d: any) => d.detailId === appliedData.couponDetailId && d.applied
+    );
+
+    if (!selectedDetail) return;
+
+    const discountValue = selectedDetail.lineDiscount ?? 0;
+
+    const matchedGift =
+      appliedData.previewResult?.gifts?.find(
+        (g: any) => g.serviceId === selectedDetail.giftServiceId
+      ) ?? null;
+
+    setAppliedCoupons(prev => {
+      const newPromo = {
+        type: 'promo',
         code: appliedData.idempotentToken,
-        discount: discountSum,
-        detailId: appliedDetailIds[0],
-      },
-    ]);
+        discount: discountValue,
+        detailId: selectedDetail.detailId,
+        gifts: matchedGift ? [matchedGift] : [], 
+      };
+
+      const filtered = prev.filter(c => c.type !== 'promo');
+      return [...filtered, newPromo];
+    });
   };
 
   const handleBack = () => {
@@ -119,12 +164,7 @@ export default function BookingConfirmPage() {
       <Main>
         <PromoSection
           bookingData={bookingData}
-          onApplyCoupon={data => {
-            setAppliedCoupons(prev => [
-              ...prev,
-              { code: data.code, discount: data.discount },
-            ]);
-          }}
+          onApplyCoupon={handleApplyCoupon}
         />
 
         <PaymentMethods

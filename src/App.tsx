@@ -22,10 +22,10 @@ import PaymentResultPage from '@pages/orders/PaymentResultPage';
 
 import AppToastContainer from '@components/base/AppToastContainer';
 import ChatWidget from '@components/chat/ChatWidget';
-import { useGlobalBookingTimer } from '@hooks/useGlobalBookingTimer';
+// import { useGlobalBookingTimer } from '@hooks/useGlobalBookingTimer';
 
 function App() {
-  useGlobalBookingTimer();
+//   useGlobalBookingTimer();
 
   const location = useLocation();
   const hideLayout =

@@ -4,7 +4,7 @@ import { theme } from '@theme/Theme';
 import {
   useGetAllCouponDetailsQuery,
   usePreviewAllCouponDisplayMutation,
-  useApplyCouponMutation,
+  useApplyCouponDisplayMutation,
 } from '@app/services/coupon.api';
 
 interface BookingData {
@@ -35,11 +35,15 @@ export default function PromoSection({
   onApplyCoupon,
 }: PromoSectionProps) {
   // ----- hooks (top-level only) -----
-  const { data: couponDetails = [], isLoading, error } =
-    useGetAllCouponDetailsQuery();
+  const {
+    data: couponDetails = [],
+    isLoading,
+    error,
+  } = useGetAllCouponDetailsQuery();
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [applyCoupon] = useApplyCouponMutation();
-  const [previewAllTrigger, previewResult] = usePreviewAllCouponDisplayMutation();
+  const [applyCoupon] = useApplyCouponDisplayMutation();
+  const [previewAllTrigger, previewResult] =
+    usePreviewAllCouponDisplayMutation();
   const previewData = previewResult?.data;
 
   // ----- trigger preview khi bookingData thay đổi -----
@@ -86,35 +90,47 @@ export default function PromoSection({
     return map;
   }, [previewData]);
 
-  // ----- build displayCoupons: chỉ show coupon có detail áp dụng thành công -----
   const displayCoupons = useMemo(() => {
     if (!Array.isArray(couponDetails)) return [];
+
     return couponDetails
       .map((c: any) => {
         const res = previewMap.get(c.id);
         const lineDiscount = res?.lineDiscount ?? 0;
-        const applied = !!(res && res.applied && res.reason?.includes('Áp dụng thành công'));
-        return { ...c, lineDiscount, previewDetail: res, applied };
+        const applied = !!(
+          res &&
+          res.applied &&
+          res.reason?.includes('Áp dụng thành công')
+        );
+
+        return {
+          ...c,
+          lineDiscount,
+          previewDetail: res,
+          applied,
+          errorMessage: res?.errorMessage ?? null,
+        };
       })
-      .filter((c: any) => c.applied) // chỉ những coupon có detail áp dụng thành công
+      .filter((c: any) => c.applied && c.errorMessage === null)
       .sort((a: any, b: any) => (b.lineDiscount || 0) - (a.lineDiscount || 0));
   }, [couponDetails, previewMap]);
 
-  // ----- auto select best (max lineDiscount) nếu chưa chọn -----
   useEffect(() => {
     if (displayCoupons.length > 0 && selectedId === null) {
-      setSelectedId(displayCoupons[0].id);
+      const bestCoupon = displayCoupons[0];
+      setSelectedId(bestCoupon.id);
+      handleSelect(bestCoupon);
     }
   }, [displayCoupons, selectedId]);
 
-  // ----- handlers -----
-const handleSelect = async (coupon: any) => {
-  if (!bookingData) return;
-  setSelectedId(coupon.id);
-  try {
-    const res = await applyCoupon({
+  const handleSelect = async (coupon: any) => {
+    if (!bookingData) return;
+    setSelectedId(coupon.id);
+
+    const requestData = {
       orderId: 123,
-      couponCode: coupon.code || 'DISPLAY',
+      couponId: coupon.id,
+      couponCode: coupon.code || 'null',
       cart: {
         tickets: bookingData.seats.map(s => ({
           seatTypeId: s.id,
@@ -127,23 +143,19 @@ const handleSelect = async (coupon: any) => {
           unitPrice: c.price,
         })),
       },
-    }).unwrap();
+    };
 
-    // 👉 Gửi dữ liệu dạng thống nhất cho TicketInfo
-    const discountSum =
-      res.previewResult?.detailResults
-        ?.filter((d: any) => d.applied)
-        ?.reduce((sum: number, d: any) => sum + d.lineDiscount, 0) ?? 0;
+    // 👉 In ra console để kiểm tra
+    console.log('🧾 Dữ liệu request gửi đi:', requestData);
 
-    onApplyCoupon({
-      code: coupon.code,
-      discount: discountSum,
-    });
-  } catch (err) {
-    console.error('Lỗi áp dụng coupon:', err);
-  }
-};
+    try {
+      const res = await applyCoupon(requestData).unwrap();
 
+      onApplyCoupon(res);
+    } catch (err) {
+      console.error('Lỗi áp dụng coupon:', err);
+    }
+  };
 
   // ----- loading / error UI -----
   if (isLoading || previewResult.isLoading)
@@ -160,18 +172,18 @@ const handleSelect = async (coupon: any) => {
           const previewResult = c.previewDetail;
           const isGift = c.benefitType === 'FREE_PRODUCT';
           const gifts = c.giftServiceId
-            ? giftsByServiceId.get(c.giftServiceId) ?? []
+            ? (giftsByServiceId.get(c.giftServiceId) ?? [])
             : [];
           const isBestChoice = index === 0 && (c.lineDiscount ?? 0) > 0;
 
           return (
-            <CouponRow key={c.id}>
+            <CouponRow key={c.id} selected={selectedId === c.id}>
               {isBestChoice && <BestChoiceTag>Lựa chọn tốt nhất</BestChoiceTag>}
 
               <LeftPart>
                 <RadioInput
-                  type="radio"
-                  name="coupon"
+                  type='radio'
+                  name='coupon'
                   checked={selectedId === c.id}
                   onChange={() => handleSelect(c)}
                 />
@@ -181,8 +193,8 @@ const handleSelect = async (coupon: any) => {
                       c.imageUrl ||
                       'https://cdn-icons-png.flaticon.com/512/888/888879.png'
                     }
-                    alt="coupon"
-                    loading="lazy"
+                    alt='coupon'
+                    loading='lazy'
                   />
                 </ImageWrapper>
               </LeftPart>
@@ -192,20 +204,20 @@ const handleSelect = async (coupon: any) => {
                   {c.targetType === 'TICKET'
                     ? 'Ưu đãi giá vé'
                     : c.targetType === 'ADDITIONAL_SERVICE'
-                    ? 'Ưu đãi dịch vụ đi kèm'
-                    : c.targetType === 'PRODUCT'
-                    ? 'Ưu đãi sản phẩm'
-                    : 'Ưu đãi khác'}
+                      ? 'Ưu đãi dịch vụ đi kèm'
+                      : c.targetType === 'PRODUCT'
+                        ? 'Ưu đãi sản phẩm'
+                        : 'Ưu đãi khác'}
                 </h4>
 
                 <p>
                   {c.benefitType === 'FREE_PRODUCT'
                     ? 'Tặng sản phẩm'
                     : c.benefitType === 'DISCOUNT_PERCENT'
-                    ? `Giảm ${c.percent}%`
-                    : c.benefitType === 'DISCOUNT_AMOUNT'
-                    ? `Giảm ${c.amount?.toLocaleString() ?? 0}đ`
-                    : 'Ưu đãi đặc biệt'}
+                      ? `Giảm ${c.percent}%`
+                      : c.benefitType === 'DISCOUNT_AMOUNT'
+                        ? `Giảm ${c.amount?.toLocaleString() ?? 0}đ`
+                        : 'Ưu đãi đặc biệt'}
                 </p>
 
                 <small>
@@ -214,23 +226,32 @@ const handleSelect = async (coupon: any) => {
                     ? c.targetType === 'TICKET'
                       ? `${c.limitQuantityApplied} ghế`
                       : c.targetType === 'PRODUCT'
-                      ? `${c.limitQuantityApplied} sản phẩm`
-                      : c.targetType === 'ADDITIONAL_SERVICE'
-                      ? `${c.limitQuantityApplied} dịch vụ`
-                      : `${c.limitQuantityApplied} lần`
+                        ? `${c.limitQuantityApplied} sản phẩm`
+                        : c.targetType === 'ADDITIONAL_SERVICE'
+                          ? `${c.limitQuantityApplied} dịch vụ`
+                          : `${c.limitQuantityApplied} lần`
                     : 'Không giới hạn'}
                 </small>
               </Info>
 
-              {/* right box: gift or discount */}
               {isGift ? (
-                (gifts?.length ?? 0) > 0 ? (
-                  <GiftBox>
-                    🎁 {gifts.map((g: any) => `${g.serviceName} (x${g.quantity})`).join(', ')}
-                  </GiftBox>
+                previewResult?.giftServiceId ? (
+                  (() => {
+                    const matchedGift = gifts.find(
+                      (g: any) => g.serviceId === previewResult.giftServiceId
+                    );
+
+                    return matchedGift ? (
+                      <GiftBox>
+                        {matchedGift.serviceName} (x{matchedGift.quantity})
+                      </GiftBox>
+                    ) : null;
+                  })()
                 ) : null
               ) : previewResult && previewResult.applied ? (
-                <DiscountBox>-{(previewResult.lineDiscount ?? 0).toLocaleString()}đ</DiscountBox>
+                <DiscountBox>
+                  -{(previewResult.lineDiscount ?? 0).toLocaleString()}đ
+                </DiscountBox>
               ) : null}
             </CouponRow>
           );
@@ -254,22 +275,24 @@ const CouponList = styled.div`
   gap: 10px;
 `;
 
-const CouponRow = styled.div`
+const CouponRow = styled.div<{ selected?: boolean }>`
   display: flex;
   position: relative;
   justify-content: space-between;
   align-items: center;
-  background: #f8fafb;
-  border: 1px solid #e0e0e0;
+  background: ${({ selected }) => (selected ? '#e8f1ff' : '#f8fafb')};
+  border: ${({ selected }) =>
+    selected ? '1px solid #007bff' : '1px solid #e0e0e0'};
   border-radius: 10px;
   padding: 10px 14px;
-  transition: 0.2s;
+  transition: all 0.25s ease;
 
   &:hover {
     background: #eef5ff;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
   }
 `;
+
 const LeftPart = styled.div`
   display: flex;
   align-items: center;
@@ -295,15 +318,15 @@ const ImageWrapper = styled.div`
 
 const BestChoiceTag = styled.div`
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 0px;
+  right: 0px;
   background: ${theme.colors.primary};
   color: white;
   font-size: 12px;
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 `;
 
 const RadioInput = styled.input`

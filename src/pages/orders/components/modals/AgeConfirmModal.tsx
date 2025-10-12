@@ -8,7 +8,7 @@ interface AgeConfirmModalProps {
   isOpen: boolean;
   onConfirm: () => void;
   onReject: () => void;
-  age: string; // ví dụ 'T18'
+  age: string;
 }
 
 export const AgeConfirmModal: React.FC<AgeConfirmModalProps> = ({
