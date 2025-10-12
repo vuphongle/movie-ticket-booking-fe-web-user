@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
-import { formatGraphicLabel } from '@utils/functionUtils';
+import { formatGraphicLabel, formatDate } from '@utils/functionUtils';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import {
@@ -29,8 +29,14 @@ interface BookingData {
 
 interface TicketInfoProps {
   bookingData: BookingData | null;
-  appliedCoupons?: { detailId: string; code: string; discount: number }[];
-  onApplyVoucher: (appliedData: any) => void; // callback khi ấn nút "Áp dụng"
+  appliedCoupons?: {
+    detailId: number;
+    type: string;
+    code: string;
+    discount: number;
+    gifts?: any[];
+  }[];
+  onApplyVoucher?: (appliedData: any) => void; // callback khi ấn nút "Áp dụng"
 }
 
 export default function TicketInfo({
@@ -46,8 +52,7 @@ export default function TicketInfo({
   const discountTotal = appliedCoupons.reduce((sum, c) => sum + c.discount, 0);
   const finalTotal = bookingData.total - discountTotal;
 
-  const [previewCoupon, { data: previewData, isLoading }] =
-    usePreviewCouponMutation();
+  const [previewCoupon, { data: previewData }] = usePreviewCouponMutation();
   const [applyCoupon, { isLoading: applying }] = useApplyCouponMutation();
   const { data: couponInfo } = useGetCouponByCodeQuery(code, {
     skip: !code,
@@ -108,6 +113,7 @@ export default function TicketInfo({
 
     const res = await applyCoupon({
       orderId: 123,
+      couponId: detailId || 0,
       couponCode: code,
       cart: {
         tickets: bookingData.seats.map(s => ({
@@ -123,7 +129,7 @@ export default function TicketInfo({
       },
     }).unwrap();
 
-    onApplyVoucher(res);
+    onApplyVoucher?.(res);
   };
 
   return (
@@ -206,62 +212,102 @@ export default function TicketInfo({
           <p>Mô tả: {couponInfo.description}</p>
           <small>
             Thời gian áp dụng:{' '}
-            {new Date(couponInfo.startDate).toLocaleDateString()} -{' '}
-            {new Date(couponInfo.endDate).toLocaleDateString()}
+            {formatDate(new Date(couponInfo.startDate).toLocaleDateString())} -{' '}
+            {formatDate(new Date(couponInfo.endDate).toLocaleDateString())}
           </small>
         </CouponInfoBox>
       )}
 
       {previewData && (
         <PreviewBox>
-          {previewData.detailResults.map((dr, index) => (
-            <PreviewItem key={dr.detailId} applied={dr.applied}>
-              <div>
-                <strong># {index + 1}</strong>
-              </div>
-              <div>
-                <span>
-                  {dr.applied ? `Giảm ${dr.lineDiscount}đ` : dr.reason}
-                </span>
-                {dr.applied && (
-                  <button
-                    onClick={async () => {
-                      if (appliedItems.includes(dr.detailId)) {
-                        // nếu đã áp dụng -> bỏ chọn
-                        setAppliedItems(prev =>
-                          prev.filter(id => id !== dr.detailId)
-                        );
-                        onApplyVoucher({
-                          removedDetailId: dr.detailId,
-                          discount: dr.lineDiscount,
-                        });
-                      } else {
-                        // nếu chưa áp dụng -> áp dụng
-                        const res = await handleApply(dr.detailId);
-                        setAppliedItems(prev => [...prev, dr.detailId]);
-                        onApplyVoucher(res);
-                      }
-                    }}
-                    disabled={applying}
-                  >
-                    {appliedItems.includes(dr.detailId) ? 'Bỏ chọn' : 'Chọn'}
-                  </button>
-                )}
-              </div>
-            </PreviewItem>
-          ))}
+          {previewData.detailResults.map((dr, index) => {
+            const relatedGifts =
+              previewData.gifts?.filter(
+                (g: any) => g.serviceId === dr.giftServiceId
+              ) ?? [];
+
+            return (
+              <PreviewItem key={dr.detailId} applied={dr.applied}>
+                <div>
+                  <strong># {index + 1}</strong>
+                </div>
+                <div>
+                  {dr.applied ? (
+                    <>
+                      {dr.lineDiscount > 0 && (
+                        <span>Giảm {dr.lineDiscount.toLocaleString()}đ</span>
+                      )}
+
+                      {relatedGifts.length > 0 && (
+                        <GiftBox>
+                          🎁{' '}
+                          {relatedGifts
+                            .map(
+                              (g: any) => `${g.serviceName} (x${g.quantity})`
+                            )
+                            .join(', ')}
+                        </GiftBox>
+                      )}
+                    </>
+                  ) : (
+                    <span>{dr.reason}</span>
+                  )}
+
+                  {dr.applied && (
+                    <button
+                      onClick={async () => {
+                        if (appliedItems.includes(dr.detailId)) {
+                          // nếu đã áp dụng -> bỏ chọn
+                          setAppliedItems(prev =>
+                            prev.filter(id => id !== dr.detailId)
+                          );
+                          onApplyVoucher?.({
+                            removedDetailId: dr.detailId,
+                            discount: dr.lineDiscount,
+                          });
+                        } else {
+                          // nếu chưa áp dụng -> áp dụng
+                          const res = await handleApply(dr.detailId);
+                          setAppliedItems(prev => [...prev, dr.detailId]);
+                          onApplyVoucher?.(res);
+                        }
+                      }}
+                      disabled={applying}
+                    >
+                      {appliedItems.includes(dr.detailId) ? 'Bỏ chọn' : 'Chọn'}
+                    </button>
+                  )}
+                </div>
+              </PreviewItem>
+            );
+          })}
         </PreviewBox>
       )}
 
-      {/* Khuyến mãi */}
       <SectionTitle>Khuyến mãi</SectionTitle>
       {appliedCoupons.length === 0 ? (
         <PromoNotice>Hiện tại chưa áp dụng voucher nào.</PromoNotice>
       ) : (
         appliedCoupons.map((c, idx) => (
           <PromoItem key={idx}>
-            <span>{c.code}</span>
-            <span>-{c.discount.toLocaleString()} đ</span>
+            <PromoLeft>
+              <PromoLabel>
+                {c.type === 'voucher' ? 'Voucher' : 'Khuyến mãi'}
+              </PromoLabel>
+              <PromoCode title={c.code}>
+                {c.code?.split('_').pop() ?? ''}
+              </PromoCode>
+            </PromoLeft>
+            {c.gifts && c.gifts.length > 0 ? (
+              <GiftBox>
+                <Thumbnail src={c.gifts[0].thumbnail} alt={c.gifts[0].name} />{' '}
+                {c.gifts
+                  .map((g: any) => `${g.serviceName} (x${g.quantity})`)
+                  .join(', ')}
+              </GiftBox>
+            ) : (
+              <PromoDiscount>-{c.discount.toLocaleString()} đ</PromoDiscount>
+            )}
           </PromoItem>
         ))
       )}
@@ -270,7 +316,9 @@ export default function TicketInfo({
 
       <Total style={{ marginBottom: '5px' }}>
         <span style={{ color: theme.colors.primary }}>Giảm giá</span>
-        <span style={{ color: theme.colors.primary }}>-{discountTotal.toLocaleString()} đ</span>
+        <span style={{ color: theme.colors.primary }}>
+          -{discountTotal.toLocaleString()} đ
+        </span>
       </Total>
       <Total>
         <span>Thanh Toán</span>
@@ -571,32 +619,84 @@ const PreviewItem = styled.div<{ applied: boolean }>`
 const PromoItem = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 10px 12px;
   margin-bottom: 8px;
-  border-radius: 8px;
-  background: #fffde7;       // nền vàng nhạt, nổi bật nhưng nhẹ nhàng
-  border: 1px solid #fff59d; // viền vàng nhạt hơn
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  border-radius: 10px;
+  background: #f4f8ff;
+  border: 1px solid #d6e4ff; 
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   font-size: 14px;
   font-weight: 500;
-  color: #333;
-  transition: all 0.2s;
+  color: #1e293b; /* xám đậm, dễ đọc */
+  transition: all 0.25s ease;
 
   &:hover {
-    background: #fff9c4;      // hover nhạt hơn
-    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    background: #e8f1ff; /* hover sáng hơn nhẹ */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     transform: translateY(-1px);
   }
 
   span {
     &:first-child {
-      font-weight: 600;       // code voucher nổi bật
-      color: #f57f17;
+      font-weight: 600;
+      color: #0d47a1; /* xanh đậm – code voucher */
     }
     &:last-child {
-      color: #e53935;        // giá trị giảm nổi bật
+      color: #007e33; /* xanh lá đậm – số tiền giảm */
       font-weight: 600;
     }
   }
 `;
 
+const PromoLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+`;
+
+const PromoLabel = styled.span`
+  background: #d0e8ff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+`;
+
+const PromoCode = styled.span`
+  color: #1e293b;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
+`;
+
+const PromoDiscount = styled.span`
+  color: #007e33;
+  font-weight: 600;
+`;
+
+const GiftBox = styled.div`
+  font-size: 13px;
+  color: #e65100;
+  font-weight: 600;
+  background: #fff3e0;
+  border: 1px solid #ffcc80;
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: inline-block;
+  max-width: 200px;
+  text-align: right;
+`;
+const Thumbnail = styled.img`
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-right: 6px;
+`;

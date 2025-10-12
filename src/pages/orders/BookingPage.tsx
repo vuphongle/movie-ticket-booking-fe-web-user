@@ -264,7 +264,7 @@ export default function BookingPage() {
 
         // bắt đầu timer nếu đây là ghế đầu tiên
         if (selectedSeats.length === 0) {
-          startTimer(80*60);
+          startTimer(8 * 60);
         }
       }
     } catch (err) {

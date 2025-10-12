@@ -1,9 +1,9 @@
-// BookingConfirmModal.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import ModalBase from '@components/base/ModalBase';
 import TicketInfo from '../TicketInfo';
 import { theme } from '@theme/Theme';
+import { useTranslation } from 'react-i18next';
 
 interface BookingConfirmModalProps {
   isOpen: boolean;
@@ -18,12 +18,11 @@ const BookingConfirmModal: React.FC<BookingConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { t } = useTranslation();
   const [isAgreed, setIsAgreed] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      setIsAgreed(false);
-    }
+    if (isOpen) setIsAgreed(false);
   }, [isOpen]);
 
   if (!bookingData) return null;
@@ -36,10 +35,8 @@ const BookingConfirmModal: React.FC<BookingConfirmModalProps> = ({
       hideCloseButton={false}
     >
       <ModalContent>
-        <Title>Xác nhận thông tin vé</Title>
-        <Description>
-          Vui lòng kiểm tra kỹ thông tin vé trước khi tiếp tục thanh toán.
-        </Description>
+        <Title>{t('BOOKING_CONFIRM_TITLE')}</Title>
+        <Description>{t('BOOKING_CONFIRM_DESCRIPTION')}</Description>
 
         <TicketWrapper>
           <TicketInfo
@@ -55,25 +52,20 @@ const BookingConfirmModal: React.FC<BookingConfirmModalProps> = ({
               checked={isAgreed}
               onChange={e => setIsAgreed(e.target.checked)}
             />
-            <span>
-              Tôi xác nhận các thông tin đặt vé đã chính xác và đồng ý với{' '}
-              <a href='/terms' target='_blank'>
-                Điều khoản dịch vụ
-              </a>
-              ,{' '}
-              <a href='/privacy' target='_blank'>
-                Chính sách bảo mật
-              </a>{' '}
-              &amp;{' '}
-              của Go Cinema.
-            </span>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t('BOOKING_CONFIRM_AGREEMENT_HTML'),
+              }}
+            />
           </label>
         </Agreement>
 
         <Footer>
-          <CancelButton onClick={onCancel}>Quay lại</CancelButton>
+          <CancelButton onClick={onCancel}>
+            {t('BOOKING_CONFIRM_CANCEL')}
+          </CancelButton>
           <ConfirmButton onClick={onConfirm} disabled={!isAgreed}>
-            Xác nhận & Thanh toán
+            {t('BOOKING_CONFIRM_CONFIRM')}
           </ConfirmButton>
         </Footer>
       </ModalContent>

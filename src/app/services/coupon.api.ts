@@ -25,6 +25,7 @@ export interface CouponPreviewResponse {
     detailId: number;
     applied: boolean;
     reason: string;
+    giftServiceId: number | null;
     lineDiscount: number;
     affectedQuantity: number;
   }[];
@@ -34,6 +35,14 @@ export interface CouponPreviewResponse {
 // Request cho apply
 export interface CouponApplyRequest {
   orderId: number;
+  couponId: number;
+  couponCode: string;
+  cart: CouponPreviewRequest;
+}
+
+export interface CouponApplyRequestDisplay {
+  orderId: number;
+  couponId: number;
   couponCode: string;
   cart: CouponPreviewRequest;
 }
@@ -122,6 +131,16 @@ export const couponApi = createApi({
         body,
       }),
     }),
+    applyCouponDisplay: builder.mutation<
+      CouponApplyResponse,
+      CouponApplyRequestDisplay
+    >({
+      query: body => ({
+        url: 'coupons/apply-display',
+        method: 'POST',
+        body,
+      }),
+    }),
     getAllCouponDetails: builder.query<CouponDetailDto[], void>({
       query: () => 'coupon-details',
     }),
@@ -134,5 +153,6 @@ export const {
   usePreviewCouponMutation,
   usePreviewAllCouponDisplayMutation,
   useApplyCouponMutation,
+  useApplyCouponDisplayMutation,
   useGetAllCouponDetailsQuery,
 } = couponApi;

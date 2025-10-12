@@ -43,6 +43,16 @@ const booking = {
   BOOKING_SELECT_ADDITIONAL: 'Select Additional Services',
   BOOKING_SELECT_ADDITIONAL_SUB:
     'You can choose snacks and drinks to enjoy during the movie',
+
+  BOOKING_CONFIRM_TITLE: 'Confirm Ticket Information',
+  BOOKING_CONFIRM_DESCRIPTION: 'Please review your ticket details carefully before proceeding to payment.',
+  BOOKING_CONFIRM_AGREEMENT_HTML: 'I confirm that my booking information is correct and agree to the <a href=\'/terms\' target=\'_blank\'>Terms of Service</a>, <a href=\'/privacy\' target=\'_blank\'>Privacy Policy</a> &amp; of Go Cinema.',
+  BOOKING_CONFIRM_CANCEL: 'Go Back',
+  BOOKING_CONFIRM_CONFIRM: 'Confirm & Pay',
+
+  BOOKING_ADDITIONAL_TITLE: 'Chọn dịch vụ bổ sung',
+  BOOKING_ADDITIONAL_SUB: 'Vui lòng chọn combo thức ăn, nước uống nếu bạn muốn thêm vào vé của mình.',
+
 };
 
 export default booking;

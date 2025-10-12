@@ -1,3 +1,4 @@
+// BookingAdditionalServicePage.tsx
 import { useState, useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -34,7 +35,6 @@ export default function BookingAdditionalServicePage() {
   const { timer, expireAt } = useBookingTimer({
     autoCancel: true,
     onExpire: () => {
-      // Có thể gọi API hủy giữ ghế
       bookingData.seats.forEach((seat: any) => {
         cancelSeat({
           seatId: seat.id,
@@ -109,8 +109,8 @@ export default function BookingAdditionalServicePage() {
     <Page>
       <Main>
         <Header>
-          <h2>{t('BOOKING_SELECT_ADDITIONAL')}</h2>
-          <p>{t('BOOKING_SELECT_ADDITIONAL_SUB')}</p>
+          <h2>{t('BOOKING_ADDITIONAL_TITLE')}</h2>
+          <p>{t('BOOKING_ADDITIONAL_SUB')}</p>
         </Header>
 
         <Card>
@@ -200,7 +200,9 @@ export default function BookingAdditionalServicePage() {
             <span>{total.toLocaleString()} đ</span>
           </Total>
           <Actions>
-            <GhostButton onClick={handleBack}>{t('BOOKING_BACK')}</GhostButton>
+            <GhostButton onClick={handleBack}>
+              {t('BOOKING_BACK')}
+            </GhostButton>
             <PrimaryButton
               onClick={() =>
                 navigate('/booking/confirm', {
@@ -229,7 +231,7 @@ export default function BookingAdditionalServicePage() {
   );
 }
 
-/* styled giống BookingPage */
+/* ==== styled giống BookingPage ==== */
 const Page = styled.div`
   max-width: 1200px;
   margin: 24px auto;
@@ -288,16 +290,16 @@ const ComboItem = styled.div`
 const ComboInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px; /* Khoảng cách thumbnail và text đều nhau */
-  flex: 1; /* Đảm bảo chiếm hết khoảng trống còn lại */
+  gap: 12px;
+  flex: 1;
 `;
 
 const Thumbnail = styled.img`
-  width: 56px; /* tăng kích thước cho dễ nhìn */
+  width: 56px;
   height: 56px;
   border-radius: 10px;
   object-fit: cover;
-  flex-shrink: 0; /* Giữ kích thước cố định */
+  flex-shrink: 0;
 `;
 
 const ComboName = styled.div`
