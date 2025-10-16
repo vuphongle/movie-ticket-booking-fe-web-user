@@ -12,12 +12,33 @@ export interface ServiceItem {
   price: number;
 }
 
+export interface CouponGift {
+  serviceId: number;
+  serviceName: string;
+  quantity: number;
+  thumbnail?: string;
+}
+
+export interface CouponItem {
+  detailId: number;
+  code: string;
+  discount: number;
+  type: string;
+  gifts?: CouponGift[];
+}
+
+export interface DiscountsInfo {
+  totalDiscount: number;
+  coupons: CouponItem[];
+}
+
 export interface CreateOrderRequest {
   showtimeId: number;
   ticketItems: TicketItem[];
   serviceItems?: ServiceItem[];
-  couponCode?: string;
+  discounts?: DiscountsInfo;
   paymentMethod?: string;
+  expireSeconds?: number;
 }
 
 export interface PaymentResponse {

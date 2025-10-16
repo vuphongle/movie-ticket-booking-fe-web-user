@@ -349,7 +349,7 @@ export default function BookingPage() {
                               onClick={() => toggleSeat(seat)}
                               title={`${seat.row}${seat.number} • ${seat.price.toLocaleString()}đ`}
                             >
-                              {seat.number}
+                              {`${row}${seat.number}`}
                             </SeatButton>
                           );
                         })}
@@ -370,13 +370,13 @@ export default function BookingPage() {
                   </LegendItem>
                 </LegendGroupLeft>
                 <LegendGroupRight>
-                  <LegendItem $color={theme.colors.gray}>
+                  <LegendItem $color={'radial-gradient(circle at center, #d8c4ff 0%, #b49aff 100%)'} $filled>
                     {t('BOOKING_SEAT_NORMAL')}
                   </LegendItem>
-                  <LegendItem $color={theme.colors.gold}>
+                  <LegendItem $color={'radial-gradient(circle at center, #fff8e1 0%, #ffecb3 100%)'} $filled>
                     {t('BOOKING_SEAT_VIP')}
                   </LegendItem>
-                  <LegendItem $color={'#ff66b2'} $filled>
+                  <LegendItem $color={'radial-gradient(circle at center, #f6b8e3 0%, #ec7dcc 100%)'} $filled>
                     {t('BOOKING_SEAT_COUPLE')}
                   </LegendItem>
                 </LegendGroupRight>
@@ -636,7 +636,7 @@ const LegendItem = styled.span<{ $color: string; $filled?: boolean }>`
 
 const SeatMap = styled.div`
   display: grid;
-  gap: ${theme.spacing.sm};
+  gap: ${theme.spacing.xs};
 `;
 const Row = styled.div`
   display: grid;
@@ -650,8 +650,9 @@ const RowLabel = styled.span`
 const RowGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0px, max-content));
-  gap: 5px;
+  gap: 4px;
   justify-content: center;
+  margin-right: 32px;
 `;
 
 const seatBase = css<{
@@ -661,8 +662,10 @@ const seatBase = css<{
   border-radius: ${theme.borderRadius.small};
   border: 1px solid ${theme.colors.border};
   background: ${theme.colors.white};
-  color: ${theme.colors.textPrimary};
+  color: #555;
   font-weight: 600;
+  text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.2);
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -689,16 +692,25 @@ const SeatButton = styled.button<{
   ${seatBase};
 
   ${({ $type }) =>
+    $type === 'normal' &&
+    css`
+      color: ${theme.colors.textPrimary};
+      background: radial-gradient(circle at center, #d8c4ff 0%, #b49aff 100%);
+      border-color: #bbb;
+    `}
+
+  ${({ $type }) =>
     $type === 'vip' &&
     css`
       border-color: ${theme.colors.gold};
       box-shadow: inset 0 0 0 1px rgba(255, 215, 0, 0.35);
+      background: radial-gradient(circle at center, #fff8e1 0%, #ffecb3 100%);
     `}
 
   ${({ $type }) =>
     $type === 'couple' &&
     css`
-      background: #ff99cc;
+      background: radial-gradient(circle at center, #f6b8e3 0%, #ec7dcc 100%);
       border-color: #ff66b2;
       grid-column: span 2;
       width: 100%;

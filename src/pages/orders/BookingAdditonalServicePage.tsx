@@ -30,6 +30,7 @@ export default function BookingAdditionalServicePage() {
     {}
   );
 
+  const [activeTab, setActiveTab] = useState<'COMBO' | 'SINGLE'>('COMBO');
   const [cancelSeat] = useCancelSeatMutation();
 
   const { timer, expireAt } = useBookingTimer({
@@ -62,44 +63,71 @@ export default function BookingAdditionalServicePage() {
   const combos = useMemo(
     () =>
       comboDtos
-        .filter((c: any) => c.status)
-        .map((c: any) => ({
+        .filter(c => c.status && c.type === 'COMBO')
+        .map(c => ({
           id: c.id,
           name: c.name,
-          price: c.price,
           thumbnail: c.thumbnail,
           description: c.description,
         })),
     [comboDtos]
   );
 
-  const selectedComboList = useMemo(
+  const displayedItems = useMemo(() => {
+    if (activeTab === 'COMBO') {
+      return combos;
+    } else {
+      return comboDtos
+        .filter(c => c.status && c.type === 'SINGLE')
+        .map(c => ({
+          id: c.id,
+          name: c.name,
+          thumbnail: c.thumbnail,
+          description: c.description,
+        }));
+    }
+  }, [activeTab, combos, comboDtos]);
+
+  const selectedItemList = useMemo(
     () =>
       Object.entries(selectedCombos)
         .filter(([_, qty]) => qty > 0)
         .map(([id, qty]) => {
-          const combo = combos.find(c => c.id === Number(id));
-          return combo ? { ...combo, qty } : null;
+          const item =
+            combos.find(c => c.id === Number(id)) ||
+            comboDtos.find(c => c.id === Number(id));
+          return item ? { ...item, qty } : null;
         })
         .filter(Boolean),
-    [selectedCombos, combos]
+    [selectedCombos, combos, comboDtos]
   );
 
-  const comboTotal = selectedComboList.reduce((s, c: any) => {
+  const itemTotal = selectedItemList.reduce((s, c: any) => {
     const price = prices[c.id];
     if (price === undefined || price === -1) return s;
     return s + price * c.qty;
   }, 0);
 
-  const total = (bookingData?.seatTotal || 0) + comboTotal;
+  const total = (bookingData?.seatTotal || 0) + itemTotal;
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('bookingPageState');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.combos) {
+        const comboMap: Record<number, number> = {};
+        parsed.combos.forEach((c: any) => {
+          comboMap[c.id] = c.qty;
+        });
+        setSelectedCombos(comboMap);
+      }
+    }
+  }, []);
 
   const handleBack = () => {
     sessionStorage.setItem(
       'bookingPageState',
-      JSON.stringify({
-        seats: bookingData.seats,
-        expireAt,
-      })
+      JSON.stringify({ seats: bookingData.seats, expireAt })
     );
     sessionStorage.setItem('navigatingToBack', 'true');
     navigate(-1);
@@ -117,19 +145,39 @@ export default function BookingAdditionalServicePage() {
           <SectionTitle>{t('BOOKING_SELECT_COMBO')}</SectionTitle>
           {isLoadingCombos && <InfoLine>{t('BOOKING_LOADING_COMBO')}</InfoLine>}
           {isErrorCombos && <InfoLine>{t('BOOKING_ERROR_COMBO')}</InfoLine>}
+
+          {/* === TAB HEADER === */}
+          <TabHeader>
+            <TabButton
+              active={activeTab === 'COMBO'}
+              onClick={() => setActiveTab('COMBO')}
+            >
+              {t('COMBO')}
+            </TabButton>
+            <TabButton
+              active={activeTab === 'SINGLE'}
+              onClick={() => setActiveTab('SINGLE')}
+            >
+              {t('SINGLE_PRODUCT')}
+            </TabButton>
+          </TabHeader>
+
+          {/* === TAB CONTENT === */}
           <ComboList>
-            {combos.map(combo => (
-              <ComboItem key={combo.id}>
+            {displayedItems.map(item => (
+              <ComboItem key={item.id}>
                 <ComboInfo>
-                  <Thumbnail src={combo.thumbnail} alt={combo.name} />
+                  <Thumbnail src={item.thumbnail} alt={item.name} />
                   <div>
                     <ComboName>
-                      {combo.name}{' '}
-                      <span className='desc'>({combo.description})</span>
+                      {item.name}{' '}
+                      {item.description && (
+                        <span className='desc'>({item.description})</span>
+                      )}
                     </ComboName>
                     <ComboPrice>
-                      {prices[combo.id] !== undefined && prices[combo.id] !== -1
-                        ? `${prices[combo.id].toLocaleString()} đ`
+                      {prices[item.id] !== undefined && prices[item.id] !== -1
+                        ? `${prices[item.id].toLocaleString()} đ`
                         : '...'}
                     </ComboPrice>
                   </div>
@@ -137,9 +185,9 @@ export default function BookingAdditionalServicePage() {
                 <QtyInput
                   type='number'
                   min={0}
-                  value={selectedCombos[combo.id] || 0}
+                  value={selectedCombos[item.id] || 0}
                   onChange={e =>
-                    handleComboChange(combo.id, Number(e.target.value))
+                    handleComboChange(item.id, Number(e.target.value))
                   }
                 />
               </ComboItem>
@@ -185,9 +233,9 @@ export default function BookingAdditionalServicePage() {
                 fontSize: '14px',
               }}
             >
-              {selectedComboList.length
+              {selectedItemList.length
                 ? '\n' +
-                  selectedComboList
+                  selectedItemList
                     .filter((c): c is NonNullable<typeof c> => c !== null)
                     .map(c => `• ${c.name} x${c.qty}`)
                     .join('\n')
@@ -200,9 +248,7 @@ export default function BookingAdditionalServicePage() {
             <span>{total.toLocaleString()} đ</span>
           </Total>
           <Actions>
-            <GhostButton onClick={handleBack}>
-              {t('BOOKING_BACK')}
-            </GhostButton>
+            <GhostButton onClick={handleBack}>{t('BOOKING_BACK')}</GhostButton>
             <PrimaryButton
               onClick={() =>
                 navigate('/booking/confirm', {
@@ -210,12 +256,9 @@ export default function BookingAdditionalServicePage() {
                     expireAt,
                     bookingData: {
                       ...bookingData,
-                      combos: selectedComboList
+                      combos: selectedItemList
                         .filter((c): c is NonNullable<typeof c> => c !== null)
-                        .map(c => ({
-                          ...c,
-                          price: prices[c.id] ?? -1,
-                        })),
+                        .map(c => ({ ...c, price: prices[c.id] ?? -1 })),
                       total,
                     },
                   },
@@ -277,6 +320,7 @@ const ComboList = styled.div`
   display: grid;
   gap: ${theme.spacing.sm};
 `;
+
 const ComboItem = styled.div`
   display: flex;
   align-items: center;
@@ -345,10 +389,12 @@ const Divider = styled.hr`
 const SummaryCard = styled(Card)`
   padding: ${theme.spacing.lg};
 `;
+
 const SummaryTitle = styled.h3`
   margin: 0 0 ${theme.spacing.sm};
   color: ${theme.colors.textPrimary};
 `;
+
 const SummaryLine = styled.p`
   margin: 6px 0;
   color: ${theme.colors.textSecondary};
@@ -397,6 +443,7 @@ const PrimaryButton = styled.button`
     transform: translateY(1px);
   }
 `;
+
 const GhostButton = styled.button`
   padding: 12px 16px;
   border-radius: ${theme.borderRadius.medium};
@@ -416,7 +463,27 @@ const GhostButton = styled.button`
     transform: translateY(1px);
   }
 `;
+
 const InfoLine = styled.p`
   color: ${theme.colors.textSecondary};
   margin: 0 0 ${theme.spacing.md};
+`;
+
+const TabHeader = styled.div`
+  display: flex;
+  gap: ${theme.spacing.sm};
+  margin-bottom: ${theme.spacing.md};
+`;
+
+const TabButton = styled.button<{ active: boolean }>`
+  padding: 8px 12px;
+  border-radius: ${theme.borderRadius.small};
+  border: 1px solid
+    ${({ active }) => (active ? theme.colors.primary : theme.colors.border)};
+  background: ${({ active }) =>
+    active ? theme.colors.primaryHoverGradient : theme.colors.white};
+  color: ${({ active }) =>
+    active ? theme.colors.white : theme.colors.textSecondary};
+  font-weight: 600;
+  cursor: pointer;
 `;
