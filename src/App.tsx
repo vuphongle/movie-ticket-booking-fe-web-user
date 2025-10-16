@@ -12,6 +12,7 @@ import ContentWrapper from '@components/base/ContentWrapper';
 import ResetPasswordPage from '@pages/verify/ResetPassword';
 import ComingSoon from '@pages/movies/MovieComingSoonPage';
 import NowShowing from '@pages/movies/MovieNowShowingPage';
+import SearchResults from '@pages/movies/SearchResults';
 import MovieDetailPage from './pages/movies/MovieDetailPage';
 import BlogPage from '@pages/blogs/BlogPage';
 import ReviewPage from '@pages/reviews/ReviewPage';
@@ -22,6 +23,7 @@ import PaymentResultPage from '@pages/orders/PaymentResultPage';
 
 import AppToastContainer from '@components/base/AppToastContainer';
 import ChatWidget from '@components/chat/ChatWidget';
+import CinemaPage from '@pages/cinema/Cinemapage';
 // import { useGlobalBookingTimer } from '@hooks/useGlobalBookingTimer';
 
 function App() {
@@ -46,12 +48,14 @@ function App() {
               <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />
               <Route path='/dat-lai-mat-khau' element={<ResetPasswordPage />} />
               <Route path='/profile' element={<ProfilePage />} />
+              <Route path="/search" element={<SearchResults />} />
 
               <Route path='/movies/now-showing' element={<NowShowing />} />
               <Route path='/movies/coming-soon' element={<ComingSoon />} />
               <Route path='/movies/:id/:slug' element={<MovieDetailPage />} />
               <Route path='/blogs' element={<BlogPage />} />
               <Route path='/reviews' element={<ReviewPage />} />
+              <Route path='/cinemas' element={<CinemaPage />} />
               <Route
                 path='/booking/:slug/:showtimeId'
                 element={<BookingPage />}

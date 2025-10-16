@@ -12,6 +12,7 @@ import { BookingMovieInfo } from './components/BookingMovieInfo';
 import TimerBar from './components/TimerBar';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
 import { useCancelSeatMutation } from '@/app/services/reservation.api';
+import GlobalLoading from '@components/loading/GlobalLoading';
 
 export default function BookingAdditionalServicePage() {
   const { t } = useTranslation();
@@ -132,6 +133,10 @@ export default function BookingAdditionalServicePage() {
     sessionStorage.setItem('navigatingToBack', 'true');
     navigate(-1);
   };
+
+  if (isLoadingCombos) {
+    return <GlobalLoading />;
+  }
 
   return (
     <Page>

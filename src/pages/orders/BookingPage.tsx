@@ -18,6 +18,7 @@ import { HeldSeatModal } from './components/modals/HeldSeatModal';
 import { SelectSeatModal } from './components/modals/SelectSeatModal';
 import { AgeConfirmModal } from './components/modals/AgeConfirmModal';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
+import GlobalLoading from '@components/loading/GlobalLoading';
 
 /** ---- UI types ---- */
 type SeatType = 'normal' | 'vip' | 'couple';
@@ -316,7 +317,7 @@ export default function BookingPage() {
           )}
           <Screen>{t('BOOKING_SCREEN')}</Screen>
 
-          {isLoading && <InfoLine>{t('BOOKING_LOADING_SEAT')}</InfoLine>}
+          {isLoading && <GlobalLoading/>}
           {isError && <InfoLine>{t('BOOKING_ERROR_SEAT')}</InfoLine>}
 
           {!isLoading && !isError && (

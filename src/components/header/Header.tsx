@@ -28,6 +28,12 @@ export default function Header() {
     (state: RootState) => state.auth
   );
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const handleSearch = () => {
+    if (!searchTerm.trim()) return;
+    navigate(`/search?keyword=${encodeURIComponent(searchTerm.trim())}`);
+  };
+
   const { isLoginOpen, openLogin, closeLogin } = useLoginModal();
 
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -98,12 +104,18 @@ export default function Header() {
                     <Logo src={LogoImg} alt='GoCinema' />
                   </Link>
                 </LogoArea>
-                
+
                 <SearchBox>
                   <SearchInput
                     placeholder={t('SEARCH_PLACEHOLDER') || 'Tìm phim, rạp'}
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
                   />
-                  <SearchIcon />
+                  <SearchIcon
+                    onClick={handleSearch}
+                    style={{ cursor: 'pointer' }}
+                  />
                 </SearchBox>
               </LeftGroup>
 
@@ -134,13 +146,23 @@ export default function Header() {
                     </MenuItem>
                     {hoveredMenu === 'movies' && (
                       <SubMenu>
-                        <SubMenuItem onClick={() => navigate('/movies/now-showing')}>{t('NAV_MOVIES_NOW_SHOWING')}</SubMenuItem>
-                        <SubMenuItem onClick={() => navigate('/movies/coming-soon')}>{t('NAV_MOVIES_COMING_SOON')}</SubMenuItem>
+                        <SubMenuItem
+                          onClick={() => navigate('/movies/now-showing')}
+                        >
+                          {t('NAV_MOVIES_NOW_SHOWING')}
+                        </SubMenuItem>
+                        <SubMenuItem
+                          onClick={() => navigate('/movies/coming-soon')}
+                        >
+                          {t('NAV_MOVIES_COMING_SOON')}
+                        </SubMenuItem>
                       </SubMenu>
                     )}
                   </MenuItemWrapper>
 
-                  <MenuItem>{t('NAV_CINEMAS')}</MenuItem>
+                  <MenuItem onClick={() => navigate('/cinemas')}>
+                    {t('NAV_CINEMAS')}
+                  </MenuItem>
                   <MenuItem>{t('NAV_PROMOTIONS')}</MenuItem>
 
                   <MenuItemWrapper
@@ -157,8 +179,12 @@ export default function Header() {
                     </MenuItem>
                     {hoveredMenu === 'cinema_corner' && (
                       <SubMenu>
-                        <SubMenuItem onClick={() => navigate('/blogs')}>{t('NAV_BLOG_MOVIES')}</SubMenuItem>
-                        <SubMenuItem onClick={() => navigate('/reviews')}>{t('NAV_REVIEWS_MOVIES')}</SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/blogs')}>
+                          {t('NAV_BLOG_MOVIES')}
+                        </SubMenuItem>
+                        <SubMenuItem onClick={() => navigate('/reviews')}>
+                          {t('NAV_REVIEWS_MOVIES')}
+                        </SubMenuItem>
                         <SubMenuItem>{t('NAV_ACTORS_DIRECTORS')}</SubMenuItem>
                       </SubMenu>
                     )}
@@ -339,9 +365,17 @@ const SearchBox = styled.div`
   background: ${theme.colors.backgroundHover};
   border-radius: ${theme.borderRadius.large};
   padding: ${theme.spacing.sm} ${theme.spacing.md};
-  max-width: 200px;
+  max-width: 250px;
   flex: 1 1 auto;
   min-width: 0;
+  border: 2px solid rgba(0, 120, 200, 0.4);
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #3b82f6; /* xanh đậm nổi bật hơn */
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    background: #daf0fc; /* xanh nhạt hơn khi hover */
+  }
 
   @media (max-width: 768px) {
     max-width: 180px;
@@ -356,7 +390,12 @@ const SearchInput = styled.input`
   flex: 1 1 auto;
   min-width: 0;
   font-size: ${theme.fontSize.sm};
-  width: 100%;
+  color: #0f172a;
+
+  &::placeholder {
+    color: #4b5563;
+    opacity: 0.8;
+  }
 `;
 
 const SearchIcon = styled(Search)`

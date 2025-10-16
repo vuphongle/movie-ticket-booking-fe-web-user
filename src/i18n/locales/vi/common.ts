@@ -92,7 +92,10 @@ const common = {
   MESSAGES_LOGOUT_SUCCESS: 'Đăng xuất thành công',
 
   // SEARCH
-  SEARCH_PLACEHOLDER: 'Tìm kiếm phim hoặc rạp',
+  SEARCH_PLACEHOLDER: 'Tìm kiếm phim',
+  SEARCH_RESULTS_FOR: 'Kết quả tìm kiếm cho',
+  SEARCH_NO_QUERY: 'Vui lòng nhập từ khóa tìm kiếm.',
+  SEARCH_NO_RESULT: 'Không tìm thấy phim nào khớp.',
 
   // REGISTER
   REGISTER_TITLE: 'Đăng ký Tài khoản',

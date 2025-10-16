@@ -1,6 +1,13 @@
 import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+export interface Cinema {
+  id: number;
+  name: string;
+  address: string;
+  mapLocation: string;
+}
+
 export const cineApi = createApi({
   reducerPath: 'cineApi',
   baseQuery: fetchBaseQuery({
@@ -26,7 +33,15 @@ export const cineApi = createApi({
     getAllCities: builder.query<string[], void>({
       query: () => `/cinemas/getAllCities`,
     }),
+    getAllCinemas: builder.query<Cinema[], void>({ 
+      query: () => `/cinemas`,
+    }),
+    getAuditoriumsByCinemaId: builder.query<any[], { cinemaId: string }>({ // tùy chỉnh interface nếu có
+      query: ({ cinemaId }) => `/cinemas/${cinemaId}/auditoriums`,
+    }),
+    getCinemaById: builder.query<Cinema, { cinemaId: string }>({      query: ({ cinemaId }) => `/cinemas/${cinemaId}`,
+    }),
   }),
 });
 
-export const { useGetAllCinemaNamesQuery, useGetAllCitiesQuery } = cineApi;
+export const { useGetAllCinemaNamesQuery, useGetAllCitiesQuery, useGetAllCinemasQuery, useGetAuditoriumsByCinemaIdQuery, useGetCinemaByIdQuery } = cineApi;
