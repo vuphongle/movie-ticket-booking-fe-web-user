@@ -95,7 +95,11 @@ export const movieApi = createApi({
       query: ({ id, slug }) => `/movies/${id}/${slug}`,
     }),
     getMovieByShowtime: builder.query<Movie, number>({
-      query: (id) => `/movie-by-showtimeId/${id}`,
+      query: id => `/movie-by-showtimeId/${id}`,
+    }),
+    searchMovies: builder.query({
+      query: (keyword: string) =>
+        `/movies/search?keyword=${encodeURIComponent(keyword)}`,
     }),
   }),
 });
@@ -105,4 +109,5 @@ export const {
   useGetComingSoonMoviesQuery,
   useGetMovieDetailQuery,
   useGetMovieByShowtimeQuery,
+  useSearchMoviesQuery,
 } = movieApi;

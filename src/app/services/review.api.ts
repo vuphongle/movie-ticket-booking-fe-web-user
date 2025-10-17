@@ -1,4 +1,4 @@
-import { API_DOMAIN_PUBLIC } from '@lib/api';
+import { API_DOMAIN_PUBLIC, API_DOMAIN } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export interface UserDto {
@@ -37,31 +37,34 @@ export interface Page<T> {
 export const reviewApi = createApi({
   reducerPath: 'reviewApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: API_DOMAIN_PUBLIC,
+    baseUrl: API_DOMAIN, // private API
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) headers.set('Authorization', `Bearer ${token}`);
       return headers;
     },
-    responseHandler: async response => {
-      const text = await response.text();
-      try {
-        return JSON.parse(text);
-      } catch {
-        return {};
-      }
-    },
   }),
   endpoints: builder => ({
-    getAllReviews: builder.query<Page<ReviewDto>, { page?: number; limit?: number }>({
+    getAllReviews: builder.query<
+      Page<ReviewDto>,
+      { page?: number; limit?: number }
+    >({
       query: ({ page = 1, limit = 6 }) => {
         const params = new URLSearchParams();
         params.append('page', page.toString());
         params.append('limit', limit.toString());
-        return `/reviews?${params.toString()}`;
+        return `${API_DOMAIN_PUBLIC}/reviews?${params.toString()}`;
       },
+    }),
+
+    createReview: builder.mutation<ReviewDto, FormData>({
+      query: formData => ({
+        url: '/api/reviews',
+        method: 'POST',
+        body: formData,
+      }),
     }),
   }),
 });
 
-export const { useGetAllReviewsQuery } = reviewApi;
+export const { useGetAllReviewsQuery, useCreateReviewMutation } = reviewApi;

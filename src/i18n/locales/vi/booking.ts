@@ -13,9 +13,11 @@ const booking = {
   BOOKING_SEAT_COUPLE: 'Ghế đôi',
   BOOKING_SEAT_HELD_ICON: 'Ghế đang giữ',
 
-  BOOKING_SELECT_COMBO: 'Chọn Combo',
+  BOOKING_SELECT_COMBO: 'Chọn Combo/Dịch vụ',
   BOOKING_LOADING_COMBO: 'Đang tải combo…',
   BOOKING_ERROR_COMBO: 'Không tải được danh sách combo.',
+  COMBO: 'Combo',
+  SINGLE_PRODUCT: 'Sản phẩm lẻ',
 
   BOOKING_SUMMARY: 'Tóm tắt đặt vé',
   BOOKING_SEAT_CHOSEN: 'Ghế đã chọn:',
@@ -50,8 +52,9 @@ const booking = {
   BOOKING_CONFIRM_CANCEL: 'Quay lại',
   BOOKING_CONFIRM_CONFIRM: 'Xác nhận & Thanh toán',
 
-    BOOKING_ADDITIONAL_TITLE: 'Chọn dịch vụ bổ sung',
-    BOOKING_ADDITIONAL_SUB: 'Vui lòng chọn combo thức ăn, nước uống nếu bạn muốn thêm vào vé của mình.',
+  BOOKING_ADDITIONAL_TITLE: 'Chọn dịch vụ bổ sung',
+  BOOKING_ADDITIONAL_SUB:
+    'Vui lòng chọn combo thức ăn, nước uống nếu bạn muốn thêm vào vé của mình.',
 };
 
 export default booking;

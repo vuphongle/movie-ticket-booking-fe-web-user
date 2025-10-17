@@ -2,82 +2,59 @@ import React from 'react';
 import styled from 'styled-components';
 import { theme } from '@/theme/Theme';
 import { useTranslation } from 'react-i18next';
+import { useGetAllOrdersQuery } from '@app/services/Order.api';
+import type { OrderDto } from '@app/services/Order.api';
 
 const History: React.FC = () => {
   const { t } = useTranslation();
 
-  const purchaseHistory = [
-    {
-      id: 1,
-      movieTitle: 'Avengers: Endgame',
-      cinema: 'CGV Vincom Center',
-      date: '2024-12-15',
-      time: '19:30',
-      seats: ['A1', 'A2'],
-      totalAmount: 200000,
-      status: 'completed',
-    },
-    {
-      id: 2,
-      movieTitle: 'Spider-Man: No Way Home',
-      cinema: 'Lotte Cinema',
-      date: '2024-12-10',
-      time: '21:00',
-      seats: ['B5'],
-      totalAmount: 120000,
-      status: 'completed',
-    },
-  ];
+  // Lấy tất cả đơn
+  const { data: purchaseHistory, isLoading, error } = useGetAllOrdersQuery();
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+  if (isLoading) return <p>Đang tải...</p>;
+  if (error) return <p>Lỗi khi tải dữ liệu!</p>;
+  if (!purchaseHistory || purchaseHistory.length === 0) return <p>Không có lịch sử mua vé</p>;
 
   return (
     <HistoryContainer>
       <HistoryTitle>{t('PURCHASE_HISTORY')}</HistoryTitle>
 
-      {purchaseHistory.length === 0 ? (
-        <EmptyState>
-          <EmptyMessage>Bạn chưa có lịch sử mua vé nào</EmptyMessage>
-        </EmptyState>
-      ) : (
-        <HistoryList>
-          {purchaseHistory.map(item => (
-            <HistoryItem key={item.id}>
-              <MovieInfo>
-                <MovieTitle>{item.movieTitle}</MovieTitle>
-                <CinemaInfo>{item.cinema}</CinemaInfo>
-                <DateTime>
-                  {item.date} - {item.time}
-                </DateTime>
-              </MovieInfo>
+      <HistoryList>
+        {purchaseHistory.map((order: OrderDto) => (
+          <HistoryItem key={order.id}>
+            <MovieInfo>
+              <MovieTitle>{order.movieTitle}</MovieTitle>
+              <CinemaInfo>{order.cinema}</CinemaInfo>
+              <DateTime>
+                {order.date} - {order.time}
+              </DateTime>
+            </MovieInfo>
 
-              <TicketDetails>
-                <SeatsInfo>
-                  <Label>Ghế:</Label>
-                  <SeatsText>{item.seats.join(', ')}</SeatsText>
-                </SeatsInfo>
-                <PriceInfo>
-                  <Label>Tổng tiền:</Label>
-                  <Price>{formatCurrency(item.totalAmount)}</Price>
-                </PriceInfo>
-              </TicketDetails>
+            <TicketDetails>
+              <SeatsInfo>
+                <Label>Ghế:</Label>
+                <SeatsText>{order.seats?.length ? order.seats.join(', ') : 'Chưa có ghế'}</SeatsText>
+              </SeatsInfo>
+              <PriceInfo>
+                <Label>Tổng tiền:</Label>
+                <Price>{formatCurrency(order.totalAmount)}</Price>
+              </PriceInfo>
+            </TicketDetails>
 
-              <Status status={item.status}>
-                {item.status === 'completed' ? 'Hoàn thành' : 'Đã hủy'}
-              </Status>
-            </HistoryItem>
-          ))}
-        </HistoryList>
-      )}
+            <Status status={order.status}>
+              {order.status === 'confirmed' ? 'Hoàn thành' : 'Đã hủy'}
+            </Status>
+          </HistoryItem>
+        ))}
+      </HistoryList>
     </HistoryContainer>
   );
 };
 
+// styled-components giữ nguyên như trước
 const HistoryContainer = styled.div`
   background: ${theme.colors.white};
   border-radius: ${theme.borderRadius.medium};
@@ -93,16 +70,6 @@ const HistoryTitle = styled.h2`
   font-weight: 600;
   margin: 0 0 ${theme.spacing.lg} 0;
   color: ${theme.colors.textPrimary};
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: ${theme.spacing.lg} 0;
-`;
-
-const EmptyMessage = styled.p`
-  color: ${theme.colors.textSecondary};
-  font-size: ${theme.fontSize.md};
 `;
 
 const HistoryList = styled.div`
@@ -131,23 +98,18 @@ const HistoryItem = styled.div`
   }
 `;
 
-const MovieInfo = styled.div`
-  flex: 1;
-`;
-
+const MovieInfo = styled.div`flex: 1;`;
 const MovieTitle = styled.h3`
   font-size: ${theme.fontSize.lg};
   font-weight: 600;
   color: ${theme.colors.textPrimary};
   margin: 0 0 ${theme.spacing.xs} 0;
 `;
-
 const CinemaInfo = styled.p`
   font-size: ${theme.fontSize.md};
   color: ${theme.colors.textSecondary};
   margin: 0 0 ${theme.spacing.xs} 0;
 `;
-
 const DateTime = styled.p`
   font-size: ${theme.fontSize.sm};
   color: ${theme.colors.textSecondary};
@@ -204,7 +166,7 @@ const Status = styled.div<{ status: string }>`
   width: fit-content;
 
   ${({ status }) =>
-    status === 'completed'
+    status === 'confirmed'
       ? `
       background: #e8f5e8;
       color: #2e7d32;

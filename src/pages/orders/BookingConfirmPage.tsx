@@ -36,13 +36,30 @@ export default function BookingConfirmPage() {
   const [createOrder] = useCreateOrderMutation();
 
   const [appliedCoupons, setAppliedCoupons] = useState<
-    { detailId: number; type: string; code: string; discount: number }[]
+    { detailId: number; type: string; code: string; discount: number, gifts: any[] }[]
   >([]);
 
   const handleConfirmPayment = async () => {
     if (!bookingData) return;
 
     const expireSeconds = timer;
+    const totalDiscount = appliedCoupons.reduce(
+      (sum, c) => sum + (c.discount ?? 0),
+      0
+    );
+    const couponDetails = appliedCoupons.map(c => ({
+      detailId: c.detailId,
+      code: c.code,
+      discount: c.discount,
+      type: c.type,
+      gifts:
+        c.gifts?.map(g => ({
+          serviceId: g.serviceId,
+          serviceName: g.serviceName,
+          quantity: g.quantity,
+          thumbnail: g.thumbnail,
+        })) || [],
+    }));
 
     const body = {
       showtimeId: bookingData.showtimeId,
@@ -55,9 +72,12 @@ export default function BookingConfirmPage() {
         quantity: combo.qty,
         price: combo.price,
       })),
+      discounts: { totalDiscount, coupons: couponDetails },
       paymentMethod: selectedPayment,
       expireSeconds,
     };
+
+    console.log('Order body request:', body);
 
     try {
       const response = await createOrder(body).unwrap();
@@ -138,7 +158,7 @@ export default function BookingConfirmPage() {
         code: appliedData.idempotentToken,
         discount: discountValue,
         detailId: selectedDetail.detailId,
-        gifts: matchedGift ? [matchedGift] : [], 
+        gifts: matchedGift ? [matchedGift] : [],
       };
 
       const filtered = prev.filter(c => c.type !== 'promo');

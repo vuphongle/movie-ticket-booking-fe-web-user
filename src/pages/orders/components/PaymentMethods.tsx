@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import momoIcon from '@assets/image/icons/momo-icon.png';
 import vnpayIcon from '@assets/image/icons/VNPAY-icon.png';
 import payosIcon from '@assets/image/icons/payos-icon.svg';
 import { theme } from '@theme/Theme';
@@ -25,16 +24,6 @@ export default function PaymentMethods({
         />
         <Icon src={payosIcon} alt='PayOS' />
         <span>Thanh toán qua PayOS</span>
-      </Option>
-      <Option onClick={() => onSelect('MOMO')}>
-        <input
-          type='radio'
-          name='payment'
-          checked={selected === 'MOMO'}
-          readOnly
-        />
-        <Icon src={momoIcon} alt='MoMo' />
-        <span>Ví điện tử MoMo</span>
       </Option>
       <Option onClick={() => onSelect('VNPAY')}>
         <input

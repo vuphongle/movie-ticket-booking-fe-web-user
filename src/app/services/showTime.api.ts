@@ -23,6 +23,47 @@ export interface ShowtimeDto {
   startTime: string;
 }
 
+export interface MovieWithShowtimesDto {
+  id: number;
+  name: string;
+  nameEn: string;
+  description: string;
+  duration: number;
+  poster: string;
+  rating: number;
+  releaseYear: number;
+  age: string;
+  trailer: string;
+  status: boolean;
+  slug: string;
+  createdAt: number;
+  updatedAt: number;
+  graphics: string[];
+  translations: string[];
+  countryId: number | null;
+  showtimes: ShowtimeDto2[];
+}
+
+export interface ShowtimeDto2 {
+  id: number;
+  date: number[];
+  startTime: string;
+  endTime: string;
+  graphicsType: string;
+  translationType: string;
+  cinemaId: number;
+  cinemaName: string;
+  cinemaLocation: string;
+  auditoriumId: number;
+  auditoriumName: string;
+  auditoriumTotalSeats: number;
+  auditoriumTotalRows: number;
+  auditoriumTotalColumns: number;
+  auditoriumType: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export const showtimeApi = createApi({
   reducerPath: 'showtimeApi',
   baseQuery: fetchBaseQuery({
@@ -85,8 +126,23 @@ export const showtimeApi = createApi({
     checkMovieHasShowtimes: builder.query<{ hasShowtimes: boolean }, number>({
       query: (movieId: number) => `/movies/${movieId}/has-showtimes`,
     }),
+
+    getMoviesShowtimesByCinema: builder.query<MovieWithShowtimesDto[], number>({
+      query: cinemaId => `/cinemas/${cinemaId}/movies-showtimes`,
+    }),
+    getMoviesShowtimesByCinemaName: builder.query<
+      MovieWithShowtimesDto[],
+      string
+    >({
+      query: cinemaName =>
+        `/cinemas/${cinemaName}/movies-showtimes-by-cinema-name`,
+    }),
   }),
 });
 
-export const { useGetShowtimesByMovieQuery, useCheckMovieHasShowtimesQuery } =
-  showtimeApi;
+export const {
+  useGetShowtimesByMovieQuery,
+  useCheckMovieHasShowtimesQuery,
+  useGetMoviesShowtimesByCinemaQuery,
+  useGetMoviesShowtimesByCinemaNameQuery,
+} = showtimeApi;

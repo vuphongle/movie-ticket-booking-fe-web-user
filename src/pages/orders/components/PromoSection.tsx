@@ -243,6 +243,10 @@ export default function PromoSection({
 
                     return matchedGift ? (
                       <GiftBox>
+                        <Thumbnail
+                          src={matchedGift.thumbnail || '/placeholder.png'}
+                          alt={matchedGift.serviceName}
+                        />
                         {matchedGift.serviceName} (x{matchedGift.quantity})
                       </GiftBox>
                     ) : null;
@@ -250,7 +254,7 @@ export default function PromoSection({
                 ) : null
               ) : previewResult && previewResult.applied ? (
                 <DiscountBox>
-                  -{(previewResult.lineDiscount ?? 0).toLocaleString()}đ
+                  -{(previewResult.lineDiscount ?? 0).toLocaleString()}₫
                 </DiscountBox>
               ) : null}
             </CouponRow>
@@ -371,7 +375,24 @@ const DiscountBox = styled.div`
 
 const GiftBox = styled.div`
   margin-top: 12px;
-  font-size: 14px;
-  color: #2e7d32;
-  font-weight: 500;
+  font-size: 13px;
+  color: #e65100;
+  font-weight: 600;
+  background: #fff3e0;
+  border: 1px solid #ffcc80;
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  max-width: 220px;
+  text-align: left;
 `;
+
+const Thumbnail = styled.img`
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+  margin-right: 6px;
+`;
+

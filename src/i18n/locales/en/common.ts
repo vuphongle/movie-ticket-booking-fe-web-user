@@ -91,7 +91,10 @@ const common = {
   MESSAGES_LOGOUT_SUCCESS: 'Logout successful',
 
   // SEARCH
-  SEARCH_PLACEHOLDER: 'Search movies or theaters',
+  SEARCH_PLACEHOLDER: 'Search movies',
+    SEARCH_NO_QUERY: 'Please enter a search query.',
+    SEARCH_RESULTS_FOR: 'Search results for',
+    SEARCH_NO_RESULT: 'No movies found matching your query.',
 
   // REGISTER
   REGISTER_TITLE: 'Register your account',
