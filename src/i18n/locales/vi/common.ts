@@ -209,7 +209,7 @@ const common = {
   QUICKBOOKING_SELECT_CINEMA: 'Chọn rạp',
   QUICKBOOKING_SELECT_MOVIE: 'Chọn phim',
   QUICKBOOKING_SELECT_DATE: 'Chọn ngày',
-  QUICKBOOKING_SELECT_TIME: 'Chọn giờ',
+  QUICKBOOKING_SELECT_TIME: 'Chọn suất',
   QUICKBOOKING_BUTTON_BOOK: 'Đặt vé ngay',
 
   WEAK: 'Yếu',

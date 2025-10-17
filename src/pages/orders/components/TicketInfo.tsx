@@ -195,7 +195,9 @@ export default function TicketInfo({
         </>
       )}
 
-      <Divider />
+      <Divider style={{ marginBottom: '4px' }} />
+
+      <span style={{display: 'block', fontSize: '13px', marginBottom: '4px', textAlign: 'right' }}>Tổng: {bookingData.total.toLocaleString()} đ</span>
       <VoucherContainer>
         <VoucherInput
           type='text'
@@ -240,7 +242,7 @@ export default function TicketInfo({
 
                       {relatedGifts.length > 0 && (
                         <GiftBox>
-                          🎁{' '}
+                          <Thumbnail src={relatedGifts[0].thumbnail} alt={relatedGifts[0].name} />
                           {relatedGifts
                             .map(
                               (g: any) => `${g.serviceName} (x${g.quantity})`
@@ -479,12 +481,13 @@ const VoucherContainer = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
+  margin-top: 10px;
   margin-bottom: 10px;
 `;
 
 const VoucherInput = styled.input`
   flex: 1;
-  padding: 8px 12px;
+  padding: 5px 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 13px;
@@ -501,7 +504,7 @@ const ApplyButton = styled.button`
   color: white;
   border: none;
   border-radius: 6px;
-  padding: 8px 14px;
+  padding: 5px 10px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -628,11 +631,11 @@ const PromoItem = styled.div`
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   font-size: 14px;
   font-weight: 500;
-  color: #1e293b; /* xám đậm, dễ đọc */
+  color: #1e293b;
   transition: all 0.25s ease;
 
   &:hover {
-    background: #e8f1ff; /* hover sáng hơn nhẹ */
+    background: #e8f1ff;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     transform: translateY(-1px);
   }
@@ -640,10 +643,10 @@ const PromoItem = styled.div`
   span {
     &:first-child {
       font-weight: 600;
-      color: #0d47a1; /* xanh đậm – code voucher */
+      color: #0d47a1;
     }
     &:last-child {
-      color: #007e33; /* xanh lá đậm – số tiền giảm */
+      color: #007e33;
       font-weight: 600;
     }
   }

@@ -11,6 +11,7 @@ export interface CouponDto {
   endDate: number;
   createdAt: number;
   updatedAt: number;
+  details: CouponDetailDto[];
 }
 
 // Request cho preview
@@ -76,6 +77,14 @@ export interface CouponDetailDto {
   notes: string | null;
   createdAt: number;
   updatedAt: number;
+  terms: {
+    id: number;
+    percent?: number | null;
+    amount?: number | null;
+    giftServiceId?: number | null;
+    giftQuantity?: number | null;
+    limitQuantityApplied?: number;
+  };
 }
 
 export const couponApi = createApi({

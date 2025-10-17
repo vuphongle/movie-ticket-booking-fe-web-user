@@ -130,6 +130,13 @@ export const showtimeApi = createApi({
     getMoviesShowtimesByCinema: builder.query<MovieWithShowtimesDto[], number>({
       query: cinemaId => `/cinemas/${cinemaId}/movies-showtimes`,
     }),
+    getMoviesShowtimesByCinemaName: builder.query<
+      MovieWithShowtimesDto[],
+      string
+    >({
+      query: cinemaName =>
+        `/cinemas/${cinemaName}/movies-showtimes-by-cinema-name`,
+    }),
   }),
 });
 
@@ -137,4 +144,5 @@ export const {
   useGetShowtimesByMovieQuery,
   useCheckMovieHasShowtimesQuery,
   useGetMoviesShowtimesByCinemaQuery,
+  useGetMoviesShowtimesByCinemaNameQuery,
 } = showtimeApi;

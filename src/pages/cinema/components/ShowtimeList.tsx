@@ -47,7 +47,7 @@ const ShowtimeList = ({ cinemaId }: ShowtimeListProps) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { openLogin } = useLoginModal();
 
-  const { data, isLoading } = useGetMoviesShowtimesByCinemaQuery(cinemaId);
+  const { data } = useGetMoviesShowtimesByCinemaQuery(cinemaId);
 
   const today = useMemo(() => new Date(), []);
   const next10Days = useMemo(

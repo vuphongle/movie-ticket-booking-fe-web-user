@@ -163,7 +163,9 @@ export default function Header() {
                   <MenuItem onClick={() => navigate('/cinemas')}>
                     {t('NAV_CINEMAS')}
                   </MenuItem>
-                  <MenuItem>{t('NAV_PROMOTIONS')}</MenuItem>
+                  <MenuItem onClick={() => navigate('/coupons')}>
+                    {t('NAV_PROMOTIONS')}
+                  </MenuItem>
 
                   <MenuItemWrapper
                     onMouseEnter={() => setHoveredMenu('cinema_corner')}

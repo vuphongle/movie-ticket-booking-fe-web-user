@@ -6,7 +6,7 @@ interface AuditoriumProps {
     name: string;
     totalRows: number;
     totalColumns: number;
-    type: string; // 2D, 3D, IMAX...
+    type: string;
   };
 }
 
