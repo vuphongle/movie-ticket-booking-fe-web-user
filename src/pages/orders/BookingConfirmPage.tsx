@@ -5,28 +5,22 @@ import PromoSection from './components/PromoSection';
 import PaymentMethods from './components/PaymentMethods';
 import TicketInfo from './components/TicketInfo';
 import TimerBar from './components/TimerBar';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCreateOrderMutation } from '@app/services/payment.api';
 import BookingConfirmModal from './components/modals/BookingConfirmModal';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
-import { useCancelSeatMutation } from '@/app/services/reservation.api';
+import { useCancelSeatMultiMutation } from '@/app/services/reservation.api';
 
 export default function BookingConfirmPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-
-  const [cancelSeat] = useCancelSeatMutation();
-  const { timer } = useBookingTimer({
+    const isProceedingRef = useRef(false);
+    const isFirstRenderRef = useRef(true);
+    const [cancelSeatMulti] = useCancelSeatMultiMutation();
+  const { timer, clearTimer } = useBookingTimer({
     autoCancel: true,
     onExpire: () => {
-      // Có thể gọi API hủy giữ ghế
-      bookingData.seats.forEach((seat: any) => {
-        cancelSeat({
-          seatId: seat.id,
-          showtimeId: bookingData.showtimeId,
-        });
-      });
     },
   });
 
@@ -77,11 +71,10 @@ export default function BookingConfirmPage() {
       expireSeconds,
     };
 
-    console.log('Order body request:', body);
-
     try {
       const response = await createOrder(body).unwrap();
       if (response.url) {
+        isProceedingRef.current = true;
         window.location.href = response.url;
       }
     } catch (error) {
@@ -175,6 +168,55 @@ export default function BookingConfirmPage() {
     );
     navigate(-1);
   };
+
+useEffect(() => {
+    const handleBeforeUnload = () => {
+      const navEntries = performance.getEntriesByType('navigation');
+      const isReload =
+        navEntries.length > 0 &&
+        (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
+
+      if (isReload) return;
+
+      if (!isProceedingRef.current && bookingData?.seats?.length) {
+        cancelSeatMulti({
+          showtimeId: bookingData.showtimeId,
+          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+        });
+        clearTimer?.();
+      }
+    };
+
+    const handleRouteChange = () => {
+      if (!isProceedingRef.current && bookingData?.seats?.length) {
+        cancelSeatMulti({
+          showtimeId: bookingData.showtimeId,
+          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+        });
+        clearTimer?.();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handleRouteChange);
+
+    return () => {
+      if (!isFirstRenderRef.current) {
+        if (!isProceedingRef.current && bookingData?.seats?.length) {
+          cancelSeatMulti({
+            showtimeId: bookingData.showtimeId,
+            seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+          });
+          clearTimer?.();
+        }
+      } else {
+        isFirstRenderRef.current = false;
+      }
+
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [bookingData, cancelSeatMulti, clearTimer]);
 
   return (
     <Page>

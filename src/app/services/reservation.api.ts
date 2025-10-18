@@ -12,6 +12,11 @@ export interface SeatStatusResponse {
   status: string | null;
 }
 
+export interface CancelMultipleSeatsRequest {
+  showtimeId: number;
+  seatIds: number[];
+}
+
 export const reservationApi = createApi({
   reducerPath: 'reservationApi',
   baseQuery: fetchBaseQuery({
@@ -39,6 +44,14 @@ export const reservationApi = createApi({
         body,
       }),
     }),
+    /** POST /api/seat-reservations/cancel-multi */
+    cancelSeatMulti: builder.mutation<void, CancelMultipleSeatsRequest>({
+      query: body => ({
+        url: `/seat-reservations/cancel-multiple`,
+        method: 'POST',
+        body,
+      }),
+    }),
     checkSeatStatus: builder.query<SeatStatusResponse, SeatReservationRequest>({
       query: ({ seatId, showtimeId }) => ({
         url: `/seats/status?seatId=${seatId}&showtimeId=${showtimeId}`,
@@ -48,4 +61,9 @@ export const reservationApi = createApi({
   }),
 });
 
-export const { useBookSeatMutation, useCancelSeatMutation, useLazyCheckSeatStatusQuery } = reservationApi;
+export const {
+  useBookSeatMutation,
+  useCancelSeatMutation,
+  useLazyCheckSeatStatusQuery,
+  useCancelSeatMultiMutation,
+} = reservationApi;

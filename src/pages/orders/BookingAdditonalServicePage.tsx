@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
@@ -10,7 +10,7 @@ import {
 import { BookingMovieInfo } from './components/BookingMovieInfo';
 import TimerBar from './components/TimerBar';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
-import { useCancelSeatMutation } from '@/app/services/reservation.api';
+import { useCancelSeatMultiMutation } from '@/app/services/reservation.api';
 import GlobalLoading from '@components/loading/GlobalLoading';
 
 export default function BookingAdditionalServicePage() {
@@ -18,6 +18,8 @@ export default function BookingAdditionalServicePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { bookingData } = location.state || {};
+  const isProceedingRef = useRef(false);
+  const isFirstRenderRef = useRef(true);
 
   const {
     data: comboDtos = [],
@@ -31,57 +33,12 @@ export default function BookingAdditionalServicePage() {
   );
 
   const [activeTab, setActiveTab] = useState<'COMBO' | 'SINGLE'>('COMBO');
-  const [cancelSeat] = useCancelSeatMutation();
+  const [cancelSeatMulti] = useCancelSeatMultiMutation();
 
-  const { timer, expireAt } = useBookingTimer({
+  const { timer, expireAt, clearTimer } = useBookingTimer({
     autoCancel: true,
-    onExpire: () => {
-      bookingData.seats.forEach((seat: any) => {
-        cancelSeat({
-          seatId: seat.id,
-          showtimeId: bookingData.showtimeId,
-        });
-      });
-    },
+    onExpire: () => {},
   });
-
-  useEffect(() => {
-  const handleUnload = () => {
-    if (!bookingData?.seats?.length) return;
-
-    bookingData.seats.forEach((seat: any) => {
-      const url = 'http://localhost:8080/api/seat-reservations/cancel';
-      const data = {
-        seatId: seat.id,
-        showtimeId: bookingData.showtimeId,
-      };
-
-      navigator.sendBeacon?.(
-        url,
-        new Blob([JSON.stringify(data)], { type: 'application/json' })
-      );
-
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        keepalive: true,
-      }).catch(() => {});
-    });
-  };
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') handleUnload();
-  });
-
-  window.addEventListener('pagehide', handleUnload);
-
-  return () => {
-    window.removeEventListener('pagehide', handleUnload);
-    document.removeEventListener('visibilitychange', handleUnload);
-  };
-}, [bookingData]);
-
 
   useEffect(() => {
     comboDtos.forEach(combo => {
@@ -163,26 +120,63 @@ export default function BookingAdditionalServicePage() {
   }, []);
 
   const handleBack = async () => {
-    try {
-      await Promise.all(
-        bookingData.seats.map((seat: any) =>
-          cancelSeat({
-            seatId: seat.id,
-            showtimeId: bookingData.showtimeId,
-          })
-        )
-      );
-
-      sessionStorage.setItem(
-        'bookingPageState',
-        JSON.stringify({ seats: bookingData.seats })
-      );
-
-      navigate(-1);
-    } catch (error) {
-      console.error('Lỗi khi hủy ghế:', error);
-    }
+    sessionStorage.setItem(
+      'bookingPageState',
+      JSON.stringify({ seats: bookingData.seats })
+    );
+    navigate(-1);
   };
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const navEntries = performance.getEntriesByType('navigation');
+      const isReload =
+        navEntries.length > 0 &&
+        (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
+
+      if (isReload) return;
+
+      if (!isProceedingRef.current && bookingData?.seats?.length) {
+        cancelSeatMulti({
+          showtimeId: bookingData.showtimeId,
+          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+        });
+        clearTimer?.();
+      }
+    };
+
+    const handleRouteChange = () => {
+      if (!isProceedingRef.current && bookingData?.seats?.length) {
+        cancelSeatMulti({
+          showtimeId: bookingData.showtimeId,
+          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+        });
+        clearTimer?.();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handleRouteChange);
+
+    return () => {
+      // Chỉ hủy ghế khi không phải lần render đầu tiên
+      if (!isFirstRenderRef.current) {
+        if (!isProceedingRef.current && bookingData?.seats?.length) {
+          cancelSeatMulti({
+            showtimeId: bookingData.showtimeId,
+            seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+          });
+          clearTimer?.();
+        }
+      } else {
+        // Đánh dấu đã qua lần render đầu tiên
+        isFirstRenderRef.current = false;
+      }
+
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [bookingData, cancelSeatMulti, clearTimer]);
 
   if (isLoadingCombos) {
     return <GlobalLoading />;
@@ -305,7 +299,8 @@ export default function BookingAdditionalServicePage() {
           <Actions>
             <GhostButton onClick={handleBack}>{t('BOOKING_BACK')}</GhostButton>
             <PrimaryButton
-              onClick={() =>
+              onClick={() => {
+                isProceedingRef.current = true;
                 navigate('/booking/confirm', {
                   state: {
                     expireAt,
@@ -317,8 +312,8 @@ export default function BookingAdditionalServicePage() {
                       total,
                     },
                   },
-                })
-              }
+                });
+              }}
             >
               {t('BOOKING_CONTINUE')}
             </PrimaryButton>
