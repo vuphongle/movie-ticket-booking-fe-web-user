@@ -17,7 +17,7 @@ export default function BookingConfirmPage() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const [cancelSeat] = useCancelSeatMutation();
-  const { timer, expireAt } = useBookingTimer({
+  const { timer } = useBookingTimer({
     autoCancel: true,
     onExpire: () => {
       // Có thể gọi API hủy giữ ghế
@@ -171,9 +171,6 @@ export default function BookingConfirmPage() {
       'bookingPageState',
       JSON.stringify({
         seats: bookingData.seats,
-        combos: bookingData.combos,
-        remainingTime: timer,
-        expireAt,
       })
     );
     navigate(-1);

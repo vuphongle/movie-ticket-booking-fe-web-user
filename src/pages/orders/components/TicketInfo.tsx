@@ -623,6 +623,8 @@ const PromoItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap; 
   padding: 10px 12px;
   margin-bottom: 8px;
   border-radius: 10px;
@@ -690,16 +692,26 @@ const GiftBox = styled.div`
   background: #fff3e0;
   border: 1px solid #ffcc80;
   border-radius: 6px;
-  padding: 4px 8px;
-  display: inline-block;
-  max-width: 200px;
-  text-align: right;
+  padding: 6px 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 100%;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+  margin-top: 6px;
+  margin-left: auto;
 `;
+
+
 const Thumbnail = styled.img`
   width: 24px;
   height: 24px;
   border-radius: 4px;
   object-fit: cover;
-  vertical-align: middle;
-  margin-right: 6px;
+  flex-shrink: 0;
+  margin-top: 2px;
 `;
+

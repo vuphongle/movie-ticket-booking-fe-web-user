@@ -1,4 +1,3 @@
-// BookingAdditionalServicePage.tsx
 import { useState, useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -45,6 +44,44 @@ export default function BookingAdditionalServicePage() {
       });
     },
   });
+
+  useEffect(() => {
+  const handleUnload = () => {
+    if (!bookingData?.seats?.length) return;
+
+    bookingData.seats.forEach((seat: any) => {
+      const url = 'http://localhost:8080/api/seat-reservations/cancel';
+      const data = {
+        seatId: seat.id,
+        showtimeId: bookingData.showtimeId,
+      };
+
+      navigator.sendBeacon?.(
+        url,
+        new Blob([JSON.stringify(data)], { type: 'application/json' })
+      );
+
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        keepalive: true,
+      }).catch(() => {});
+    });
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') handleUnload();
+  });
+
+  window.addEventListener('pagehide', handleUnload);
+
+  return () => {
+    window.removeEventListener('pagehide', handleUnload);
+    document.removeEventListener('visibilitychange', handleUnload);
+  };
+}, [bookingData]);
+
 
   useEffect(() => {
     comboDtos.forEach(combo => {
@@ -125,13 +162,26 @@ export default function BookingAdditionalServicePage() {
     }
   }, []);
 
-  const handleBack = () => {
-    sessionStorage.setItem(
-      'bookingPageState',
-      JSON.stringify({ seats: bookingData.seats, expireAt })
-    );
-    sessionStorage.setItem('navigatingToBack', 'true');
-    navigate(-1);
+  const handleBack = async () => {
+    try {
+      await Promise.all(
+        bookingData.seats.map((seat: any) =>
+          cancelSeat({
+            seatId: seat.id,
+            showtimeId: bookingData.showtimeId,
+          })
+        )
+      );
+
+      sessionStorage.setItem(
+        'bookingPageState',
+        JSON.stringify({ seats: bookingData.seats })
+      );
+
+      navigate(-1);
+    } catch (error) {
+      console.error('Lỗi khi hủy ghế:', error);
+    }
   };
 
   if (isLoadingCombos) {

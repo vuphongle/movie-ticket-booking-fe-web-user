@@ -23,7 +23,7 @@ export default function PaymentMethods({
           readOnly
         />
         <Icon src={payosIcon} alt='PayOS' />
-        <span>Thanh toán qua PayOS</span>
+        <span>Thanh toán Bằng QR</span>
       </Option>
       <Option onClick={() => onSelect('VNPAY')}>
         <input
