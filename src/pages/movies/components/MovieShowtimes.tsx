@@ -9,7 +9,6 @@ import {
 } from '@app/services/showTime.api';
 import {
   useGetAllCinemaNamesQuery,
-  useGetAllCitiesQuery,
 } from '@app/services/cine.api';
 import { setDataToLocalStorage } from '@utils/localStorageUtils';
 import { useSelector } from 'react-redux';
@@ -86,7 +85,6 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
 
   const [selectedDate, setSelectedDate] = useState(next6Days[0]);
 
-  const { data: cities = [] } = useGetAllCitiesQuery();
   const { data: cinemaNames = [] } = useGetAllCinemaNamesQuery();
   const [location, setLocation] = useState('ALL_COUNTRY');
   const [cinema, setCinema] = useState('ALL_CINEMA');
@@ -224,18 +222,6 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
             </DateFilter>
 
             <FilterRow>
-              <Select
-                value={location}
-                onChange={e => setLocation(e.target.value)}
-              >
-                <option value='ALL_COUNTRY'>{t('MOVIE_ALL_COUNTRY')}</option>
-                {cities.map(city => (
-                  <option key={city} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </Select>
-
               <Select value={cinema} onChange={e => setCinema(e.target.value)}>
                 <option value='ALL_CINEMA'>{t('MOVIE_ALL_CINEMA')}</option>
                 {cinemaOptions.map(c => (
@@ -349,7 +335,7 @@ const FilterRow = styled.div`
 `;
 
 const Select = styled.select`
-  width: 160px;
+  width: 260px;
   padding: 8px 12px;
   border-radius: 8px;
   background: ${theme.colors.background};

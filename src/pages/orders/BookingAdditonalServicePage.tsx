@@ -10,7 +10,10 @@ import {
 import { BookingMovieInfo } from './components/BookingMovieInfo';
 import TimerBar from './components/TimerBar';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
-import { useCancelSeatMultiMutation } from '@/app/services/reservation.api';
+import {
+  useCancelSeatMutation,
+  useCancelSeatMultiMutation,
+} from '@/app/services/reservation.api';
 import GlobalLoading from '@components/loading/GlobalLoading';
 
 export default function BookingAdditionalServicePage() {
@@ -33,6 +36,7 @@ export default function BookingAdditionalServicePage() {
   );
 
   const [activeTab, setActiveTab] = useState<'COMBO' | 'SINGLE'>('COMBO');
+  const [cancelSeat] = useCancelSeatMutation();
   const [cancelSeatMulti] = useCancelSeatMultiMutation();
 
   const { timer, expireAt, clearTimer } = useBookingTimer({
@@ -131,11 +135,8 @@ export default function BookingAdditionalServicePage() {
     const handleBeforeUnload = () => {
       const navEntries = performance.getEntriesByType('navigation');
       const isReload =
-        navEntries.length > 0 &&
-        (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
-
+        navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
       if (isReload) return;
-
       if (!isProceedingRef.current && bookingData?.seats?.length) {
         cancelSeatMulti({
           showtimeId: bookingData.showtimeId,
@@ -144,39 +145,31 @@ export default function BookingAdditionalServicePage() {
         clearTimer?.();
       }
     };
-
     const handleRouteChange = () => {
-      if (!isProceedingRef.current && bookingData?.seats?.length) {
-        cancelSeatMulti({
-          showtimeId: bookingData.showtimeId,
-          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+      if (!isProceedingRef.current && bookingData?.seats) {
+        bookingData.seats.forEach((seat: any) => {
+          cancelSeat({ seatId: seat.id, showtimeId: bookingData.showtimeId });
         });
         clearTimer?.();
       }
     };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('popstate', handleRouteChange);
-
     return () => {
-      // Chỉ hủy ghế khi không phải lần render đầu tiên
       if (!isFirstRenderRef.current) {
-        if (!isProceedingRef.current && bookingData?.seats?.length) {
-          cancelSeatMulti({
-            showtimeId: bookingData.showtimeId,
-            seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+        if (!isProceedingRef.current && bookingData?.seats) {
+          bookingData.seats.forEach((seat: any) => {
+            cancelSeat({ seatId: seat.id, showtimeId: bookingData.showtimeId });
           });
           clearTimer?.();
         }
       } else {
-        // Đánh dấu đã qua lần render đầu tiên
         isFirstRenderRef.current = false;
       }
-
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handleRouteChange);
     };
-  }, [bookingData, cancelSeatMulti, clearTimer]);
+  }, [bookingData, cancelSeat]);
 
   if (isLoadingCombos) {
     return <GlobalLoading />;

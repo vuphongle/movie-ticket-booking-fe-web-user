@@ -9,19 +9,19 @@ import { useState, useRef, useEffect } from 'react';
 import { useCreateOrderMutation } from '@app/services/payment.api';
 import BookingConfirmModal from './components/modals/BookingConfirmModal';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
-import { useCancelSeatMultiMutation } from '@/app/services/reservation.api';
+import { useCancelSeatMutation, useCancelSeatMultiMutation } from '@/app/services/reservation.api';
 
 export default function BookingConfirmPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-    const isProceedingRef = useRef(false);
-    const isFirstRenderRef = useRef(true);
-    const [cancelSeatMulti] = useCancelSeatMultiMutation();
+  const isProceedingRef = useRef(false);
+  const isFirstRenderRef = useRef(true);
+  const [cancelSeat] = useCancelSeatMutation();
+  const [cancelSeatMulti] = useCancelSeatMultiMutation();
   const { timer, clearTimer } = useBookingTimer({
     autoCancel: true,
-    onExpire: () => {
-    },
+    onExpire: () => {},
   });
 
   const { bookingData } = location.state || {};
@@ -30,7 +30,13 @@ export default function BookingConfirmPage() {
   const [createOrder] = useCreateOrderMutation();
 
   const [appliedCoupons, setAppliedCoupons] = useState<
-    { detailId: number; type: string; code: string; discount: number, gifts: any[] }[]
+    {
+      detailId: number;
+      type: string;
+      code: string;
+      discount: number;
+      gifts: any[];
+    }[]
   >([]);
 
   const handleConfirmPayment = async () => {
@@ -169,15 +175,13 @@ export default function BookingConfirmPage() {
     navigate(-1);
   };
 
-useEffect(() => {
+  useEffect(() => {
     const handleBeforeUnload = () => {
       const navEntries = performance.getEntriesByType('navigation');
       const isReload =
         navEntries.length > 0 &&
         (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
-
       if (isReload) return;
-
       if (!isProceedingRef.current && bookingData?.seats?.length) {
         cancelSeatMulti({
           showtimeId: bookingData.showtimeId,
@@ -186,37 +190,31 @@ useEffect(() => {
         clearTimer?.();
       }
     };
-
     const handleRouteChange = () => {
-      if (!isProceedingRef.current && bookingData?.seats?.length) {
-        cancelSeatMulti({
-          showtimeId: bookingData.showtimeId,
-          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+      if (!isProceedingRef.current && bookingData?.seats) {
+        bookingData.seats.forEach((seat: any) => {
+          cancelSeat({ seatId: seat.id, showtimeId: bookingData.showtimeId });
         });
         clearTimer?.();
       }
     };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('popstate', handleRouteChange);
-
     return () => {
       if (!isFirstRenderRef.current) {
-        if (!isProceedingRef.current && bookingData?.seats?.length) {
-          cancelSeatMulti({
-            showtimeId: bookingData.showtimeId,
-            seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+        if (!isProceedingRef.current && bookingData?.seats) {
+          bookingData.seats.forEach((seat: any) => {
+            cancelSeat({ seatId: seat.id, showtimeId: bookingData.showtimeId });
           });
           clearTimer?.();
         }
       } else {
         isFirstRenderRef.current = false;
       }
-
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handleRouteChange);
     };
-  }, [bookingData, cancelSeatMulti, clearTimer]);
+  }, [bookingData, cancelSeat]);
 
   return (
     <Page>
