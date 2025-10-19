@@ -100,7 +100,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
         isOpen={open}
         onClose={handleClose}
         size='sm'
-        style={{ width: '400px' }}
+        style={{ width: '350px' }}
         zIndex={1080}
       >
         <Wrapper>
@@ -152,7 +152,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
             </RegisterText>
           </form>
 
-          <Divider>
+          {/* <Divider>
             <Line />
             {t('LOGIN_OR') || 'HOẶC'}
             <Line />
@@ -198,7 +198,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
               </FacebookIcon>
               {t('LOGIN_FACEBOOK_LOGIN')}
             </FacebookButton>
-          </SocialLoginContainer>
+          </SocialLoginContainer> */}
         </Wrapper>
       </ModalBase>
 
@@ -339,63 +339,63 @@ const RegisterLink = styled.span`
   }
 `;
 
-const GoogleButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${theme.spacing.sm};
-  width: 100%;
-  border: 1px solid ${theme.colors.border};
-  background: ${theme.colors.white};
-  padding: ${theme.spacing.sm};
-  font-size: ${theme.fontSize.sm};
-  font-weight: 500;
-  color: ${theme.colors.textPrimary};
-  border-radius: ${theme.borderRadius.medium};
-  cursor: pointer;
+// const GoogleButton = styled.button`
+//   display: inline-flex;
+//   align-items: center;
+//   justify-content: center;
+//   gap: ${theme.spacing.sm};
+//   width: 100%;
+//   border: 1px solid ${theme.colors.border};
+//   background: ${theme.colors.white};
+//   padding: ${theme.spacing.sm};
+//   font-size: ${theme.fontSize.sm};
+//   font-weight: 500;
+//   color: ${theme.colors.textPrimary};
+//   border-radius: ${theme.borderRadius.medium};
+//   cursor: pointer;
 
-  &:hover {
-    background: ${theme.colors.bgLight};
-  }
-`;
+//   &:hover {
+//     background: ${theme.colors.bgLight};
+//   }
+// `;
 
-const FacebookButton = styled(GoogleButton)`
-  background: #5a81d9;
-  color: white;
-  border: none;
+// const FacebookButton = styled(GoogleButton)`
+//   background: #5a81d9;
+//   color: white;
+//   border: none;
 
-  &:hover {
-    background: #486fbb;
-  }
-`;
+//   &:hover {
+//     background: #486fbb;
+//   }
+// `;
 
-const GoogleIcon = styled.svg`
-  width: 18px;
-  height: 18px;
-`;
+// const GoogleIcon = styled.svg`
+//   width: 18px;
+//   height: 18px;
+// `;
 
-const FacebookIcon = styled.svg`
-  width: 18px;
-  height: 18px;
-`;
+// const FacebookIcon = styled.svg`
+//   width: 18px;
+//   height: 18px;
+// `;
 
-const Divider = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.sm};
-  color: ${theme.colors.gray};
-  font-size: ${theme.fontSize.sm};
-  margin: ${theme.spacing.lg} 0;
-`;
+// const Divider = styled.div`
+//   display: flex;
+//   align-items: center;
+//   gap: ${theme.spacing.sm};
+//   color: ${theme.colors.gray};
+//   font-size: ${theme.fontSize.sm};
+//   margin: ${theme.spacing.lg} 0;
+// `;
 
-const Line = styled.div`
-  flex: 1;
-  height: 1px;
-  background: ${theme.colors.border};
-`;
+// const Line = styled.div`
+//   flex: 1;
+//   height: 1px;
+//   background: ${theme.colors.border};
+// `;
 
-const SocialLoginContainer = styled.div`
-  display: flex;
-  gap: 12px;
-  flex-direction: column;
-`;
+// const SocialLoginContainer = styled.div`
+//   display: flex;
+//   gap: 12px;
+//   flex-direction: column;
+// `;

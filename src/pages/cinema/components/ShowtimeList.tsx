@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
 import GlobalLoading from '@components/loading/GlobalLoading';
-import { Ticket } from 'lucide-react';
 import { setDataToLocalStorage } from '@utils/localStorageUtils';
 import MovieItem from '@pages/movies/components/MovieItem';
 import { useGetMoviesShowtimesByCinemaQuery } from '@app/services/showTime.api';
@@ -220,10 +219,6 @@ const ShowtimeList = ({ cinemaId }: ShowtimeListProps) => {
                   );
                 })}
               </TimesList>
-              <MovieFooter>
-                <Ticket size={18} />
-                Đặt vé ngay
-              </MovieFooter>
             </MovieBox>
           );
         })}
@@ -246,7 +241,10 @@ const DateFilter = styled.div`
   justify-content: center;
   gap: ${theme.spacing.sm};
   margin-bottom: ${theme.spacing.md};
+  background: #0f172a;
+  padding: 12px 0;
 `;
+
 
 const DateButton = styled.button<{ $active?: boolean }>`
   padding: 6px 12px;
@@ -336,26 +334,4 @@ const Time = styled.div`
     cursor: pointer;
   }
 `;
-const MovieFooter = styled.div`
-  position: absolute;
-  bottom: 10px;
-  right: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #d1d5db;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 6px;
-  padding: 6px 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  pointer-events: none;
-  user-select: none;
 
-  svg {
-    width: 16px;
-    height: 16px;
-    color: #22c55e;
-  }
-`;

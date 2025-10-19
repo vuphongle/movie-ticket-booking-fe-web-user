@@ -59,10 +59,29 @@ export default function QuickBookingComponent() {
   // --- Showtimes ---
   const showtimesForSelectedDate = useMemo(() => {
     if (!selectedMovie || !selectedDate) return [];
-    return selectedMovie.showtimes.filter(st => {
-      const dateStr = `${st.date[0]}-${String(st.date[1]).padStart(2, '0')}-${String(st.date[2]).padStart(2, '0')}`;
-      return dateStr === selectedDate;
-    });
+
+    const now = new Date();
+
+    return selectedMovie.showtimes
+      .filter(st => {
+        const [year, month, day] = st.date;
+        const showDateTime = new Date(
+          year,
+          month - 1,
+          day,
+          Number(st.startTime.split(':')[0]),
+          Number(st.startTime.split(':')[1])
+        );
+
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+        return dateStr === selectedDate && showDateTime > now;
+      })
+      .sort((a, b) => {
+        const [aH, aM] = a.startTime.split(':').map(Number);
+        const [bH, bM] = b.startTime.split(':').map(Number);
+        return aH !== bH ? aH - bH : aM - bM;
+      });
   }, [selectedMovie, selectedDate]);
 
   // --- Format date hiển thị ---
@@ -144,6 +163,24 @@ export default function QuickBookingComponent() {
   const cinemaOptions =
     cinemaNames?.map(name => ({ value: name, label: name })) ?? [];
 
+  const movieOptions = movies?.map(m => ({ value: m.id, label: m.name })) || [];
+  const selectedMovieOption =
+    movieOptions.find(opt => opt.value === selectedMovieId) || null;
+
+  const dateOptions = showDates.map(date => ({
+    value: date,
+    label: formatShowDate(date),
+  }));
+  const selectedDateOption =
+    dateOptions.find(opt => opt.value === selectedDate) || null;
+
+  const showtimeOptions = showtimesForSelectedDate.map(st => ({
+    value: st.id,
+    label: `${st.startTime} - ${st.auditoriumType} | ${formatGraphicLabel(st.graphicsType)} ${st.translationType === 'DUBBING' ? 'Lồng tiếng' : st.translationType === 'SUBTITLING' ? 'Phụ đề' : st.translationType}`,
+  }));
+  const selectedShowtimeOption =
+    showtimeOptions.find(opt => opt.value === selectedShowtimeId) || null;
+
   return (
     <Wrapper>
       <Form>
@@ -164,6 +201,7 @@ export default function QuickBookingComponent() {
             isDisabled={isCinemaLoading || isError}
             placeholder={t('QUICKBOOKING_SELECT_CINEMA')}
             styles={customSelectStyles(1)}
+            autoFocus={false}
           />
         </SelectWrapper>
 
@@ -171,30 +209,13 @@ export default function QuickBookingComponent() {
         <SelectWrapper>
           <StepBadge>2</StepBadge>
           <Select
-            options={
-              movies?.map(movie => ({
-                value: movie.id,
-                label: movie.name,
-              })) || []
-            }
-            value={
-              selectedMovieId
-                ? {
-                    value: selectedMovieId,
-                    label:
-                      movies?.find(m => m.id === selectedMovieId)?.name || '',
-                  }
-                : null
-            }
-            onChange={option => {
-              const id = Number(option?.value);
-              setSelectedMovieId(id || null);
-              setSelectedDate('');
-              setSelectedShowtimeId(null);
-            }}
+            options={movieOptions}
+            value={selectedMovieOption} // object từ options
+            onChange={option => setSelectedMovieId(option?.value ?? null)}
             isDisabled={!selectedCinema || isMovieLoading}
             placeholder={t('QUICKBOOKING_SELECT_MOVIE')}
             styles={customSelectStyles(2)}
+            autoFocus={false}
           />
         </SelectWrapper>
 
@@ -202,22 +223,13 @@ export default function QuickBookingComponent() {
         <SelectWrapper>
           <StepBadge>3</StepBadge>
           <Select
-            options={showDates.map(date => ({
-              value: date,
-              label: formatShowDate(date),
-            }))}
-            value={
-              selectedDate
-                ? { value: selectedDate, label: formatShowDate(selectedDate) }
-                : null
-            }
-            onChange={option => {
-              setSelectedDate(option?.value || '');
-              setSelectedShowtimeId(null);
-            }}
+            options={dateOptions}
+            value={selectedDateOption}
+            onChange={option => setSelectedDate(option?.value ?? '')}
             isDisabled={!selectedMovie || showDates.length === 0}
             placeholder={t('QUICKBOOKING_SELECT_DATE')}
             styles={customSelectStyles(3)}
+            autoFocus={false}
           />
         </SelectWrapper>
 
@@ -225,31 +237,13 @@ export default function QuickBookingComponent() {
         <SelectWrapper>
           <StepBadge>4</StepBadge>
           <Select
-            options={showtimesForSelectedDate.map(st => ({
-              value: st.id,
-              label: `${st.startTime} - ${st.auditoriumType} | ${formatGraphicLabel(st.graphicsType)} ${
-                st.translationType === 'DUBBING'
-                  ? 'Lồng tiếng'
-                  : st.translationType === 'SUBTITLING'
-                    ? 'Phụ đề'
-                    : st.translationType
-              }`,
-            }))}
-            value={
-              selectedShowtimeId
-                ? {
-                    value: selectedShowtimeId,
-                    label:
-                      showtimesForSelectedDate.find(
-                        st => st.id === selectedShowtimeId
-                      )?.startTime || '',
-                  }
-                : null
-            }
-            onChange={option => setSelectedShowtimeId(Number(option?.value))}
+            options={showtimeOptions}
+            value={selectedShowtimeOption}
+            onChange={option => setSelectedShowtimeId(option?.value ?? null)}
             isDisabled={!selectedDate || showtimesForSelectedDate.length === 0}
             placeholder={t('QUICKBOOKING_SELECT_TIME')}
             styles={customSelectStyles(4)}
+            autoFocus={false}
           />
         </SelectWrapper>
 
@@ -369,10 +363,10 @@ const customSelectStyles = (
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isFocused
-      ? 'rgba(109, 94, 220, 0.1)'
-      : state.isSelected
-        ? '#6d5edc'
+    backgroundColor: state.isSelected
+      ? '#6d5edc'
+      : state.isFocused
+        ? 'rgba(109, 94, 220, 0.1)'
         : 'white',
     color: state.isSelected ? 'white' : 'black',
     cursor: 'pointer',
