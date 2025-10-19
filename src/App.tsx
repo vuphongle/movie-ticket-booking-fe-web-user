@@ -23,7 +23,7 @@ import PaymentResultPage from '@pages/orders/PaymentResultPage';
 
 import AppToastContainer from '@components/base/AppToastContainer';
 import ChatWidget from '@components/chat/ChatWidget';
-import CinemaPage from '@/pages/cinema/CinemaPage';
+import CinemaPage from '@/pages/cinema/Cinemapage';
 import CouponPage from '@/pages/coupons/CouponPage';
 // import { useGlobalBookingTimer } from '@hooks/useGlobalBookingTimer';
 

@@ -1,0 +1,31 @@
+services:
+  frontend-user:
+    image: vuphongle23/movie-ticket-booking-fe-user:latest
+    # Uncomment below to build locally instead of pulling from Docker Hub
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    container_name: movie-booking-frontend-user
+    ports:
+      - '3000:80'
+    networks:
+      - movie-ticket-booking-be_movie-booking-network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost/',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  movie-ticket-booking-be_movie-booking-network:
+    external: true
