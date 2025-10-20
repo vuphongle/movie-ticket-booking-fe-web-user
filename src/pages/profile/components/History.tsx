@@ -1,18 +1,33 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
-import { theme } from '@/theme/Theme';
+import { theme } from '@theme/Theme';
 import { useTranslation } from 'react-i18next';
 import { useGetAllOrdersQuery } from '@app/services/Order.api';
 import type { OrderDto } from '@app/services/Order.api';
+import { FileText } from 'lucide-react';
 
 const History: React.FC = () => {
   const { t } = useTranslation();
-
-  // Lấy tất cả đơn
   const { data: purchaseHistory, isLoading, error } = useGetAllOrdersQuery();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+  const handleViewPdf = (qrPath: string) => {
+    const pdfUrl = `${window.location.origin}${qrPath}`;
+    window.open(pdfUrl, '_blank');
+  };
+
+  const filteredHistory = useMemo(() => {
+    if (!purchaseHistory) return [];
+    return purchaseHistory.filter(order => {
+      const movieName = order.showtime?.movie?.name?.toLowerCase() || '';
+      const cinemaName = order.showtime?.auditorium?.cinema?.name?.toLowerCase() || '';
+      const term = searchTerm.toLowerCase();
+      return movieName.includes(term) || cinemaName.includes(term);
+    });
+  }, [purchaseHistory, searchTerm]);
 
   if (isLoading) return <p>Đang tải...</p>;
   if (error) return <p>Lỗi khi tải dữ liệu!</p>;
@@ -22,31 +37,82 @@ const History: React.FC = () => {
     <HistoryContainer>
       <HistoryTitle>{t('PURCHASE_HISTORY')}</HistoryTitle>
 
+      <SearchInput
+        type="text"
+        placeholder="Tìm kiếm phim hoặc rạp..."
+        value={searchTerm}
+        onChange={e => setSearchTerm(e.target.value)}
+      />
+
       <HistoryList>
-        {purchaseHistory.map((order: OrderDto) => (
+        {filteredHistory.map((order: OrderDto) => (
           <HistoryItem key={order.id}>
-            <MovieInfo>
-              <MovieTitle>{order.movieTitle}</MovieTitle>
-              <CinemaInfo>{order.cinema}</CinemaInfo>
-              <DateTime>
-                {order.date} - {order.time}
-              </DateTime>
-            </MovieInfo>
+            <MovieSection>
+              <Poster src={order.showtime?.movie?.poster} alt={order.showtime?.movie?.name} />
+              <MovieDetails>
+                <MovieTitle>{order.showtime?.movie?.name}</MovieTitle>
+                <CinemaInfo>{order.showtime?.auditorium?.cinema?.name}</CinemaInfo>
+                <DateTime>
+                  {order.showtime?.startTime} - {order.showtime?.endTime} | {order.showtime?.date}
+                </DateTime>
+                <SmallText>
+                  Hình thức: {order.showtime?.graphicsType} | {order.showtime?.translationType}
+                </SmallText>
+              </MovieDetails>
+            </MovieSection>
 
             <TicketDetails>
-              <SeatsInfo>
+              <DetailRow>
                 <Label>Ghế:</Label>
-                <SeatsText>{order.seats?.length ? order.seats.join(', ') : 'Chưa có ghế'}</SeatsText>
-              </SeatsInfo>
-              <PriceInfo>
+                <Value>{order.ticketItems?.map(t => t.seat?.code).join(', ')}</Value>
+              </DetailRow>
+              {order.serviceItems?.length > 0 && (
+                <DetailRow>
+                  <Label>Dịch vụ:</Label>
+                  <Value>
+                    {order.serviceItems
+                      .map(
+                        s =>
+                          `${s.additionalService?.name} x${s.quantity} (${formatCurrency(s.price)})`
+                      )
+                      .join(', ')}
+                  </Value>
+                </DetailRow>
+              )}
+              <DetailRow>
+                <Label>Giảm giá:</Label>
+                <Value>{formatCurrency(order.discount || 0)}</Value>
+              </DetailRow>
+              <DetailRow>
                 <Label>Tổng tiền:</Label>
-                <Price>{formatCurrency(order.totalAmount)}</Price>
-              </PriceInfo>
+                <TotalPrice>{formatCurrency(order.totalPrice)}</TotalPrice>
+              </DetailRow>
+              <DetailRow>
+                <Label>Thanh toán:</Label>
+                <Value>
+                  {JSON.parse(order.requestSnapshot || '{}')?.paymentMethod || 'Không rõ'}
+                </Value>
+              </DetailRow>
+              <DetailRow>
+                <Label>Ngày mua:</Label>
+                <Value>
+                  {order.createdAt
+                    ? `${order.createdAt[2]}/${order.createdAt[1]}/${order.createdAt[0]} ${order.createdAt[3]}:${order.createdAt[4]}`
+                    : ''}
+                </Value>
+              </DetailRow>
             </TicketDetails>
 
-            <Status status={order.status}>
-              {order.status === 'confirmed' ? 'Hoàn thành' : 'Đã hủy'}
-            </Status>
+            <RightSection>
+              <Status status={order.status}>
+                {order.status === 'CONFIRMED' ? 'Hoàn thành' : 'Đã hủy'}
+              </Status>
+              {order.qrCodePath && (
+                <ButtonStyled onClick={() => handleViewPdf(order.qrCodePath)}>
+                  <FileText size={16} /> Xem đơn (PDF)
+                </ButtonStyled>
+              )}
+            </RightSection>
           </HistoryItem>
         ))}
       </HistoryList>
@@ -54,21 +120,19 @@ const History: React.FC = () => {
   );
 };
 
-// styled-components giữ nguyên như trước
+/* --- Styled Components --- */
 const HistoryContainer = styled.div`
   background: ${theme.colors.white};
   border-radius: ${theme.borderRadius.medium};
   padding: ${theme.spacing.lg};
   box-shadow: 0 4px 20px rgba(23, 13, 13, 0.08);
   border: 1px solid ${theme.colors.border};
-  position: relative;
-  z-index: 1;
 `;
 
 const HistoryTitle = styled.h2`
   font-size: ${theme.fontSize.xl};
   font-weight: 600;
-  margin: 0 0 ${theme.spacing.lg} 0;
+  margin-bottom: ${theme.spacing.lg};
   color: ${theme.colors.textPrimary};
 `;
 
@@ -86,6 +150,7 @@ const HistoryItem = styled.div`
   flex-direction: column;
   gap: ${theme.spacing.sm};
   transition: box-shadow 0.2s ease;
+  background: #fafafa;
 
   &:hover {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -93,25 +158,49 @@ const HistoryItem = styled.div`
 
   @media (min-width: 768px) {
     flex-direction: row;
-    align-items: center;
     justify-content: space-between;
+    align-items: flex-start;
   }
 `;
 
-const MovieInfo = styled.div`flex: 1;`;
+const MovieSection = styled.div`
+  display: flex;
+  gap: ${theme.spacing.md};
+  flex: 1;
+`;
+
+const Poster = styled.img`
+  width: 80px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: ${theme.borderRadius.small};
+`;
+
+const MovieDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 const MovieTitle = styled.h3`
   font-size: ${theme.fontSize.lg};
   font-weight: 600;
   color: ${theme.colors.textPrimary};
-  margin: 0 0 ${theme.spacing.xs} 0;
 `;
+
 const CinemaInfo = styled.p`
   font-size: ${theme.fontSize.md};
   color: ${theme.colors.textSecondary};
-  margin: 0 0 ${theme.spacing.xs} 0;
+  margin: 2px 0;
 `;
+
 const DateTime = styled.p`
   font-size: ${theme.fontSize.sm};
+  color: ${theme.colors.textSecondary};
+  margin: 2px 0;
+`;
+
+const SmallText = styled.p`
+  font-size: ${theme.fontSize.xl};
   color: ${theme.colors.textSecondary};
   margin: 0;
 `;
@@ -119,66 +208,85 @@ const DateTime = styled.p`
 const TicketDetails = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing.xs};
-
-  @media (min-width: 768px) {
-    flex-direction: row;
-    gap: ${theme.spacing.md};
-  }
+  gap: 4px;
+  flex: 1;
 `;
 
-const SeatsInfo = styled.div`
+const DetailRow = styled.div`
   display: flex;
   align-items: center;
-  gap: ${theme.spacing.xs};
-`;
-
-const PriceInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.xs};
+  gap: 6px;
 `;
 
 const Label = styled.span`
   font-size: ${theme.fontSize.sm};
   color: ${theme.colors.textSecondary};
   font-weight: 500;
+  min-width: 90px;
 `;
 
-const SeatsText = styled.span`
+const Value = styled.span`
   font-size: ${theme.fontSize.sm};
   color: ${theme.colors.textPrimary};
-  font-weight: 600;
 `;
 
-const Price = styled.span`
+const TotalPrice = styled.span`
   font-size: ${theme.fontSize.md};
   color: ${theme.colors.primary};
-  font-weight: 600;
+  font-weight: 700;
+`;
+
+const RightSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
 `;
 
 const Status = styled.div<{ status: string }>`
-  padding: ${theme.spacing.xs} ${theme.spacing.sm};
+  padding: 6px 10px;
   border-radius: ${theme.borderRadius.small};
   font-size: ${theme.fontSize.sm};
-  font-weight: 500;
-  text-align: center;
+  font-weight: 600;
   width: fit-content;
 
   ${({ status }) =>
-    status === 'confirmed'
+    status === 'CONFIRMED'
       ? `
-      background: #e8f5e8;
-      color: #2e7d32;
+      background: #e3fcef;
+      color: #0b8043;
     `
       : `
       background: #ffebee;
       color: #c62828;
     `}
+`;
 
-  @media (min-width: 768px) {
-    align-self: center;
+const ButtonStyled = styled.button`
+  background: ${theme.colors.primary};
+  color: white;
+  font-size: ${theme.fontSize.sm};
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: ${theme.colors.primaryHoverGradient};
   }
+`;
+
+const SearchInput = styled.input`
+  width: auto;
+  padding: 6px 12px;
+  margin-bottom: ${theme.spacing.md};
+  border-radius: ${theme.borderRadius.small};
+  border: 1px solid ${theme.colors.border};
+  font-size: ${theme.fontSize.sm};
+  background: '#f9f9f9';
 `;
 
 export default History;

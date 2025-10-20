@@ -1,4 +1,5 @@
 const common = {
+  NOTIFICATION: 'Notification',
   // AUTH
   AUTH_LOGIN: 'Login',
   AUTH_SIGNUP: 'Sign Up',
@@ -92,9 +93,9 @@ const common = {
 
   // SEARCH
   SEARCH_PLACEHOLDER: 'Search movies',
-    SEARCH_NO_QUERY: 'Please enter a search query.',
-    SEARCH_RESULTS_FOR: 'Search results for',
-    SEARCH_NO_RESULT: 'No movies found matching your query.',
+  SEARCH_NO_QUERY: 'Please enter a search query.',
+  SEARCH_RESULTS_FOR: 'Search results for',
+  SEARCH_NO_RESULT: 'No movies found matching your query.',
 
   // REGISTER
   REGISTER_TITLE: 'Register your account',
@@ -228,7 +229,8 @@ const common = {
   CHAT_INPUT_PLACEHOLDER: 'What kind of movie are you in the mood for?',
   CHAT_GREETING:
     "Hi there! I'm your movie assistant. Tell me about the genres, mood, or anything you feel like watching!",
-  CHAT_ERROR_MESSAGE: "Sorry, I can't respond right now. Please try again later!",
+  CHAT_ERROR_MESSAGE:
+    "Sorry, I can't respond right now. Please try again later!",
   CHAT_LOADING: 'Finding movie suggestions...',
   CHAT_RECOMMENDED_MOVIE_FALLBACK: 'Recommended movie',
   CHAT_VIEW_DETAILS: 'View details',

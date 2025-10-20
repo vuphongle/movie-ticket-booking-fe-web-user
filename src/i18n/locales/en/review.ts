@@ -6,9 +6,31 @@ const review = {
   REVIEWS_ALL: 'All comments',
   REVIEWS_PREV: 'Previous page',
   REVIEWS_NEXT: 'Next page',
-  MOVIE_REVIEW_RATING: 'Your rating',
+  MOVIE_REVIEW_RATING: 'Your star rating',
   MOVIE_REVIEW_PLACEHOLDER: 'Write your review here...',
   MOVIE_REVIEW_SUBMIT: 'Submit Review',
+  MOVIE_REVIEW_CHOOSE_FILE: 'Choose image file',
+
+    REVIEW_LABEL_1: "Awful",
+    REVIEW_LABEL_2: "Very Bad",
+    REVIEW_LABEL_3: "Average",
+    REVIEW_LABEL_4: "Okay",
+    REVIEW_LABEL_5: "Good",
+    REVIEW_LABEL_6: "Great",
+    REVIEW_LABEL_7: "Very Great",
+    REVIEW_LABEL_8: "Excellent",
+    REVIEW_LABEL_9: "🔥 Top Notch",
+    REVIEW_LABEL_10: "💯 Masterpiece",
+
+    CONFIRM_DELETE_REVIEW_TITLE: "Are you sure you want to delete this review?",
+    CONFIRM_DELETE_REVIEW_MESSAGE: "This action cannot be undone.",
+    CANCEL: "Cancel",
+    DELETE: "Delete",
+    EDIT_REVIEW_TITLE: "Edit Review",
+    EDIT_REVIEW_RATING: "Star Rating",
+    EDIT_REVIEW_COMMENT: "Comment",
+    EDIT_REVIEW_ADD_IMAGES: "Add Images",
+    SAVE_CHANGES: "Save Changes"
 };
 
 export default review;

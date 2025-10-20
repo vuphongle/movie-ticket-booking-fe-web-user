@@ -166,6 +166,7 @@ export default function BookingConfirmPage() {
   };
 
   const handleBack = () => {
+    isProceedingRef.current = true;
     sessionStorage.setItem(
       'bookingPageState',
       JSON.stringify({
@@ -181,7 +182,7 @@ export default function BookingConfirmPage() {
       const isReload =
         navEntries.length > 0 &&
         (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
-      if (isReload) return;
+      if (isReload || isProceedingRef.current) return;
       if (!isProceedingRef.current && bookingData?.seats?.length) {
         cancelSeatMulti({
           showtimeId: bookingData.showtimeId,

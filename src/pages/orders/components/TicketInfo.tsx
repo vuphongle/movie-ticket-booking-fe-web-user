@@ -36,13 +36,15 @@ interface TicketInfoProps {
     discount: number;
     gifts?: any[];
   }[];
-  onApplyVoucher?: (appliedData: any) => void; // callback khi ấn nút "Áp dụng"
+  hideVoucherInput?: boolean;
+  onApplyVoucher?: (appliedData: any) => void;
 }
 
 export default function TicketInfo({
   bookingData,
   appliedCoupons = [],
   onApplyVoucher,
+  hideVoucherInput = false,
 }: TicketInfoProps) {
   if (!bookingData) return null;
 
@@ -207,15 +209,17 @@ export default function TicketInfo({
       >
         Tổng: {bookingData.total.toLocaleString()} đ
       </span>
-      <VoucherContainer>
-        <VoucherInput
-          type='text'
-          placeholder='Nhập mã voucher...'
-          value={code}
-          onChange={e => setCode(e.target.value)}
-        />
-        <ApplyButton onClick={handleCheckVoucher}>Áp dụng</ApplyButton>
-      </VoucherContainer>
+      {!hideVoucherInput && (
+        <VoucherContainer>
+          <VoucherInput
+            type='text'
+            placeholder='Nhập mã voucher...'
+            value={code}
+            onChange={e => setCode(e.target.value)}
+          />
+          <ApplyButton onClick={handleCheckVoucher}>Áp dụng</ApplyButton>
+        </VoucherContainer>
+      )}
 
       {couponInfo && (
         <CouponInfoBox>

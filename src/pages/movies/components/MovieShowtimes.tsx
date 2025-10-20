@@ -86,7 +86,7 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
   const [selectedDate, setSelectedDate] = useState(next6Days[0]);
 
   const { data: cinemaNames = [] } = useGetAllCinemaNamesQuery();
-  const [location, setLocation] = useState('ALL_COUNTRY');
+  const [location] = useState('ALL_COUNTRY');
   const [cinema, setCinema] = useState('ALL_CINEMA');
 
   const showDateStr = useMemo(
@@ -196,7 +196,7 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
               {next6Days.map((d, i) => {
                 const isToday = d.toDateString() === new Date().toDateString();
                 const weekdayIndex = d.getDay(); // 0 = Chủ nhật
-                const weekdayKey = WEEKDAYS[(weekdayIndex + 6) % 7]; // map 0 -> Chủ nhật cuối
+                const weekdayKey = WEEKDAYS[(weekdayIndex + 6) % 7];
                 return (
                   <DateButton
                     key={i}

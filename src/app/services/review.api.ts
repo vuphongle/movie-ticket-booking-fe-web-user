@@ -20,8 +20,11 @@ export interface ReviewDto {
   comment: string;
   rating: number;
   createdAt: string;
+  updatedAt: string;
+  images: string[];
   user?: UserDto;
   movie?: MovieDto;
+  feeling?: string[];
 }
 
 export interface Page<T> {
@@ -37,7 +40,7 @@ export interface Page<T> {
 export const reviewApi = createApi({
   reducerPath: 'reviewApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: API_DOMAIN, // private API
+    baseUrl: API_DOMAIN,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -64,7 +67,27 @@ export const reviewApi = createApi({
         body: formData,
       }),
     }),
+
+    updateReview: builder.mutation<ReviewDto, FormData>({
+      query: formData => ({
+        url: '/api/reviews',
+        method: 'PUT',
+        body: formData,
+      }),
+    }),
+
+    deleteReview: builder.mutation<void, number>({
+      query: reviewId => ({
+        url: `/api/reviews/${reviewId}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 
-export const { useGetAllReviewsQuery, useCreateReviewMutation } = reviewApi;
+export const {
+  useGetAllReviewsQuery,
+  useCreateReviewMutation,
+  useUpdateReviewMutation,
+  useDeleteReviewMutation,
+} = reviewApi;

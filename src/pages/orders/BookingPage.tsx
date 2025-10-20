@@ -12,7 +12,6 @@ import { useBookSeatMutation } from '@/app/services/reservation.api';
 import { HeldSeatModal } from './components/modals/HeldSeatModal';
 import { SelectSeatModal } from './components/modals/SelectSeatModal';
 import { AgeConfirmModal } from './components/modals/AgeConfirmModal';
-import GlobalLoading from '@components/loading/GlobalLoading';
 import { useLazyCheckSeatStatusQuery } from '@app/services/reservation.api';
 
 /** ---- UI types ---- */
@@ -195,7 +194,7 @@ export default function BookingPage() {
         <Card>
           <Screen>{t('BOOKING_SCREEN')}</Screen>
 
-          {isLoading && <GlobalLoading />}
+          {isLoading}
           {isError && <InfoLine>{t('BOOKING_ERROR_SEAT')}</InfoLine>}
 
           {!isLoading && !isError && (
