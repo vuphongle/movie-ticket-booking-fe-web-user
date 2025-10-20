@@ -10,6 +10,8 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@app/Store';
 import { useLoginModal } from '@/contexts/LoginContext';
 import { setDataToLocalStorage } from '@utils/localStorageUtils';
+import Select from 'react-select';
+import type { GroupBase, StylesConfig } from 'react-select';
 
 export default function QuickBookingComponent() {
   const { t } = useTranslation();
@@ -21,13 +23,25 @@ export default function QuickBookingComponent() {
   const [selectedCinema, setSelectedCinema] = useState<string>('');
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedShowtimeId, setSelectedShowtimeId] = useState<number | null>(null);
+  const [selectedShowtimeId, setSelectedShowtimeId] = useState<number | null>(
+    null
+  );
 
   // --- Queries ---
-  const { data: cinemaNames, isLoading: isCinemaLoading, isError } = useGetAllCinemaNamesQuery();
-  const { data: movies, isFetching: isMovieLoading } = useGetMoviesShowtimesByCinemaNameQuery(selectedCinema, { skip: !selectedCinema });
+  const {
+    data: cinemaNames,
+    isLoading: isCinemaLoading,
+    isError,
+  } = useGetAllCinemaNamesQuery();
+  const { data: movies, isFetching: isMovieLoading } =
+    useGetMoviesShowtimesByCinemaNameQuery(selectedCinema, {
+      skip: !selectedCinema,
+    });
 
-  const selectedMovie = useMemo(() => movies?.find(m => m.id === selectedMovieId), [movies, selectedMovieId]);
+  const selectedMovie = useMemo(
+    () => movies?.find(m => m.id === selectedMovieId),
+    [movies, selectedMovieId]
+  );
 
   // --- Show dates ---
   const showDates = useMemo(() => {
@@ -45,10 +59,29 @@ export default function QuickBookingComponent() {
   // --- Showtimes ---
   const showtimesForSelectedDate = useMemo(() => {
     if (!selectedMovie || !selectedDate) return [];
-    return selectedMovie.showtimes.filter(st => {
-      const dateStr = `${st.date[0]}-${String(st.date[1]).padStart(2, '0')}-${String(st.date[2]).padStart(2, '0')}`;
-      return dateStr === selectedDate;
-    });
+
+    const now = new Date();
+
+    return selectedMovie.showtimes
+      .filter(st => {
+        const [year, month, day] = st.date;
+        const showDateTime = new Date(
+          year,
+          month - 1,
+          day,
+          Number(st.startTime.split(':')[0]),
+          Number(st.startTime.split(':')[1])
+        );
+
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+        return dateStr === selectedDate && showDateTime > now;
+      })
+      .sort((a, b) => {
+        const [aH, aM] = a.startTime.split(':').map(Number);
+        const [bH, bM] = b.startTime.split(':').map(Number);
+        return aH !== bH ? aH - bH : aM - bM;
+      });
   }, [selectedMovie, selectedDate]);
 
   // --- Format date hiển thị ---
@@ -63,17 +96,33 @@ export default function QuickBookingComponent() {
     const isToday = dateObj.toDateString() === today.toDateString();
     const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
 
-    if (isToday) return `Hôm nay, ${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
-    if (isTomorrow) return `Ngày mai, ${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+    if (isToday)
+      return `Hôm nay, ${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+    if (isTomorrow)
+      return `Ngày mai, ${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
 
-    const weekdays = ['Chủ nhật','Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'];
+    const weekdays = [
+      'Chủ nhật',
+      'Thứ hai',
+      'Thứ ba',
+      'Thứ tư',
+      'Thứ năm',
+      'Thứ sáu',
+      'Thứ bảy',
+    ];
     const weekday = weekdays[dateObj.getDay()];
     return `${weekday}, ${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
   }
 
   // --- Xử lý đặt vé ngay ---
   const handleBooking = () => {
-    if (!selectedCinema || !selectedMovie || !selectedDate || !selectedShowtimeId) return;
+    if (
+      !selectedCinema ||
+      !selectedMovie ||
+      !selectedDate ||
+      !selectedShowtimeId
+    )
+      return;
 
     const st = showtimesForSelectedDate.find(s => s.id === selectedShowtimeId);
     if (!st) return;
@@ -111,6 +160,27 @@ export default function QuickBookingComponent() {
     navigate(`/booking/${selectedMovie.slug}/${st.id}`, { state: payload });
   };
 
+  const cinemaOptions =
+    cinemaNames?.map(name => ({ value: name, label: name })) ?? [];
+
+  const movieOptions = movies?.map(m => ({ value: m.id, label: m.name })) || [];
+  const selectedMovieOption =
+    movieOptions.find(opt => opt.value === selectedMovieId) || null;
+
+  const dateOptions = showDates.map(date => ({
+    value: date,
+    label: formatShowDate(date),
+  }));
+  const selectedDateOption =
+    dateOptions.find(opt => opt.value === selectedDate) || null;
+
+  const showtimeOptions = showtimesForSelectedDate.map(st => ({
+    value: st.id,
+    label: `${st.startTime} - ${st.auditoriumType} | ${formatGraphicLabel(st.graphicsType)} ${st.translationType === 'DUBBING' ? 'Lồng tiếng' : st.translationType === 'SUBTITLING' ? 'Phụ đề' : st.translationType}`,
+  }));
+  const selectedShowtimeOption =
+    showtimeOptions.find(opt => opt.value === selectedShowtimeId) || null;
+
   return (
     <Wrapper>
       <Form>
@@ -118,87 +188,63 @@ export default function QuickBookingComponent() {
         <SelectWrapper>
           <StepBadge>1</StepBadge>
           <Select
-            disabled={isCinemaLoading || isError}
-            value={selectedCinema}
-            onChange={e => {
-              setSelectedCinema(e.target.value);
+            options={cinemaOptions}
+            value={
+              cinemaOptions.find(opt => opt.value === selectedCinema) || null
+            }
+            onChange={option => {
+              setSelectedCinema(option?.value || '');
               setSelectedMovieId(null);
               setSelectedDate('');
               setSelectedShowtimeId(null);
             }}
-          >
-            <option value=''>{t('QUICKBOOKING_SELECT_CINEMA')}</option>
-            {cinemaNames?.map((name, idx) => (
-              <option key={idx} value={name}>
-                {name}
-              </option>
-            ))}
-          </Select>
+            isDisabled={isCinemaLoading || isError}
+            placeholder={t('QUICKBOOKING_SELECT_CINEMA')}
+            styles={customSelectStyles(1)}
+            autoFocus={false}
+          />
         </SelectWrapper>
 
         {/* Step 2 - Chọn phim */}
         <SelectWrapper>
           <StepBadge>2</StepBadge>
           <Select
-            disabled={!selectedCinema || isMovieLoading}
-            value={selectedMovieId ?? ''}
-            onChange={e => {
-              const id = Number(e.target.value);
-              setSelectedMovieId(id || null);
-              setSelectedDate('');
-              setSelectedShowtimeId(null);
-            }}
-          >
-            <option value=''>{t('QUICKBOOKING_SELECT_MOVIE')}</option>
-            {movies?.map(movie => (
-              <option key={movie.id} value={movie.id}>
-                {movie.name}
-              </option>
-            ))}
-          </Select>
+            options={movieOptions}
+            value={selectedMovieOption} // object từ options
+            onChange={option => setSelectedMovieId(option?.value ?? null)}
+            isDisabled={!selectedCinema || isMovieLoading}
+            placeholder={t('QUICKBOOKING_SELECT_MOVIE')}
+            styles={customSelectStyles(2)}
+            autoFocus={false}
+          />
         </SelectWrapper>
 
         {/* Step 3 - Chọn ngày chiếu */}
         <SelectWrapper>
           <StepBadge>3</StepBadge>
           <Select
-            disabled={!selectedMovie || showDates.length === 0}
-            value={selectedDate}
-            onChange={e => {
-              setSelectedDate(e.target.value);
-              setSelectedShowtimeId(null);
-            }}
-          >
-            <option value=''>{t('QUICKBOOKING_SELECT_DATE')}</option>
-            {showDates.map(date => (
-              <option key={date} value={date}>
-                {formatShowDate(date)}
-              </option>
-            ))}
-          </Select>
+            options={dateOptions}
+            value={selectedDateOption}
+            onChange={option => setSelectedDate(option?.value ?? '')}
+            isDisabled={!selectedMovie || showDates.length === 0}
+            placeholder={t('QUICKBOOKING_SELECT_DATE')}
+            styles={customSelectStyles(3)}
+            autoFocus={false}
+          />
         </SelectWrapper>
 
         {/* Step 4 - Chọn giờ chiếu */}
         <SelectWrapper>
           <StepBadge>4</StepBadge>
           <Select
-            disabled={!selectedDate || showtimesForSelectedDate.length === 0}
-            value={selectedShowtimeId ?? ''}
-            onChange={e => setSelectedShowtimeId(Number(e.target.value))}
-          >
-            <option value=''>{t('QUICKBOOKING_SELECT_TIME')}</option>
-            {showtimesForSelectedDate.map(st => (
-              <option key={st.id} value={st.id}>
-                {`${st.startTime} - ${st.auditoriumType} | ${formatGraphicLabel(st.graphicsType)} ${
-                  st.translationType === 'DUBBING'
-                    ? 'Lồng tiếng'
-                    : st.translationType === 'SUBTITLING'
-                      ? 'Phụ đề'
-                      : st.translationType
-                }`}
-              </option>
-            ))}
-          </Select>
+            options={showtimeOptions}
+            value={selectedShowtimeOption}
+            onChange={option => setSelectedShowtimeId(option?.value ?? null)}
+            isDisabled={!selectedDate || showtimesForSelectedDate.length === 0}
+            placeholder={t('QUICKBOOKING_SELECT_TIME')}
+            styles={customSelectStyles(4)}
+            autoFocus={false}
+          />
         </SelectWrapper>
 
         <Button
@@ -274,34 +320,79 @@ const StepBadge = styled.span`
   justify-content: center;
 `;
 
-const Select = styled.select`
-  width: 230px; 
-  min-width: 0;
-  padding: ${theme.spacing.sm} ${theme.spacing.md};
-  padding-left: 36px;
-  border: 1px solid ${theme.colors.border};
-  border-radius: ${theme.borderRadius.small};
-  font-size: ${theme.fontSize.sm};
-  color: ${theme.colors.textPrimary};
-  background: ${theme.colors.white};
-  outline: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${theme.colors.backgroundHover};
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  }
-
-  &:focus {
-    border-color: ${theme.colors.primary};
-    box-shadow: 0 0 0 3px rgba(109, 94, 220, 0.25);
-  }
-/
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-`;
+const customSelectStyles = (
+  step: number
+): StylesConfig<any, false, GroupBase<any>> => ({
+  control: (base, state) => ({
+    ...base,
+    width: '230px',
+    minWidth: '200px',
+    background: 'white',
+    borderColor: state.isFocused ? '#6d5edc' : '#ccc',
+    boxShadow: state.isFocused ? '0 0 0 3px rgba(109, 94, 220, 0.25)' : 'none',
+    borderRadius: '12px',
+    padding: '2px 4px 2px 28px',
+    cursor: 'pointer',
+    position: 'relative',
+    '&::before': {
+      content: `'${step}'`,
+      position: 'absolute',
+      left: '8px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      backgroundColor: '#6d5edc',
+      color: 'white',
+      width: '22px',
+      height: '22px',
+      borderRadius: '50%',
+      fontSize: '12px',
+      fontWeight: 600,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 2px 4px rgba(109,94,220,0.3)',
+    },
+    '&:hover': { borderColor: '#6d5edc' },
+  }),
+  singleValue: base => ({
+    ...base,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '180px',
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? '#6d5edc'
+      : state.isFocused
+        ? 'rgba(109, 94, 220, 0.1)'
+        : 'white',
+    color: state.isSelected ? 'white' : 'black',
+    cursor: 'pointer',
+    padding: '10px 14px',
+    fontSize: '14px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  }),
+  menu: base => ({
+    ...base,
+    width: step === 2 ? '310px' : step === 4 ? '270px' : '230px',
+    borderRadius: '10px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    overflow: 'hidden',
+    zIndex: 10,
+  }),
+  menuList: base => ({
+    ...base,
+    maxHeight: '230px',
+  }),
+  placeholder: base => ({
+    ...base,
+    color: '#888',
+  }),
+});
 
 const Button = styled.button`
   background: ${theme.colors.primary};
@@ -309,7 +400,7 @@ const Button = styled.button`
   font-weight: 600;
   font-size: ${theme.fontSize.md};
   border: none;
-  border-radius: ${theme.borderRadius.small};
+  border-radius: ${theme.borderRadius.medium};
   padding: ${theme.spacing.sm} ${theme.spacing.lg};
   cursor: pointer;
   min-width: 120px;

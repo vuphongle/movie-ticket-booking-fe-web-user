@@ -1,4 +1,6 @@
 const common = {
+  NOTIFICATION: 'Thông báo',
+
   // AUTH
   AUTH_LOGIN: 'Đăng nhập',
   AUTH_SIGNUP: 'Đăng ký',
@@ -231,7 +233,8 @@ const common = {
   CHAT_INPUT_PLACEHOLDER: 'Bạn muốn xem phim như thế nào?',
   CHAT_GREETING:
     'Xin chào! Mình là trợ lý gợi ý phim. Bạn có thể mô tả thể loại, cảm xúc hoặc bất kỳ điều gì bạn muốn xem nhé!',
-  CHAT_ERROR_MESSAGE: 'Xin lỗi, mình không thể phản hồi ngay lúc này. Bạn thử lại sau nhé!',
+  CHAT_ERROR_MESSAGE:
+    'Xin lỗi, mình không thể phản hồi ngay lúc này. Bạn thử lại sau nhé!',
   CHAT_LOADING: 'Đang tìm gợi ý phim...',
   CHAT_RECOMMENDED_MOVIE_FALLBACK: 'Phim đề xuất',
   CHAT_VIEW_DETAILS: 'Xem chi tiết',
@@ -240,6 +243,33 @@ const common = {
   // Held Seat Modal
   HELD_SEAT_TITLE: 'Thông báo',
   CLOSE: 'Đóng',
+
+  PURCHASE_HISTORY: 'Lịch sử mua vé',
+  LOADING: 'Đang tải...',
+  ERROR_LOADING: 'Lỗi khi tải dữ liệu!',
+  NO_ORDERS: 'Không có lịch sử mua vé',
+
+  SEATS: 'Ghế',
+  SERVICES: 'Dịch vụ',
+  DISCOUNT: 'Giảm giá',
+  TOTAL: 'Tổng tiền',
+  PAYMENT: 'Thanh toán',
+  PURCHASE_DATE: 'Ngày mua',
+
+  ROOM: 'Phòng',
+
+  FORMAT: 'Hình thức',
+  DUBBING: 'Lồng tiếng',
+  SUBTITLE: 'Phụ đề',
+
+  COMPLETED: 'Hoàn thành',
+  CANCELLED: 'Đã hủy',
+
+  VIEW_ORDER: 'Xem đơn',
+  VIEW_MORE: 'Xem thêm',
+  UNKNOWN: 'Không rõ',
+
+  PDF_NOT_AVAILABLE: 'Đơn này đã cũ, chưa tạo PDF trước đó!',
 };
 
 export default common;

@@ -1,5 +1,4 @@
-// BookingAdditionalServicePage.tsx
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
@@ -11,7 +10,10 @@ import {
 import { BookingMovieInfo } from './components/BookingMovieInfo';
 import TimerBar from './components/TimerBar';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
-import { useCancelSeatMutation } from '@/app/services/reservation.api';
+import {
+  useCancelSeatMutation,
+  useCancelSeatMultiMutation,
+} from '@/app/services/reservation.api';
 import GlobalLoading from '@components/loading/GlobalLoading';
 
 export default function BookingAdditionalServicePage() {
@@ -19,6 +21,8 @@ export default function BookingAdditionalServicePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { bookingData } = location.state || {};
+  const isProceedingRef = useRef(false);
+  const isFirstRenderRef = useRef(true);
 
   const {
     data: comboDtos = [],
@@ -33,17 +37,11 @@ export default function BookingAdditionalServicePage() {
 
   const [activeTab, setActiveTab] = useState<'COMBO' | 'SINGLE'>('COMBO');
   const [cancelSeat] = useCancelSeatMutation();
+  const [cancelSeatMulti] = useCancelSeatMultiMutation();
 
-  const { timer, expireAt } = useBookingTimer({
+  const { timer, expireAt, clearTimer } = useBookingTimer({
     autoCancel: true,
-    onExpire: () => {
-      bookingData.seats.forEach((seat: any) => {
-        cancelSeat({
-          seatId: seat.id,
-          showtimeId: bookingData.showtimeId,
-        });
-      });
-    },
+    onExpire: () => {},
   });
 
   useEffect(() => {
@@ -125,14 +123,53 @@ export default function BookingAdditionalServicePage() {
     }
   }, []);
 
-  const handleBack = () => {
+  const handleBack = async () => {
     sessionStorage.setItem(
       'bookingPageState',
-      JSON.stringify({ seats: bookingData.seats, expireAt })
+      JSON.stringify({ seats: bookingData.seats })
     );
-    sessionStorage.setItem('navigatingToBack', 'true');
     navigate(-1);
   };
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const navEntries = performance.getEntriesByType('navigation');
+      const isReload =
+        navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
+      if (isReload) return;
+      if (!isProceedingRef.current && bookingData?.seats?.length) {
+        cancelSeatMulti({
+          showtimeId: bookingData.showtimeId,
+          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+        });
+        clearTimer?.();
+      }
+    };
+    const handleRouteChange = () => {
+      if (!isProceedingRef.current && bookingData?.seats) {
+        bookingData.seats.forEach((seat: any) => {
+          cancelSeat({ seatId: seat.id, showtimeId: bookingData.showtimeId });
+        });
+        clearTimer?.();
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handleRouteChange);
+    return () => {
+      if (!isFirstRenderRef.current) {
+        if (!isProceedingRef.current && bookingData?.seats) {
+          bookingData.seats.forEach((seat: any) => {
+            cancelSeat({ seatId: seat.id, showtimeId: bookingData.showtimeId });
+          });
+          clearTimer?.();
+        }
+      } else {
+        isFirstRenderRef.current = false;
+      }
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [bookingData, cancelSeat]);
 
   if (isLoadingCombos) {
     return <GlobalLoading />;
@@ -255,7 +292,8 @@ export default function BookingAdditionalServicePage() {
           <Actions>
             <GhostButton onClick={handleBack}>{t('BOOKING_BACK')}</GhostButton>
             <PrimaryButton
-              onClick={() =>
+              onClick={() => {
+                isProceedingRef.current = true;
                 navigate('/booking/confirm', {
                   state: {
                     expireAt,
@@ -267,8 +305,8 @@ export default function BookingAdditionalServicePage() {
                       total,
                     },
                   },
-                })
-              }
+                });
+              }}
             >
               {t('BOOKING_CONTINUE')}
             </PrimaryButton>

@@ -8,17 +8,11 @@ import { useGetMovieByShowtimeQuery } from '@app/services/movie.api';
 import { BookingMovieInfo } from './components/BookingMovieInfo';
 import { formatDate } from '@utils/functionUtils';
 import { useTranslation } from 'react-i18next';
-import {
-  useBookSeatMutation,
-  useCancelSeatMutation,
-} from '@/app/services/reservation.api';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+import { useBookSeatMutation } from '@/app/services/reservation.api';
 import { HeldSeatModal } from './components/modals/HeldSeatModal';
 import { SelectSeatModal } from './components/modals/SelectSeatModal';
 import { AgeConfirmModal } from './components/modals/AgeConfirmModal';
-import { useBookingTimer } from '@/hooks/useBookingTimer';
-import GlobalLoading from '@components/loading/GlobalLoading';
+import { useLazyCheckSeatStatusQuery } from '@app/services/reservation.api';
 
 /** ---- UI types ---- */
 type SeatType = 'normal' | 'vip' | 'couple';
@@ -132,18 +126,6 @@ export default function BookingPage() {
 
   // ====== Timer hook (giữ nguyên khi quay lại trang) ======
   const [bookSeat] = useBookSeatMutation();
-  const [cancelSeat] = useCancelSeatMutation();
-
-  const { timer, expireAt, startTimer, clearTimer } = useBookingTimer({
-    autoCancel: true,
-    onExpire: () => {
-      // Xử lý huỷ ghế
-      selectedSeatsRef.current.forEach(seat => {
-        cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
-      });
-      setSelectedSeats([]);
-    },
-  });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -156,128 +138,35 @@ export default function BookingPage() {
   }, []);
 
   useEffect(() => {
-    const socket = new SockJS('http://localhost:8080/ws');
-    const client = new Client({
-      webSocketFactory: () => socket as any,
-      reconnectDelay: 5000,
-    });
-
-    client.onConnect = () => {
-      client.subscribe('/topic/seatUpdate', message => {
-        const data = JSON.parse(message.body);
-        setSeats(prev =>
-          prev.map(seat =>
-            seat.id === data.seatId
-              ? {
-                  ...seat,
-                  reservationStatus: data.status
-                    ? data.status.toLowerCase()
-                    : 'cancelled',
-                }
-              : seat
-          )
-        );
-      });
-    };
-
-    client.activate();
-
-    return () => {
-      client.deactivate();
-    };
-  }, []);
-
-  useEffect(() => {
     selectedSeatsRef.current = selectedSeats;
   }, [selectedSeats]);
 
-  // ====== Hủy khi rời trang không thuộc luồng đặt vé ======
-  useEffect(() => {
-  return () => {
-    const goingToConfirm =
-      sessionStorage.getItem('navigatingToConfirm') === 'true';
-    const goingBack =
-      sessionStorage.getItem('navigatingToBack') === 'true';
+  const [triggerCheckSeatStatus] = useLazyCheckSeatStatusQuery();
 
-    if (!goingToConfirm && !goingBack) {
-      selectedSeatsRef.current.forEach(seat => {
-        cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
-      });
-      clearTimer();
-    }
-
-    // reset flags
-    sessionStorage.removeItem('navigatingToConfirm');
-    sessionStorage.removeItem('navigatingToBack');
-  };
-}, [showtimeId, cancelSeat]);
-
-
-  // ====== Hủy khi reload/đóng tab ======
-  useEffect(() => {
-    const handleUnload = () => {
-      if (selectedSeats.length > 0) {
-        selectedSeats.forEach(seat => {
-          cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
-        });
-      }
-      clearTimer();
-    };
-
-    window.addEventListener('beforeunload', handleUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleUnload);
-    };
-  }, [selectedSeats, showtimeId, cancelSeat]);
-
-  // ====== Seat toggle ======
   const toggleSeat = async (seat: Seat) => {
-    if (seat.reservationStatus === 'booked') return;
-
-    const isSelected = selectedSeats.find(s => s.id === seat.id);
+    if (seat.status === 'booked') return;
 
     try {
-      if (seat.reservationStatus === 'held') {
-        if (isSelected) {
-          // ghế đang held nhưng đã được chọn => hủy hold
-          await cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
-          setSelectedSeats(prev => prev.filter(s => s.id !== seat.id));
-        } else {
-          // ghế held nhưng chưa được chọn => hiện modal
-          setModalContent(t('HELD_SEAT_CONTENT'));
-          setModalVisible(true);
-        }
+      const data = await triggerCheckSeatStatus({
+        seatId: seat.id,
+        showtimeId: Number(showtimeId),
+      }).unwrap();
+
+      if (data?.status === 'HELD') {
+        setModalContent(t('HELD_SEAT_CONTENT'));
+        setModalVisible(true);
         return;
       }
 
+      const isSelected = selectedSeats.some(s => s.id === seat.id);
       if (isSelected) {
-        // ghế bình thường hoặc active, đã chọn => bỏ chọn
-        await cancelSeat({ seatId: seat.id, showtimeId: Number(showtimeId) });
         setSelectedSeats(prev => prev.filter(s => s.id !== seat.id));
       } else {
-        // ghế bình thường hoặc active, chưa chọn => chọn
-        const bookPayload = { seatId: seat.id, showtimeId: Number(showtimeId) };
-        const response = await bookSeat(bookPayload);
-        if (response) {
-          setSelectedSeats(prev => [...prev, seat]);
-        }
-
-        // bắt đầu timer nếu đây là ghế đầu tiên
-        if (selectedSeats.length === 0) {
-          startTimer(8 * 60);
-        }
+        setSelectedSeats(prev => [...prev, seat]);
       }
     } catch (err) {
-      console.error('Error booking/canceling seat:', err);
-      alert(t('BOOKING_ERROR_SEAT'));
+      console.error('Lỗi kiểm tra ghế:', err);
     }
-  };
-
-  const formatTimer = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const seatTotal = selectedSeats.reduce((s, x) => s + x.price, 0);
@@ -303,21 +192,9 @@ export default function BookingPage() {
         </HeaderBar>
 
         <Card>
-          {timer > 0 && (
-            <div
-              style={{
-                textAlign: 'center',
-                fontWeight: 'bold',
-                marginBottom: '10px',
-                color: 'red',
-              }}
-            >
-              {t('BOOKING_SEAT_HELD')} – {formatTimer(timer)}
-            </div>
-          )}
           <Screen>{t('BOOKING_SCREEN')}</Screen>
 
-          {isLoading && <GlobalLoading/>}
+          {isLoading}
           {isError && <InfoLine>{t('BOOKING_ERROR_SEAT')}</InfoLine>}
 
           {!isLoading && !isError && (
@@ -371,13 +248,28 @@ export default function BookingPage() {
                   </LegendItem>
                 </LegendGroupLeft>
                 <LegendGroupRight>
-                  <LegendItem $color={'radial-gradient(circle at center, #d8c4ff 0%, #b49aff 100%)'} $filled>
+                  <LegendItem
+                    $color={
+                      'radial-gradient(circle at center, #d8c4ff 0%, #b49aff 100%)'
+                    }
+                    $filled
+                  >
                     {t('BOOKING_SEAT_NORMAL')}
                   </LegendItem>
-                  <LegendItem $color={'radial-gradient(circle at center, #fff8e1 0%, #ffecb3 100%)'} $filled>
+                  <LegendItem
+                    $color={
+                      'radial-gradient(circle at center, #fff8e1 0%, #ffecb3 100%)'
+                    }
+                    $filled
+                  >
                     {t('BOOKING_SEAT_VIP')}
                   </LegendItem>
-                  <LegendItem $color={'radial-gradient(circle at center, #f6b8e3 0%, #ec7dcc 100%)'} $filled>
+                  <LegendItem
+                    $color={
+                      'radial-gradient(circle at center, #f6b8e3 0%, #ec7dcc 100%)'
+                    }
+                    $filled
+                  >
                     {t('BOOKING_SEAT_COUPLE')}
                   </LegendItem>
                 </LegendGroupRight>
@@ -418,16 +310,7 @@ export default function BookingPage() {
           <Actions>
             <GhostButton
               type='button'
-              onClick={async () => {
-                for (const seat of selectedSeats) {
-                  // chỉ cancel nếu ghế đang được mình giữ
-                  if (selectedSeats.find(s => s.id === seat.id)) {
-                    await cancelSeat({
-                      seatId: seat.id,
-                      showtimeId: Number(showtimeId),
-                    });
-                  }
-                }
+              onClick={() => {
                 navigate(-1);
               }}
             >
@@ -435,45 +318,87 @@ export default function BookingPage() {
             </GhostButton>
             <PrimaryButton
               type='button'
-              onClick={() => {
+              onClick={async () => {
                 if (selectedSeats.length === 0) {
                   setSelectSeatModalVisible(true);
                   return;
                 }
+
                 if (movie?.age && movie?.age !== 'P') {
                   setAgeModalVisible(true);
                   return;
                 }
 
-                // Đặt flag trước khi navigate
-                sessionStorage.setItem('navigatingToConfirm', 'true');
+                try {
+                  const seatStatusResults = await Promise.all(
+                    selectedSeats.map(seat =>
+                      triggerCheckSeatStatus({
+                        seatId: seat.id,
+                        showtimeId: Number(showtimeId),
+                      }).unwrap()
+                    )
+                  );
 
-                // Lưu danh sách ghế được giữ để hủy khi cần thiết
-                sessionStorage.setItem(
-                  'heldSeat',
-                  JSON.stringify({
-                    showtimeId,
-                    seats: selectedSeats.map(s => ({ seatId: s.id })),
-                  })
-                );
+                  const heldSeats = seatStatusResults.filter(
+                    result => result.status === 'HELD'
+                  );
 
-                const currentExpireAt = expireAt || startTimer(8 * 60);
+                  if (heldSeats.length > 0) {
+                    const heldSeatIds = heldSeats.map(h => h.seatId);
+                    setSelectedSeats(prev =>
+                      prev.filter(s => !heldSeatIds.includes(s.id))
+                    );
+                    setModalContent(t('HELD_SEAT_CONTENT'));
+                    setModalVisible(true);
+                    return;
+                  }
 
-                navigate('/booking/additional', {
-                  state: {
-                    expireAt: currentExpireAt,
-                    bookingData: {
+                  const results = await Promise.allSettled(
+                    selectedSeats.map(seat =>
+                      bookSeat({
+                        seatId: seat.id,
+                        showtimeId: Number(showtimeId),
+                      })
+                    )
+                  );
+
+                  const failed = results.filter(r => r.status === 'rejected');
+                  if (failed.length > 0) {
+                    setModalContent(t('BOOKING_SEAT_HELD_FAILED'));
+                    setModalVisible(true);
+                    return;
+                  }
+
+                  const expireAt = Date.now() + 8 * 60 * 1000;
+                  sessionStorage.setItem('expireAt', expireAt.toString());
+                  sessionStorage.setItem(
+                    'heldSeat',
+                    JSON.stringify({
                       showtimeId,
-                      format,
-                      movie,
-                      cinema: cinema.name,
-                      auditorium: auditorium.name,
-                      showtime: `${time} - ${formatDate(date)}`,
-                      seats: selectedSeats,
-                      seatTotal,
+                      seats: selectedSeats.map(s => ({ seatId: s.id })),
+                    })
+                  );
+
+                  navigate('/booking/additional', {
+                    state: {
+                      expireAt,
+                      bookingData: {
+                        showtimeId,
+                        format,
+                        movie,
+                        cinema: cinema.name,
+                        auditorium: auditorium.name,
+                        showtime: `${time} - ${formatDate(date)}`,
+                        seats: selectedSeats,
+                        seatTotal,
+                      },
                     },
-                  },
-                });
+                  });
+                } catch (err) {
+                  console.error('Error creating hold:', err);
+                  setModalContent(t('BOOKING_SEAT_HELD_FAILED'));
+                  setModalVisible(true);
+                }
               }}
             >
               {t('BOOKING_CONTINUE')}
@@ -494,37 +419,78 @@ export default function BookingPage() {
       <AgeConfirmModal
         isOpen={ageModalVisible}
         age={movie?.age ?? 'P'}
-        onConfirm={() => {
+        onConfirm={async () => {
           setAgeModalVisible(false);
-          // Đặt flag trước khi navigate
-          sessionStorage.setItem('navigatingToConfirm', 'true');
+          try {
+            const seatStatusResults = await Promise.all(
+              selectedSeats.map(seat =>
+                triggerCheckSeatStatus({
+                  seatId: seat.id,
+                  showtimeId: Number(showtimeId),
+                }).unwrap()
+              )
+            );
 
-          // Lưu danh sách ghế được giữ để hủy khi cần thiết
-          sessionStorage.setItem(
-            'heldSeat',
-            JSON.stringify({
-              showtimeId,
-              seats: selectedSeats.map(s => ({ seatId: s.id })),
-            })
-          );
+            const heldSeats = seatStatusResults.filter(
+              result => result.status === 'HELD'
+            );
 
-          const currentExpireAt = expireAt || startTimer(8 * 60);
+            if (heldSeats.length > 0) {
+              const heldSeatIds = heldSeats.map(h => h.seatId);
+              setSelectedSeats(prev =>
+                prev.filter(s => !heldSeatIds.includes(s.id))
+              );
+              setModalContent(t('HELD_SEAT_CONTENT'));
+              setModalVisible(true);
+              return;
+            }
 
-          navigate('/booking/additional', {
-            state: {
-              expireAt: currentExpireAt,
-              bookingData: {
+            const results = await Promise.allSettled(
+              selectedSeats.map(seat =>
+                bookSeat({
+                  seatId: seat.id,
+                  showtimeId: Number(showtimeId),
+                })
+              )
+            );
+
+            const failed = results.filter(r => r.status === 'rejected');
+            if (failed.length > 0) {
+              setModalContent(t('BOOKING_SEAT_HELD_FAILED'));
+              setModalVisible(true);
+              return;
+            }
+
+            const expireAt = Date.now() + 8 * 60 * 1000;
+            sessionStorage.setItem('expireAt', expireAt.toString());
+            sessionStorage.setItem(
+              'heldSeat',
+              JSON.stringify({
                 showtimeId,
-                format,
-                movie,
-                cinema: cinema.name,
-                auditorium: auditorium.name,
-                showtime: `${time} - ${formatDate(date)}`,
-                seats: selectedSeats,
-                seatTotal,
+                seats: selectedSeats.map(s => ({ seatId: s.id })),
+              })
+            );
+
+            navigate('/booking/additional', {
+              state: {
+                expireAt,
+                bookingData: {
+                  showtimeId,
+                  format,
+                  movie,
+                  cinema: cinema.name,
+                  auditorium: auditorium.name,
+                  showtime: `${time} - ${formatDate(date)}`,
+                  seats: selectedSeats,
+                  seatTotal,
+                },
               },
-            },
-          });
+            });
+          } catch (err) {
+            console.error('Error creating hold:', err);
+            setModalContent(t('BOOKING_SEAT_HELD_FAILED'));
+            setModalVisible(true);
+          }
         }}
         onReject={() => setAgeModalVisible(false)}
       />

@@ -61,7 +61,6 @@ const PageWrapper = styled.div`
   justify-content: center;
   align-items: center;
   padding: 24px;
-  background: linear-gradient(135deg, #6dd5ed, #2193b0);
 `;
 
 const Card = styled.div`

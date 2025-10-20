@@ -1,4 +1,5 @@
 const common = {
+  NOTIFICATION: 'Notification',
   // AUTH
   AUTH_LOGIN: 'Login',
   AUTH_SIGNUP: 'Sign Up',
@@ -92,9 +93,9 @@ const common = {
 
   // SEARCH
   SEARCH_PLACEHOLDER: 'Search movies',
-    SEARCH_NO_QUERY: 'Please enter a search query.',
-    SEARCH_RESULTS_FOR: 'Search results for',
-    SEARCH_NO_RESULT: 'No movies found matching your query.',
+  SEARCH_NO_QUERY: 'Please enter a search query.',
+  SEARCH_RESULTS_FOR: 'Search results for',
+  SEARCH_NO_RESULT: 'No movies found matching your query.',
 
   // REGISTER
   REGISTER_TITLE: 'Register your account',
@@ -228,7 +229,8 @@ const common = {
   CHAT_INPUT_PLACEHOLDER: 'What kind of movie are you in the mood for?',
   CHAT_GREETING:
     "Hi there! I'm your movie assistant. Tell me about the genres, mood, or anything you feel like watching!",
-  CHAT_ERROR_MESSAGE: "Sorry, I can't respond right now. Please try again later!",
+  CHAT_ERROR_MESSAGE:
+    "Sorry, I can't respond right now. Please try again later!",
   CHAT_LOADING: 'Finding movie suggestions...',
   CHAT_RECOMMENDED_MOVIE_FALLBACK: 'Recommended movie',
   CHAT_VIEW_DETAILS: 'View details',
@@ -237,6 +239,34 @@ const common = {
   // Held Seat Modal
   HELD_SEAT_TITLE: 'Notification',
   CLOSE: 'Close',
+
+  PURCHASE_HISTORY: "Purchase History",
+  LOADING: 'Loading...',
+  ERROR_LOADING: 'Error loading data!',
+  NO_ORDERS: 'No purchase history found.',
+
+  SEATS: 'Seats',
+  SERVICES: 'Services',
+  DISCOUNT: 'Discount',
+  TOTAL: 'Total',
+  PAYMENT: 'Payment',
+  PURCHASE_DATE: 'Purchase Date',
+
+  ROOM: 'Room',
+
+  FORMAT: 'Format',
+  DUBBING: 'Dubbing',
+  SUBTITLE: 'Subtitle',
+
+  COMPLETED: 'Completed',
+  PENDING: 'Pending',
+  CANCELLED: 'Cancelled',
+
+  VIEW_ORDER: 'View Order',
+  VIEW_MORE: 'View More',
+  UNKNOWN: 'Unknown',
+
+  PDF_NOT_AVAILABLE: 'This order is old and has not been PDFed yet!',
 };
 
 export default common;

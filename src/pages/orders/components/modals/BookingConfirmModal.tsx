@@ -42,6 +42,7 @@ const BookingConfirmModal: React.FC<BookingConfirmModalProps> = ({
           <TicketInfo
             bookingData={bookingData}
             appliedCoupons={bookingData.appliedCoupons || []}
+            hideVoucherInput={true}
           />
         </TicketWrapper>
 

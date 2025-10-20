@@ -101,7 +101,7 @@ const StyledMenu = styled(MuiMenu)`
     margin-top: 12px;
     overflow: visible;
     filter: drop-shadow(0px 2px 8px rgba(0, 0, 0, 0.1));
-    background-color: ${theme.colors.white}; /* nền menu */
+    background-color: ${theme.colors.white};
     border-radius: 8px;
   }
 
@@ -127,7 +127,6 @@ const StyledMenuItem = styled(MuiMenuItem)`
   &:hover {
     color: ${theme.colors.primary};
     font-weight: bold;
-    padding-left: 18px;
     background-color: ${theme.colors.backgroundHover};
   }
 

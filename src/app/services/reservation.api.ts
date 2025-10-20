@@ -6,6 +6,17 @@ export interface SeatReservationRequest {
   showtimeId: number;
 }
 
+export interface SeatStatusResponse {
+  seatId: number;
+  showtimeId: number;
+  status: string | null;
+}
+
+export interface CancelMultipleSeatsRequest {
+  showtimeId: number;
+  seatIds: number[];
+}
+
 export const reservationApi = createApi({
   reducerPath: 'reservationApi',
   baseQuery: fetchBaseQuery({
@@ -16,10 +27,10 @@ export const reservationApi = createApi({
       return headers;
     },
   }),
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     /** POST /api/seat-reservations/book */
     bookSeat: builder.mutation<void, SeatReservationRequest>({
-      query: (body) => ({
+      query: body => ({
         url: `/seat-reservations/book`,
         method: 'POST',
         body,
@@ -27,13 +38,32 @@ export const reservationApi = createApi({
     }),
     /** POST /api/seat-reservations/cancel */
     cancelSeat: builder.mutation<void, SeatReservationRequest>({
-      query: (body) => ({
+      query: body => ({
         url: `/seat-reservations/cancel`,
         method: 'POST',
         body,
       }),
     }),
+    /** POST /api/seat-reservations/cancel-multi */
+    cancelSeatMulti: builder.mutation<void, CancelMultipleSeatsRequest>({
+      query: body => ({
+        url: `/seat-reservations/cancel-multiple`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    checkSeatStatus: builder.query<SeatStatusResponse, SeatReservationRequest>({
+      query: ({ seatId, showtimeId }) => ({
+        url: `/seats/status?seatId=${seatId}&showtimeId=${showtimeId}`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
-export const { useBookSeatMutation, useCancelSeatMutation } = reservationApi;
+export const {
+  useBookSeatMutation,
+  useCancelSeatMutation,
+  useLazyCheckSeatStatusQuery,
+  useCancelSeatMultiMutation,
+} = reservationApi;

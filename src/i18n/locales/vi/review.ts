@@ -6,9 +6,31 @@ const review = {
   REVIEWS_ALL: 'Tất cả bình luận',
   REVIEWS_PREV: 'Trang trước',
   REVIEWS_NEXT: 'Trang sau',
-  MOVIE_REVIEW_RATING: 'Đánh giá của bạn',
+  MOVIE_REVIEW_RATING: 'Đánh giá sao',
   MOVIE_REVIEW_PLACEHOLDER: 'Viết đánh giá của bạn tại đây...',
   MOVIE_REVIEW_SUBMIT: 'Gửi đánh giá',
+  MOVIE_REVIEW_CHOOSE_FILE: 'Chọn tệp hình ảnh',
+
+  REVIEW_LABEL_1: "Tệ khủng khiếp",
+  REVIEW_LABEL_2: "Rất tệ",
+  REVIEW_LABEL_3: "Bình thường",
+  REVIEW_LABEL_4: "Ổn",
+  REVIEW_LABEL_5: "Tốt",
+  REVIEW_LABEL_6: "Hay",
+  REVIEW_LABEL_7: "Rất hay",
+  REVIEW_LABEL_8: "Tuyệt vời",
+  REVIEW_LABEL_9: "🔥 Đỉnh cao",
+  REVIEW_LABEL_10: "💯 Siêu phẩm",
+
+  CONFIRM_DELETE_REVIEW_TITLE: "Bạn có chắc muốn xóa review này?",
+  CONFIRM_DELETE_REVIEW_MESSAGE: "Hành động này không thể hoàn tác.",
+  CANCEL: "Hủy",
+  DELETE: "Xóa",
+  EDIT_REVIEW_TITLE: "Chỉnh sửa review",
+  EDIT_REVIEW_RATING: "Đánh giá sao",
+  EDIT_REVIEW_COMMENT: "Bình luận",
+  EDIT_REVIEW_ADD_IMAGES: "Thêm hình ảnh",
+  SAVE_CHANGES: "Lưu thay đổi"
 };
 
 export default review;

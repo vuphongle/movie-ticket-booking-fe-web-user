@@ -36,13 +36,15 @@ interface TicketInfoProps {
     discount: number;
     gifts?: any[];
   }[];
-  onApplyVoucher?: (appliedData: any) => void; // callback khi ấn nút "Áp dụng"
+  hideVoucherInput?: boolean;
+  onApplyVoucher?: (appliedData: any) => void;
 }
 
 export default function TicketInfo({
   bookingData,
   appliedCoupons = [],
   onApplyVoucher,
+  hideVoucherInput = false,
 }: TicketInfoProps) {
   if (!bookingData) return null;
 
@@ -197,16 +199,27 @@ export default function TicketInfo({
 
       <Divider style={{ marginBottom: '4px' }} />
 
-      <span style={{display: 'block', fontSize: '13px', marginBottom: '4px', textAlign: 'right' }}>Tổng: {bookingData.total.toLocaleString()} đ</span>
-      <VoucherContainer>
-        <VoucherInput
-          type='text'
-          placeholder='Nhập mã voucher...'
-          value={code}
-          onChange={e => setCode(e.target.value)}
-        />
-        <ApplyButton onClick={handleCheckVoucher}>Áp dụng</ApplyButton>
-      </VoucherContainer>
+      <span
+        style={{
+          display: 'block',
+          fontSize: '13px',
+          marginBottom: '4px',
+          textAlign: 'right',
+        }}
+      >
+        Tổng: {bookingData.total.toLocaleString()} đ
+      </span>
+      {!hideVoucherInput && (
+        <VoucherContainer>
+          <VoucherInput
+            type='text'
+            placeholder='Nhập mã voucher...'
+            value={code}
+            onChange={e => setCode(e.target.value)}
+          />
+          <ApplyButton onClick={handleCheckVoucher}>Áp dụng</ApplyButton>
+        </VoucherContainer>
+      )}
 
       {couponInfo && (
         <CouponInfoBox>
@@ -231,7 +244,7 @@ export default function TicketInfo({
             return (
               <PreviewItem key={dr.detailId} applied={dr.applied}>
                 <div>
-                  <strong># {index + 1}</strong>
+                  <strong>#{index + 1}</strong>
                 </div>
                 <div>
                   {dr.applied ? (
@@ -242,7 +255,10 @@ export default function TicketInfo({
 
                       {relatedGifts.length > 0 && (
                         <GiftBox>
-                          <Thumbnail src={relatedGifts[0].thumbnail} alt={relatedGifts[0].name} />
+                          <Thumbnail
+                            src={relatedGifts[0].thumbnail}
+                            alt={relatedGifts[0].name}
+                          />
                           {relatedGifts
                             .map(
                               (g: any) => `${g.serviceName} (x${g.quantity})`
@@ -301,12 +317,12 @@ export default function TicketInfo({
               </PromoCode>
             </PromoLeft>
             {c.gifts && c.gifts.length > 0 ? (
-              <GiftBox>
+              <GiftBox2>
                 <Thumbnail src={c.gifts[0].thumbnail} alt={c.gifts[0].name} />{' '}
                 {c.gifts
                   .map((g: any) => `${g.serviceName} (x${g.quantity})`)
                   .join(', ')}
-              </GiftBox>
+              </GiftBox2>
             ) : (
               <PromoDiscount>-{c.discount.toLocaleString()} đ</PromoDiscount>
             )}
@@ -575,13 +591,13 @@ const PreviewItem = styled.div<{ applied: boolean }>`
   div {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 
     strong {
       font-size: 14px;
       background: ${theme.colors.primary};
       color: white;
-      padding: 4px 8px;
+      padding: 2px 4px;
       border-radius: 6px;
       min-width: 30px;
       text-align: center;
@@ -594,7 +610,7 @@ const PreviewItem = styled.div<{ applied: boolean }>`
     }
 
     button {
-      padding: 6px 12px;
+      padding: 5px 10px;
       border: none;
       border-radius: 6px;
       background: ${props => (props.applied ? '#9e9e9e' : '#ffd54f')};
@@ -623,11 +639,13 @@ const PromoItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
   padding: 10px 12px;
   margin-bottom: 8px;
   border-radius: 10px;
   background: #f4f8ff;
-  border: 1px solid #d6e4ff; 
+  border: 1px solid #d6e4ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   font-size: 14px;
   font-weight: 500;
@@ -684,22 +702,51 @@ const PromoDiscount = styled.span`
 `;
 
 const GiftBox = styled.div`
+  width: 135px;
   font-size: 13px;
   color: #e65100;
   font-weight: 600;
   background: #fff3e0;
   border: 1px solid #ffcc80;
   border-radius: 6px;
-  padding: 4px 8px;
-  display: inline-block;
-  max-width: 200px;
-  text-align: right;
+  padding: 6px 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 100%;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+  margin-top: 6px;
+  margin-left: auto;
 `;
+
+const GiftBox2 = styled.div`
+  font-size: 13px;
+  color: #e65100;
+  font-weight: 600;
+  background: #fff3e0;
+  border: 1px solid #ffcc80;
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 100%;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+  margin-top: 6px;
+  margin-left: auto;
+`;
+
 const Thumbnail = styled.img`
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 4px;
   object-fit: cover;
-  vertical-align: middle;
-  margin-right: 6px;
+  flex-shrink: 0;
+  margin-top: 2px;
 `;
