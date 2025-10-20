@@ -10,6 +10,7 @@ const History: React.FC = () => {
   const { t } = useTranslation();
   const { data: purchaseHistory, isLoading, error } = useGetAllOrdersQuery();
   const [searchTerm, setSearchTerm] = useState('');
+  const [visibleCount, setVisibleCount] = useState(3); // Hiển thị 3 đơn ban đầu
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -29,6 +30,8 @@ const History: React.FC = () => {
     });
   }, [purchaseHistory, searchTerm]);
 
+  const visibleOrders = filteredHistory.slice(0, visibleCount);
+
   if (isLoading) return <p>Đang tải...</p>;
   if (error) return <p>Lỗi khi tải dữ liệu!</p>;
   if (!purchaseHistory || purchaseHistory.length === 0) return <p>Không có lịch sử mua vé</p>;
@@ -45,13 +48,13 @@ const History: React.FC = () => {
       />
 
       <HistoryList>
-        {filteredHistory.map((order: OrderDto) => (
+        {visibleOrders.map((order: OrderDto) => (
           <HistoryItem key={order.id}>
             <MovieSection>
               <Poster src={order.showtime?.movie?.poster} alt={order.showtime?.movie?.name} />
               <MovieDetails>
                 <MovieTitle>{order.showtime?.movie?.name}</MovieTitle>
-                <CinemaInfo>{order.showtime?.auditorium?.cinema?.name}</CinemaInfo>
+                <CinemaInfo>{order.showtime?.auditorium?.cinema?.name} - Phòng {order.showtime?.auditorium?.name}</CinemaInfo>
                 <DateTime>
                   {order.showtime?.startTime} - {order.showtime?.endTime} | {order.showtime?.date}
                 </DateTime>
@@ -116,6 +119,12 @@ const History: React.FC = () => {
           </HistoryItem>
         ))}
       </HistoryList>
+
+      {visibleCount < filteredHistory.length && (
+        <LoadMoreButton onClick={() => setVisibleCount(prev => prev + 3)}>
+          Xem thêm
+        </LoadMoreButton>
+      )}
     </HistoryContainer>
   );
 };
@@ -287,6 +296,21 @@ const SearchInput = styled.input`
   border: 1px solid ${theme.colors.border};
   font-size: ${theme.fontSize.sm};
   background: '#f9f9f9';
+`;
+
+const LoadMoreButton = styled.button`
+  margin-top: ${theme.spacing.md};
+  padding: 8px 12px;
+  font-size: ${theme.fontSize.sm};
+  background: ${theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: ${theme.colors.primaryHoverGradient};
+  }
 `;
 
 export default History;
