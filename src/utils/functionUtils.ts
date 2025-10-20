@@ -6,7 +6,7 @@ export function formatGraphicLabel(value: string): string {
   return formatted;
 }
 
-export const formatDate = (dateStr?: string): string => {
+export const formatDate = (dateStr?: string | number): string => {
   if (!dateStr) return 'N/A';
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return 'N/A';

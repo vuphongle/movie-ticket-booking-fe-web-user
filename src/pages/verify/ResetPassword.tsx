@@ -1,7 +1,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Input, Button, Spin, Modal, Typography, Space, Progress } from 'antd';
 import { LockOutlined, CheckOutlined } from '@ant-design/icons';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';

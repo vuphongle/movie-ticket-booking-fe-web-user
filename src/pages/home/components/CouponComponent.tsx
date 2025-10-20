@@ -38,11 +38,9 @@ export default function CouponComponent() {
               poster={`https://picsum.photos/400/200?random=${coupon.id}`}
             >
               <div className='code'>{coupon.code}</div>
-              <div className='discount'>
-                {coupon.discount}% {t('COUPON_DISCOUNT')}
-              </div>
+              <div className='discount'>{t('COUPON_DISCOUNT')}</div>
               <div className='valid'>
-                {formatDate(coupon.start_date)} - {formatDate(coupon.end_date)}
+                {formatDate(coupon.startDate)} - {formatDate(coupon.endDate)}
               </div>
               <Status $active={coupon.status}>
                 {coupon.status ? t('COUPON_ACTIVE') : t('COUPON_INACTIVE')}
