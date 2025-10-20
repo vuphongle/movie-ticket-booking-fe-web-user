@@ -100,23 +100,23 @@ export const OrderApi = createApi({
       if (token) headers.set('Authorization', `Bearer ${token}`);
       return headers;
     },
-    responseHandler: async response => {
-      const text = await response.text();
-      try {
-        return JSON.parse(text);
-      } catch {
-        return {};
-      }
-    },
+    // Không parse JSON cho endpoint blob
   }),
   endpoints: builder => ({
-    getAllOrders: builder.query<OrderDto[], void>({
-      query: () => `orders`,
+    downloadPdf: builder.mutation<Blob, number>({
+      query: (orderId) => ({
+        url: `orders/${orderId}/pdf`,
+        method: 'GET',
+        responseHandler: async (response) => {
+          if (!response.ok) throw new Error('Failed to download PDF');
+          return response.blob(); // <- trả về Blob
+        },
+      }),
     }),
-    getOrderById: builder.query<OrderDto, number>({
-      query: id => `orders/${id}`,
-    }),
+    getAllOrders: builder.query<OrderDto[], void>({ query: () => `orders` }),
+    getOrderById: builder.query<OrderDto, number>({ query: id => `orders/${id}` }),
   }),
 });
 
-export const { useGetOrderByIdQuery, useGetAllOrdersQuery } = OrderApi;
+export const { useDownloadPdfMutation, useGetAllOrdersQuery, useGetOrderByIdQuery } = OrderApi;
+

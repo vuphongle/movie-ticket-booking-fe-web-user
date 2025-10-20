@@ -57,6 +57,7 @@ export interface MovieDetail extends Movie {
     rating: number;
     images: string[];
     createdAt: string;
+    updatedAt: string;
     feeling: string[];
     user: {
       id: number;

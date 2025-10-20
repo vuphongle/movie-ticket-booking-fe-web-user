@@ -239,6 +239,34 @@ const common = {
   // Held Seat Modal
   HELD_SEAT_TITLE: 'Notification',
   CLOSE: 'Close',
+
+  PURCHASE_HISTORY: "Purchase History",
+  LOADING: 'Loading...',
+  ERROR_LOADING: 'Error loading data!',
+  NO_ORDERS: 'No purchase history found.',
+
+  SEATS: 'Seats',
+  SERVICES: 'Services',
+  DISCOUNT: 'Discount',
+  TOTAL: 'Total',
+  PAYMENT: 'Payment',
+  PURCHASE_DATE: 'Purchase Date',
+
+  ROOM: 'Room',
+
+  FORMAT: 'Format',
+  DUBBING: 'Dubbing',
+  SUBTITLE: 'Subtitle',
+
+  COMPLETED: 'Completed',
+  PENDING: 'Pending',
+  CANCELLED: 'Cancelled',
+
+  VIEW_ORDER: 'View Order',
+  VIEW_MORE: 'View More',
+  UNKNOWN: 'Unknown',
+
+  PDF_NOT_AVAILABLE: 'This order is old and has not been PDFed yet!',
 };
 
 export default common;
