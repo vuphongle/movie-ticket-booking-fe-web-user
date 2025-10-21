@@ -183,6 +183,10 @@ export default function BookingPage() {
     }
   }, []);
 
+  useEffect(() => {
+    sessionStorage.removeItem('bookingCancelled');
+  }, []);
+
   return (
     <Page>
       <Main>
@@ -225,7 +229,7 @@ export default function BookingPage() {
                               $selected={isSelected}
                               $type={seat.type}
                               onClick={() => toggleSeat(seat)}
-                              title={`${seat.row}${seat.number} • ${seat.price.toLocaleString()}đ`}
+                              title={`${seat.row}${seat.number} • ${seat.price.toLocaleString()}đ (${seat.type})`}
                             >
                               {`${row}${seat.number}`}
                             </SeatButton>
@@ -540,15 +544,18 @@ const HeaderSub = styled.p`
   opacity: 0.95;
 `;
 const Card = styled.section`
-  background: ${theme.colors.white};
-  border: 1px solid ${theme.colors.border};
+  background: rgba(30, 58, 138, 0.2);
   border-radius: ${theme.borderRadius.medium};
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(2, 22, 46, 0.05);
+  padding: ${theme.spacing.lg};
+  color: white;
   box-shadow: 0 8px 24px rgba(2, 22, 46, 0.05);
   padding: ${theme.spacing.lg};
 `;
 const Screen = styled.div`
   text-align: center;
-  color: ${theme.colors.textPrimary};
+  color: white;
   background: radial-gradient(circle at center, #4f8076 0%, #2e524c 50%);
 
   border-radius: 50% / 24%;
@@ -556,7 +563,7 @@ const Screen = styled.div`
   margin: 0 auto ${theme.spacing.xxl};
   font-weight: 700;
   font-size: 16px;
-  width: 70%;
+  width: 95%;
   box-shadow:
     0 6px 18px rgba(0, 0, 0, 0.15),
     inset 0 -6px 12px rgba(0, 0, 0, 0.05);
@@ -587,8 +594,7 @@ const LegendItem = styled.span<{ $color: string; $filled?: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: ${theme.colors.textSecondary};
-
+  color: white;
   &:before {
     content: '';
     width: 16px;
@@ -611,7 +617,7 @@ const Row = styled.div`
   align-items: center;
 `;
 const RowLabel = styled.span`
-  color: ${theme.colors.textPrimary};
+  color: white;
   font-weight: 600;
 `;
 const RowGrid = styled.div`
@@ -632,7 +638,7 @@ const seatBase = css<{
   color: #555;
   font-weight: 600;
   text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.2);
-  font-size: 14px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -721,6 +727,7 @@ const SeatButton = styled.button<{
 `;
 const SummaryCard = styled(Card)`
   padding: ${theme.spacing.lg};
+  background: white;
 `;
 const SummaryTitle = styled.h3`
   margin: 0 0 ${theme.spacing.sm};
@@ -799,5 +806,5 @@ const GhostButton = styled.button`
 const SeatPlaceholder = styled.div`
   width: 100%;
   aspect-ratio: 1;
-  visibility: hidden; /* để giữ chỗ nhưng không thấy */
+  visibility: hidden;
 `;

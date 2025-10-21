@@ -9,7 +9,13 @@ import { useState, useRef, useEffect } from 'react';
 import { useCreateOrderMutation } from '@app/services/payment.api';
 import BookingConfirmModal from './components/modals/BookingConfirmModal';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
-import { useCancelSeatMutation, useCancelSeatMultiMutation } from '@/app/services/reservation.api';
+import {
+  useCancelSeatMutation,
+  useCancelSeatMultiMutation,
+} from '@/app/services/reservation.api';
+import { Modal, Button } from 'antd';
+import { ExclamationCircleFilled } from '@ant-design/icons';
+import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 
 export default function BookingConfirmPage() {
   const location = useLocation();
@@ -21,7 +27,9 @@ export default function BookingConfirmPage() {
   const [cancelSeatMulti] = useCancelSeatMultiMutation();
   const { timer, clearTimer } = useBookingTimer({
     autoCancel: true,
-    onExpire: () => {},
+    onExpire: () => {
+      setShouldGuard(false);
+    },
   });
 
   const { bookingData } = location.state || {};
@@ -217,8 +225,83 @@ export default function BookingConfirmPage() {
     };
   }, [bookingData, cancelSeat]);
 
+  // Navigation guard
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [resolveFn, setResolveFn] = useState<((val: boolean) => void) | null>(
+    null
+  );
+
+  const showConfirmModal = () =>
+    new Promise<boolean>(resolve => {
+      setResolveFn(() => resolve);
+      setIsConfirmOpen(true);
+    });
+
+  const handleConfirm = (choice: boolean) => {
+    sessionStorage.setItem('bookingCancelled', 'true');
+    setIsConfirmOpen(false);
+    resolveFn?.(choice);
+  };
+
+  const [shouldGuard, setShouldGuard] = useState(true);
+
+  useNavigationGuard(shouldGuard && !isProceedingRef.current, showConfirmModal);
+
+  useEffect(() => {
+    const isCancelled = sessionStorage.getItem('bookingCancelled');
+    if (isCancelled === 'true') {
+      sessionStorage.removeItem('bookingCancelled');
+      setShouldGuard(false);
+
+      Modal.warning({
+        title: 'Luồng đặt vé đã bị hủy',
+        content: 'Vui lòng thao tác lại.',
+        onOk: () => {
+          navigate('/');
+        },
+      });
+    }
+  }, [navigate]);
+
   return (
     <Page>
+      <Modal
+        centered
+        open={isConfirmOpen}
+        onCancel={() => handleConfirm(false)}
+        footer={[
+          <div
+            key='buttons'
+            style={{
+              textAlign: 'center',
+              gap: '8px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Button key='cancel' onClick={() => handleConfirm(false)}>
+              Ở lại
+            </Button>
+            <Button
+              key='ok'
+              type='primary'
+              danger
+              onClick={() => handleConfirm(true)}
+            >
+              Thoát
+            </Button>
+          </div>,
+        ]}
+      >
+        <CenteredContent>
+          <ExclamationCircleFilled className='warning-icon' />
+          <h3>Bạn sắp thoát khỏi luồng đặt vé</h3>
+          <p>
+            Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục
+            không?
+          </p>
+        </CenteredContent>
+      </Modal>
       <Main>
         <PromoSection
           bookingData={bookingData}
@@ -336,3 +419,24 @@ const PrimaryButton = styled.button`
     transform: none;
   }
 `;
+
+const CenteredContent = styled.div`
+  text-align: center;
+
+  .warning-icon {
+    font-size: 36px;
+    color: #faad14;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  p {
+    font-size: 16px;
+    color: #555;
+  }
+`;
+
