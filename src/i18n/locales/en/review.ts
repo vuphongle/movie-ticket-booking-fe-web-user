@@ -30,7 +30,8 @@ const review = {
     EDIT_REVIEW_RATING: "Star Rating",
     EDIT_REVIEW_COMMENT: "Comment",
     EDIT_REVIEW_ADD_IMAGES: "Add Images",
-    SAVE_CHANGES: "Save Changes"
+    SAVE_CHANGES: "Save Changes",
+    REVIEWS: 'reviews',
 };
 
 export default review;

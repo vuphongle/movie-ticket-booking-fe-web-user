@@ -50,7 +50,7 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
 
   const [visibleReviews, setVisibleReviews] = useState(3);
   const [commentText, setCommentText] = useState('');
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(10);
   const [files, setFiles] = useState<File[]>([]);
   const { t } = useTranslation();
   const { openLogin } = useLoginModal();
@@ -99,7 +99,7 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
     try {
       await createReview(formData).unwrap();
       setCommentText('');
-      setRating(5);
+      setRating(10);
       setFiles([]);
       window.location.reload();
     } catch (err: any) {
@@ -261,7 +261,9 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
         initialRating={reviewToEdit?.rating || 5}
       />
 
-      <SectionTitle>{t('MOVIE_AUDIENCE_REVIEWS')}</SectionTitle>
+      <SectionTitle>
+        {t('MOVIE_AUDIENCE_REVIEWS')} ({reviews.length} {t('REVIEWS')})
+      </SectionTitle>
 
       {/* Form thêm review */}
       <ReviewForm>
