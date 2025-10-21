@@ -267,16 +267,36 @@ const ChatWidget = () => {
     );
   };
 
+  const widgetRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        widgetRef.current &&
+        !widgetRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <>
       <FloatingButton
+        ref={buttonRef}
         onClick={toggleWidget}
         aria-label={t('CHAT_FLOATING_BUTTON_LABEL')}
       >
         <MessageCircle size={26} />
       </FloatingButton>
       {isOpen && (
-        <WidgetContainer>
+        <WidgetContainer ref={widgetRef}>
           <WidgetHeader>
             <div>
               <WidgetTitle>{t('CHAT_WIDGET_TITLE')}</WidgetTitle>
