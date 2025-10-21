@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
 import { useTranslation } from 'react-i18next';
+import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 import {
   useGetAllAdditionalServicesQuery,
   useLazyGetAdditionalServicePriceQuery,
@@ -15,6 +16,8 @@ import {
   useCancelSeatMultiMutation,
 } from '@/app/services/reservation.api';
 import GlobalLoading from '@components/loading/GlobalLoading';
+import { Modal, Button } from 'antd';
+import { ExclamationCircleFilled } from '@ant-design/icons'; 
 
 export default function BookingAdditionalServicePage() {
   const { t } = useTranslation();
@@ -41,7 +44,9 @@ export default function BookingAdditionalServicePage() {
 
   const { timer, expireAt, clearTimer } = useBookingTimer({
     autoCancel: true,
-    onExpire: () => {},
+    onExpire: () => {
+      setShouldGuard(false);
+    },
   });
 
   useEffect(() => {
@@ -56,7 +61,8 @@ export default function BookingAdditionalServicePage() {
   }, [comboDtos, triggerPrice]);
 
   const handleComboChange = (id: number, qty: number) => {
-    setSelectedCombos(prev => ({ ...prev, [id]: Math.max(0, qty) }));
+    const validQty = Math.min(Math.max(0, qty), 5);
+    setSelectedCombos(prev => ({ ...prev, [id]: validQty }));
   };
 
   const combos = useMemo(
@@ -135,7 +141,8 @@ export default function BookingAdditionalServicePage() {
     const handleBeforeUnload = () => {
       const navEntries = performance.getEntriesByType('navigation');
       const isReload =
-        navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
+        navEntries.length > 0 &&
+        (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
       if (isReload) return;
       if (!isProceedingRef.current && bookingData?.seats?.length) {
         cancelSeatMulti({
@@ -171,12 +178,72 @@ export default function BookingAdditionalServicePage() {
     };
   }, [bookingData, cancelSeat]);
 
+
+  // Navigation guard
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [resolveFn, setResolveFn] = useState<((val: boolean) => void) | null>(
+    null
+  );
+
+  const showConfirmModal = () =>
+    new Promise<boolean>(resolve => {
+      setResolveFn(() => resolve);
+      setIsConfirmOpen(true);
+    });
+
+  const handleConfirm = (choice: boolean) => {
+    sessionStorage.setItem('bookingCancelled', 'true');
+    setIsConfirmOpen(false);
+    resolveFn?.(choice);
+  };
+
+  const [shouldGuard, setShouldGuard] = useState(true);
+
+  useNavigationGuard(shouldGuard && !isProceedingRef.current, showConfirmModal);
+
+  useEffect(() => {
+    const isCancelled = sessionStorage.getItem('bookingCancelled');
+    if (isCancelled === 'true') {
+      sessionStorage.removeItem('bookingCancelled');
+      setShouldGuard(false);
+
+     Modal.warning({
+        title: 'Luồng đặt vé đã bị hủy',
+        content: 'Vui lòng thao tác lại.',
+        onOk: () => {
+          navigate('/');
+        },
+      });
+    }
+  }, [navigate]);
+
   if (isLoadingCombos) {
     return <GlobalLoading />;
   }
 
   return (
     <Page>
+       <Modal
+        centered
+        open={isConfirmOpen}
+        onCancel={() => handleConfirm(false)}
+        footer={[
+          <div key="buttons" style={{ textAlign: 'center', gap: '8px', display: 'flex', justifyContent: 'center' }}>
+            <Button key="cancel" onClick={() => handleConfirm(false)}>
+            Ở lại
+          </Button>
+          <Button key="ok" type="primary" danger onClick={() => handleConfirm(true)}>
+            Thoát
+          </Button>
+          </div>
+        ]}
+      >
+        <CenteredContent>
+          <ExclamationCircleFilled className="warning-icon" />
+          <h3>Bạn sắp thoát khỏi luồng đặt vé</h3>
+          <p>Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục không?</p>
+        </CenteredContent>
+      </Modal>
       <Main>
         <Header>
           <h2>{t('BOOKING_ADDITIONAL_TITLE')}</h2>
@@ -184,7 +251,6 @@ export default function BookingAdditionalServicePage() {
         </Header>
 
         <Card>
-          <SectionTitle>{t('BOOKING_SELECT_COMBO')}</SectionTitle>
           {isLoadingCombos && <InfoLine>{t('BOOKING_LOADING_COMBO')}</InfoLine>}
           {isErrorCombos && <InfoLine>{t('BOOKING_ERROR_COMBO')}</InfoLine>}
 
@@ -227,10 +293,19 @@ export default function BookingAdditionalServicePage() {
                 <QtyInput
                   type='number'
                   min={0}
-                  value={selectedCombos[item.id] || 0}
-                  onChange={e =>
-                    handleComboChange(item.id, Number(e.target.value))
-                  }
+                  max={5}
+                  value={selectedCombos[item.id] ?? 0}
+                  onChange={e => {
+                    let val = e.target.value;
+
+                    if (val.length > 1 && val.startsWith('0')) {
+                      val = val.replace(/^0+/, '');
+                    }
+
+                    const num = Math.min(Math.max(Number(val || 0), 0), 5);
+
+                    handleComboChange(item.id, num);
+                  }}
                 />
               </ComboItem>
             ))}
@@ -292,8 +367,11 @@ export default function BookingAdditionalServicePage() {
           <Actions>
             <GhostButton onClick={handleBack}>{t('BOOKING_BACK')}</GhostButton>
             <PrimaryButton
-              onClick={() => {
+              onClick={async () => {
                 isProceedingRef.current = true;
+                sessionStorage.setItem('bookingCancelled', 'false');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
                 navigate('/booking/confirm', {
                   state: {
                     expireAt,
@@ -346,17 +424,11 @@ const Header = styled.div`
 `;
 
 const Card = styled.section`
-  background: ${theme.colors.white};
-  border: 1px solid ${theme.colors.border};
+  background: rgba(30, 58, 138, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: ${theme.borderRadius.medium};
   box-shadow: 0 8px 24px rgba(2, 22, 46, 0.05);
   padding: ${theme.spacing.lg};
-`;
-
-const SectionTitle = styled.h3`
-  margin: 0 0 ${theme.spacing.md};
-  font-size: ${theme.fontSize.xl};
-  color: ${theme.colors.textPrimary};
 `;
 
 const ComboList = styled.div`
@@ -369,57 +441,93 @@ const ComboItem = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: ${theme.spacing.sm} ${theme.spacing.md};
-  border: 1px solid ${theme.colors.border};
-  border-radius: ${theme.borderRadius.small};
-  background: ${theme.colors.bgLight};
+  border-radius: ${theme.borderRadius.medium};
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    background: rgba(30, 58, 138, 0.35);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
 `;
 
 const ComboInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex: 1;
 `;
 
 const Thumbnail = styled.img`
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
+  transition: all 0.4s ease;
+
+  ${ComboItem}:hover & {
+    transform: scale(1.08) rotate(2deg);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+  }
 `;
 
 const ComboName = styled.div`
-  color: ${theme.colors.textPrimary};
+  color: ${theme.colors.white};
   font-weight: 600;
   font-size: ${theme.fontSize.md};
 
   .desc {
+    display: block;
     font-weight: 400;
     font-size: ${theme.fontSize.sm};
-    color: ${theme.colors.textSecondary};
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 2px;
   }
 `;
 
 const ComboPrice = styled.div`
-  color: ${theme.colors.textSecondary};
+  color: rgba(255, 255, 255, 0.7);
   font-size: ${theme.fontSize.sm};
-  margin-top: 4px;
+  margin-top: 6px;
 `;
 
 const QtyInput = styled.input`
   margin-left: 16px;
-  width: 35px;
+  width: 45px;
   padding: 8px 10px;
   border-radius: ${theme.borderRadius.small};
-  border: 1px solid ${theme.colors.border};
-  background: ${theme.colors.white};
-  color: ${theme.colors.textPrimary};
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
   font-weight: 600;
+  text-align: center;
+  transition: all 0.25s ease;
+  font-size: ${theme.fontSize.sm};
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
   &:focus {
     outline: none;
-    box-shadow: var(--ring);
-    border-color: ${theme.colors.primary};
+    border-color: #60a5fa;
+    box-shadow: 0 0 6px rgba(96, 165, 250, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+    color: #f8fafc;
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    opacity: 0.4;
+    cursor: pointer;
   }
 `;
 
@@ -431,6 +539,7 @@ const Divider = styled.hr`
 
 const SummaryCard = styled(Card)`
   padding: ${theme.spacing.lg};
+  background: white;
 `;
 
 const SummaryTitle = styled.h3`
@@ -513,20 +622,63 @@ const InfoLine = styled.p`
 `;
 
 const TabHeader = styled.div`
-  display: flex;
-  gap: ${theme.spacing.sm};
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: ${theme.borderRadius.medium};
   margin-bottom: ${theme.spacing.md};
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 `;
 
 const TabButton = styled.button<{ active: boolean }>`
-  padding: 8px 12px;
+  flex: 1;
+  padding: 8px 16px;
+  min-width: 180px;
+  border: none;
   border-radius: ${theme.borderRadius.small};
-  border: 1px solid
-    ${({ active }) => (active ? theme.colors.primary : theme.colors.border)};
   background: ${({ active }) =>
-    active ? theme.colors.primaryHoverGradient : theme.colors.white};
+    active ? theme.colors.primaryHoverGradient : 'rgba(255,255,255,0.03)'};
   color: ${({ active }) =>
-    active ? theme.colors.white : theme.colors.textSecondary};
+    active ? theme.colors.white : 'rgba(255,255,255,0.8)'};
   font-weight: 600;
+  font-size: ${theme.fontSize.md};
   cursor: pointer;
+  transition: all 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    background: ${({ active }) =>
+      active ? theme.colors.primaryHover : 'rgba(255,255,255,0.06)'};
+    color: ${({ active }) =>
+      active ? theme.colors.white : 'rgba(255,255,255,0.95)'};
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+  }
+`;
+
+const CenteredContent = styled.div`
+  text-align: center;
+
+  .warning-icon {
+    font-size: 36px;
+    color: #faad14;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  p {
+    font-size: 16px;
+    color: #555;
+  }
 `;

@@ -82,55 +82,5 @@ export const useBookingTimer = (options?: UseBookingTimerOptions) => {
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
-  // Hủy đặt ghế khi tắt tab
-  //   useEffect(() => {
-  //     const handlePageHide = (event: PageTransitionEvent) => {
-  //       const navEntry = performance.getEntriesByType('navigation')[0] as
-  //         | PerformanceNavigationTiming
-  //         | undefined;
-
-  //       // Nếu lý do rời trang là "reload" thì bỏ qua
-  //       if (navEntry?.type === 'reload') {
-  //         return;
-  //       }
-
-  //       const expireAt = sessionStorage.getItem('expireAt');
-  //       if (!expireAt) return;
-
-  //       if (options?.autoCancel && options?.onExpire) {
-  //         try {
-  //           options.onExpire();
-
-  //           const bookingData = JSON.parse(
-  //             sessionStorage.getItem('bookingPageState') || '{}'
-  //           );
-
-  //           if (bookingData?.seats?.length) {
-  //             const payload = {
-  //               showtimeId: bookingData.showtimeId,
-  //               seats: bookingData.seats.map((s: any) => s.id),
-  //             };
-
-  //             const blob = new Blob([JSON.stringify(payload)], {
-  //               type: 'application/json',
-  //             });
-
-  //             navigator.sendBeacon(
-  //               `${import.meta.env.VITE_API_URL}/reservation/cancelSeats`,
-  //               blob
-  //             );
-  //           }
-  //         } catch (err) {
-  //           console.error('Beacon send failed:', err);
-  //         }
-  //       }
-
-  //       sessionStorage.removeItem('expireAt');
-  //     };
-
-  //     window.addEventListener('pagehide', handlePageHide);
-  //     return () => window.removeEventListener('pagehide', handlePageHide);
-  //   }, [options]);
-
   return { timer, expireAt, startTimer, clearTimer };
 };
