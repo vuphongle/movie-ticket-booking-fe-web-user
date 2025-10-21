@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import vnpayIcon from '@assets/image/icons/VNPAY-icon.png';
 import payosIcon from '@assets/image/icons/payos-icon.svg';
-import { theme } from '@theme/Theme';
 
 interface PaymentMethodsProps {
   selected: string;
@@ -15,7 +14,7 @@ export default function PaymentMethods({
   return (
     <Section>
       <h3>Phương thức thanh toán</h3>
-      <Option onClick={() => onSelect('PAYOS')}>
+      <Option selected={selected === 'PAYOS'} onClick={() => onSelect('PAYOS')}>
         <input
           type='radio'
           name='payment'
@@ -25,7 +24,7 @@ export default function PaymentMethods({
         <Icon src={payosIcon} alt='PayOS' />
         <span>Thanh toán Bằng QR</span>
       </Option>
-      <Option onClick={() => onSelect('VNPAY')}>
+      <Option selected={selected === 'VNPAY'} onClick={() => onSelect('VNPAY')}>
         <input
           type='radio'
           name='payment'
@@ -46,19 +45,51 @@ export default function PaymentMethods({
 
 const Section = styled.div`
   margin-bottom: 20px;
-  background: white;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  border-top: 8px solid ${theme.colors.darkTitleBar};
+  background: rgba(30, 58, 138, 0.25);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 6px solid #439aaa;
+
+  h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #f1f5f9;
+  }
 `;
 
-const Option = styled.label`
+const Option = styled.label<{ selected?: boolean }>`
   display: flex;
   align-items: center;
   margin-bottom: 12px;
   gap: 10px;
   cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: ${({ selected }) =>
+    selected ? 'rgba(30, 58, 138, 0.65)' : 'rgba(15, 23, 42, 0.6)'};
+  border: ${({ selected }) => (selected ? '3px solid #1e40af' : '1px solid rgba(37, 99, 235, 0.4)')};
+  transition: all 0.25s ease;
+  color: ${({ selected }) => (selected ? '#f1f5f9' : 'white')};
+
+  &:hover {
+    background: ${({ selected }) =>
+      selected ? 'rgba(30, 58, 138, 0.65)' : 'rgba(37, 99, 235, 0.25)'};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  input {
+    accent-color: #2563eb;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 500;
+  }
 `;
 
 const Icon = styled.img`
@@ -69,7 +100,7 @@ const Icon = styled.img`
 
 const Notice = styled.p`
   font-size: 12px;
-  color: #666;
+  color: white;
   margin-top: 16px;
   line-height: 1.4;
 
@@ -85,5 +116,6 @@ const Notice = styled.p`
 
   u {
     cursor: pointer;
+    text-decoration-color: #2563eb;
   }
 `;

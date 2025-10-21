@@ -129,6 +129,7 @@ export default function PromoSection({
       handleSelect(bestCoupon);
     }
   }, [displayCoupons, selectedId]);
+  console.log('Available coupons:', displayCoupons);
 
   const handleSelect = async (coupon: any) => {
     if (!bookingData) return;
@@ -284,11 +285,12 @@ export default function PromoSection({
 }
 const Section = styled.div`
   margin-bottom: 20px;
-  background: rgba(49, 130, 206, 0.15);
+  background: rgba(30, 58, 138, 0.25);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  border-top: 6px solid #2563eb;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 6px solid #439aaa;
 
   h2 {
     font-size: 20px;
@@ -309,27 +311,31 @@ const CouponRow = styled.div<{ selected?: boolean; $disabled?: boolean }>`
   justify-content: space-between;
   align-items: center;
   background: ${({ selected }) =>
-    selected
-      ? 'linear-gradient(135deg, #1e3a8a, #2563eb)'
-      : 'rgba(49, 130, 206, 0.3)'};
+    selected ? 'rgba(30, 58, 138, 0.65)' : 'rgba(15, 23, 42, 0.6)'};
   border: ${({ selected }) =>
-    selected ? '1px solid #1e40af' : '1px solid rgba(49, 130, 206, 0.5)'};
+    selected ? '3px solid #1e40af' : '1px solid rgba(255, 255, 255, 0.08)'};
   border-radius: 10px;
   padding: 10px 14px;
   transition: all 0.25s ease;
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
   color: #f1f5f9;
+  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
 
   &:hover {
     background: ${({ selected, $disabled }) =>
       $disabled
-        ? 'rgba(49, 130, 206, 0.3)'
+        ? 'rgba(30, 58, 138, 0.25)'
         : selected
-          ? 'linear-gradient(135deg, #1b3580, #1f4ed8)'
-          : 'linear-gradient(135deg, #1d3eaa, #3b7ce0)'}; // hover khi chưa selected: đỡ sáng hơn
+          ? 'rgba(30, 58, 138, 0.65)'
+          : 'rgba(30, 58, 138, 0.35)'};
+    border-color: ${({ $disabled }) =>
+      $disabled ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.12)'};
     box-shadow: ${({ $disabled }) =>
-      $disabled ? 'none' : '0 6px 16px rgba(0, 0, 0, 0.15)'};
+      $disabled ? 'none' : '0 8px 24px rgba(0, 0, 0, 0.35)'};
+    transform: ${({ $disabled }) => ($disabled ? 'none' : 'translateY(-3px)')};
   }
 `;
 
@@ -374,6 +380,7 @@ const BestChoiceTag = styled.div`
   top: 0px;
   right: 0px;
   background: ${theme.colors.primary};
+  border: 2px solid rgba(255, 255, 255, 0.12);
   color: white;
   font-size: 12px;
   font-weight: 600;
