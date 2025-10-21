@@ -15,9 +15,10 @@ import {
   useCancelSeatMutation,
   useCancelSeatMultiMutation,
 } from '@/app/services/reservation.api';
+import { useGetSeatsByAuditoriumAndShowtimeQuery } from '@app/services/auditorium.api';
 import GlobalLoading from '@components/loading/GlobalLoading';
 import { Modal, Button } from 'antd';
-import { ExclamationCircleFilled } from '@ant-design/icons'; 
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
 export default function BookingAdditionalServicePage() {
   const { t } = useTranslation();
@@ -129,12 +130,22 @@ export default function BookingAdditionalServicePage() {
     }
   }, []);
 
+  const {
+    refetch,
+  } = useGetSeatsByAuditoriumAndShowtimeQuery(
+    { auditoriumId: Number(bookingData.auditorium.id), showtimeId: Number(bookingData.showtimeId) },
+    { refetchOnMountOrArgChange: true }
+  );
+
   const handleBack = async () => {
     sessionStorage.setItem(
       'bookingPageState',
       JSON.stringify({ seats: bookingData.seats })
     );
-    navigate(-1);
+    setTimeout(() => {
+      navigate(-1);
+      refetch();
+    }, 200);
   };
 
   useEffect(() => {
@@ -178,7 +189,6 @@ export default function BookingAdditionalServicePage() {
     };
   }, [bookingData, cancelSeat]);
 
-
   // Navigation guard
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [resolveFn, setResolveFn] = useState<((val: boolean) => void) | null>(
@@ -207,7 +217,7 @@ export default function BookingAdditionalServicePage() {
       sessionStorage.removeItem('bookingCancelled');
       setShouldGuard(false);
 
-     Modal.warning({
+      Modal.warning({
         title: 'Luồng đặt vé đã bị hủy',
         content: 'Vui lòng thao tác lại.',
         onOk: () => {
@@ -223,25 +233,41 @@ export default function BookingAdditionalServicePage() {
 
   return (
     <Page>
-       <Modal
+      <Modal
         centered
         open={isConfirmOpen}
         onCancel={() => handleConfirm(false)}
         footer={[
-          <div key="buttons" style={{ textAlign: 'center', gap: '8px', display: 'flex', justifyContent: 'center' }}>
-            <Button key="cancel" onClick={() => handleConfirm(false)}>
-            Ở lại
-          </Button>
-          <Button key="ok" type="primary" danger onClick={() => handleConfirm(true)}>
-            Thoát
-          </Button>
-          </div>
+          <div
+            key='buttons'
+            style={{
+              textAlign: 'center',
+              gap: '8px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Button key='cancel' onClick={() => handleConfirm(false)}>
+              Ở lại
+            </Button>
+            <Button
+              key='ok'
+              type='primary'
+              danger
+              onClick={() => handleConfirm(true)}
+            >
+              Thoát
+            </Button>
+          </div>,
         ]}
       >
         <CenteredContent>
-          <ExclamationCircleFilled className="warning-icon" />
+          <ExclamationCircleFilled className='warning-icon' />
           <h3>Bạn sắp thoát khỏi luồng đặt vé</h3>
-          <p>Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục không?</p>
+          <p>
+            Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục
+            không?
+          </p>
         </CenteredContent>
       </Modal>
       <Main>

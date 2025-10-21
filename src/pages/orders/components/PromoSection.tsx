@@ -112,7 +112,14 @@ export default function PromoSection({
         };
       })
       .filter((c: any) => c.applied && c.errorMessage === null)
-      .sort((a: any, b: any) => (b.lineDiscount || 0) - (a.lineDiscount || 0));
+      .sort((a: any, b: any) => {
+        const aUsedUp = a.detailUsedCount >= a.limitQuantityApplied;
+        const bUsedUp = b.detailUsedCount >= b.limitQuantityApplied;
+
+        if (aUsedUp && !bUsedUp) return 1;
+        if (!aUsedUp && bUsedUp) return -1;
+        return (b.lineDiscount || 0) - (a.lineDiscount || 0);
+      });
   }, [couponDetails, previewMap]);
 
   useEffect(() => {
@@ -169,6 +176,7 @@ export default function PromoSection({
 
       <CouponList>
         {displayCoupons.map((c: any, index: number) => {
+          const isUsedUp = c.detailUsedCount >= c.limitQuantityApplied;
           const previewResult = c.previewDetail;
           const isGift = c.benefitType === 'FREE_PRODUCT';
           const gifts = c.giftServiceId
@@ -177,15 +185,25 @@ export default function PromoSection({
           const isBestChoice = index === 0 && (c.lineDiscount ?? 0) > 0;
 
           return (
-            <CouponRow key={c.id} selected={selectedId === c.id}>
+            <CouponRow
+              key={c.id}
+              selected={selectedId === c.id}
+              $disabled={isUsedUp}
+              onClick={() => {
+                if (!isUsedUp) handleSelect(c);
+                return false;
+              }}
+            >
               {isBestChoice && <BestChoiceTag>Lựa chọn tốt nhất</BestChoiceTag>}
+              {isUsedUp && <UsedUpTag>Đã hết lượt sử dụng</UsedUpTag>}
 
               <LeftPart>
                 <RadioInput
                   type='radio'
                   name='coupon'
                   checked={selectedId === c.id}
-                  onChange={() => handleSelect(c)}
+                  disabled={isUsedUp}
+                  onChange={() => !isUsedUp && handleSelect(c)}
                 />
                 <ImageWrapper>
                   <img
@@ -221,17 +239,17 @@ export default function PromoSection({
                 </p>
 
                 <small>
-                  Giới hạn áp dụng:{' '}
-                  {c.limitQuantityApplied
-                    ? c.targetType === 'TICKET'
-                      ? `${c.limitQuantityApplied} ghế`
-                      : c.targetType === 'PRODUCT'
-                        ? `${c.limitQuantityApplied} sản phẩm`
-                        : c.targetType === 'ADDITIONAL_SERVICE'
-                          ? `${c.limitQuantityApplied} dịch vụ`
-                          : `${c.limitQuantityApplied} lần`
-                    : 'Không giới hạn'}
+                  Giới hạn: {c.limitQuantityApplied} | Đã dùng:{' '}
+                  {c.detailUsedCount}
                 </small>
+
+                <ProgressBarContainer>
+                  <ProgressFill
+                    $percent={
+                      (c.detailUsedCount / c.limitQuantityApplied) * 100
+                    }
+                  />
+                </ProgressBarContainer>
               </Info>
 
               {isGift ? (
@@ -266,34 +284,52 @@ export default function PromoSection({
 }
 const Section = styled.div`
   margin-bottom: 20px;
-  background: #ffffff;
+  background: rgba(49, 130, 206, 0.15);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-top: 6px solid ${theme.colors.primary};
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  border-top: 6px solid #2563eb;
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: #f1f5f9;
+  }
 `;
 
 const CouponList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 `;
 
-const CouponRow = styled.div<{ selected?: boolean }>`
+const CouponRow = styled.div<{ selected?: boolean; $disabled?: boolean }>`
   display: flex;
   position: relative;
   justify-content: space-between;
   align-items: center;
-  background: ${({ selected }) => (selected ? '#e8f1ff' : '#f8fafb')};
+  background: ${({ selected }) =>
+    selected
+      ? 'linear-gradient(135deg, #1e3a8a, #2563eb)'
+      : 'rgba(49, 130, 206, 0.3)'};
   border: ${({ selected }) =>
-    selected ? '1px solid #007bff' : '1px solid #e0e0e0'};
+    selected ? '1px solid #1e40af' : '1px solid rgba(49, 130, 206, 0.5)'};
   border-radius: 10px;
   padding: 10px 14px;
   transition: all 0.25s ease;
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
+  pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
+  color: #f1f5f9;
 
   &:hover {
-    background: #eef5ff;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    background: ${({ selected, $disabled }) =>
+      $disabled
+        ? 'rgba(49, 130, 206, 0.3)'
+        : selected
+          ? 'linear-gradient(135deg, #1b3580, #1f4ed8)'
+          : 'linear-gradient(135deg, #1d3eaa, #3b7ce0)'}; // hover khi chưa selected: đỡ sáng hơn
+    box-shadow: ${({ $disabled }) =>
+      $disabled ? 'none' : '0 6px 16px rgba(0, 0, 0, 0.15)'};
   }
 `;
 
@@ -307,16 +343,29 @@ const LeftPart = styled.div`
 const ImageWrapper = styled.div`
   width: 60px;
   height: 60px;
-  background: #eeeeee;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
   img {
     width: 50px;
     height: 50px;
     object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
 `;
 
@@ -333,12 +382,25 @@ const BestChoiceTag = styled.div`
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 `;
 
+const UsedUpTag = styled.div`
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  background: #f44336;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+`;
+
 const RadioInput = styled.input`
   accent-color: ${theme.colors.primary};
   width: 18px;
   height: 18px;
   cursor: pointer;
 `;
+
 const Info = styled.div`
   flex: 1;
   margin-left: 10px;
@@ -347,23 +409,24 @@ const Info = styled.div`
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 4px;
+    color: #e0e7ff;
   }
 
   p {
     font-size: 14px;
-    color: #333;
+    color: #c7d2fe;
     margin-bottom: 2px;
   }
 
   small {
     font-size: 12px;
-    color: #777;
+    color: #a5b4fc;
   }
 `;
 
 const DiscountBox = styled.div`
-  background: #4caf50;
-  color: white;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #f1f5f9;
   font-weight: 600;
   border-radius: 8px;
   padding: 6px 10px;
@@ -371,21 +434,28 @@ const DiscountBox = styled.div`
   flex-shrink: 0;
   text-align: center;
   min-width: 90px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(30, 58, 138, 0.4);
+  }
 `;
 
 const GiftBox = styled.div`
   margin-top: 12px;
   font-size: 13px;
-  color: #e65100;
+  color: #facc15;
   font-weight: 600;
-  background: #fff3e0;
-  border: 1px solid #ffcc80;
+  background: rgba(250, 204, 21, 0.1);
+  border: 1px solid rgba(250, 204, 21, 0.3);
   border-radius: 6px;
   padding: 4px 8px;
   display: inline-flex;
   align-items: center;
   max-width: 220px;
-  text-align: left;
 `;
 
 const Thumbnail = styled.img`
@@ -396,3 +466,19 @@ const Thumbnail = styled.img`
   margin-right: 6px;
 `;
 
+const ProgressBarContainer = styled.div`
+  width: 40%;
+  height: 6px;
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 6px;
+`;
+
+const ProgressFill = styled.div<{ $percent: number }>`
+  height: 100%;
+  width: ${({ $percent }) => Math.min($percent, 100)}%;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  transition: width 0.4s ease;
+  border-radius: 6px;
+`;

@@ -334,9 +334,11 @@ export default function TicketInfo({
 
       <Total style={{ marginBottom: '5px' }}>
         <span style={{ color: theme.colors.primary }}>Giảm giá</span>
-        <span style={{ color: theme.colors.primary }}>
-          -{discountTotal.toLocaleString()} đ
-        </span>
+        {discountTotal > 0 && (
+            <span style={{ color: theme.colors.primary }}>
+              -{discountTotal.toLocaleString()} đ
+            </span>
+        )}
       </Total>
       <Total>
         <span>Thanh Toán</span>
