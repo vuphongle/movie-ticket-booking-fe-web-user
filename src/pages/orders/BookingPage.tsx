@@ -80,6 +80,7 @@ export default function BookingPage() {
     data: seatDtos = [],
     isLoading,
     isError,
+    refetch
   } = useGetSeatsByAuditoriumAndShowtimeQuery(
     {
       auditoriumId: Number(auditorium.id),
@@ -89,6 +90,11 @@ export default function BookingPage() {
       refetchOnMountOrArgChange: true,
     }
   );
+
+  
+useEffect(() => {
+  refetch();
+}, [refetch]);
 
   const { data: movie } = useGetMovieByShowtimeQuery(Number(showtimeId));
 
