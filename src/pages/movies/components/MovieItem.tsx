@@ -36,7 +36,7 @@ export default function MovieItem({
 }, []);
 
   return (
-    <Card compact={compact}>
+    <Card compact={compact} onClick={onAction} style={{ cursor: onAction ? 'pointer' : 'default' }}>
       <PosterWrapper compact={compact}>
         <Poster src={poster} alt={title} />
         <Overlay>

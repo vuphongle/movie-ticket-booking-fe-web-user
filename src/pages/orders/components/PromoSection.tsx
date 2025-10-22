@@ -112,7 +112,14 @@ export default function PromoSection({
         };
       })
       .filter((c: any) => c.applied && c.errorMessage === null)
-      .sort((a: any, b: any) => (b.lineDiscount || 0) - (a.lineDiscount || 0));
+      .sort((a: any, b: any) => {
+        const aUsedUp = a.detailUsedCount >= a.limitQuantityApplied;
+        const bUsedUp = b.detailUsedCount >= b.limitQuantityApplied;
+
+        if (aUsedUp && !bUsedUp) return 1;
+        if (!aUsedUp && bUsedUp) return -1;
+        return (b.lineDiscount || 0) - (a.lineDiscount || 0);
+      });
   }, [couponDetails, previewMap]);
 
   useEffect(() => {
@@ -122,6 +129,7 @@ export default function PromoSection({
       handleSelect(bestCoupon);
     }
   }, [displayCoupons, selectedId]);
+  console.log('Available coupons:', displayCoupons);
 
   const handleSelect = async (coupon: any) => {
     if (!bookingData) return;
@@ -277,17 +285,24 @@ export default function PromoSection({
 }
 const Section = styled.div`
   margin-bottom: 20px;
-  background: #ffffff;
+  background: rgba(30, 58, 138, 0.25);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-top: 6px solid ${theme.colors.primary};
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 6px solid #439aaa;
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: #f1f5f9;
+  }
 `;
 
 const CouponList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 `;
 
 const CouponRow = styled.div<{ selected?: boolean; $disabled?: boolean }>`
@@ -295,19 +310,32 @@ const CouponRow = styled.div<{ selected?: boolean; $disabled?: boolean }>`
   position: relative;
   justify-content: space-between;
   align-items: center;
-  background: ${({ selected }) => (selected ? '#e8f1ff' : '#f8fafb')};
+  background: ${({ selected }) =>
+    selected ? 'rgba(30, 58, 138, 0.65)' : 'rgba(15, 23, 42, 0.6)'};
   border: ${({ selected }) =>
-    selected ? '1px solid #007bff' : '1px solid #e0e0e0'};
+    selected ? '3px solid #1e40af' : '1px solid rgba(255, 255, 255, 0.08)'};
   border-radius: 10px;
   padding: 10px 14px;
   transition: all 0.25s ease;
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
+  color: #f1f5f9;
+  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
 
   &:hover {
-    background: ${({ $disabled }) => ($disabled ? '#f8fafb' : '#eef5ff')};
+    background: ${({ selected, $disabled }) =>
+      $disabled
+        ? 'rgba(30, 58, 138, 0.25)'
+        : selected
+          ? 'rgba(30, 58, 138, 0.65)'
+          : 'rgba(30, 58, 138, 0.35)'};
+    border-color: ${({ $disabled }) =>
+      $disabled ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.12)'};
     box-shadow: ${({ $disabled }) =>
-      $disabled ? 'none' : '0 3px 8px rgba(0, 0, 0, 0.08)'};
+      $disabled ? 'none' : '0 8px 24px rgba(0, 0, 0, 0.35)'};
+    transform: ${({ $disabled }) => ($disabled ? 'none' : 'translateY(-3px)')};
   }
 `;
 
@@ -321,16 +349,29 @@ const LeftPart = styled.div`
 const ImageWrapper = styled.div`
   width: 60px;
   height: 60px;
-  background: #eeeeee;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
   img {
     width: 50px;
     height: 50px;
     object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
 `;
 
@@ -339,6 +380,7 @@ const BestChoiceTag = styled.div`
   top: 0px;
   right: 0px;
   background: ${theme.colors.primary};
+  border: 2px solid rgba(255, 255, 255, 0.12);
   color: white;
   font-size: 12px;
   font-weight: 600;
@@ -347,12 +389,25 @@ const BestChoiceTag = styled.div`
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 `;
 
+const UsedUpTag = styled.div`
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  background: #f44336;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+`;
+
 const RadioInput = styled.input`
   accent-color: ${theme.colors.primary};
   width: 18px;
   height: 18px;
   cursor: pointer;
 `;
+
 const Info = styled.div`
   flex: 1;
   margin-left: 10px;
@@ -361,23 +416,24 @@ const Info = styled.div`
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 4px;
+    color: #e0e7ff;
   }
 
   p {
     font-size: 14px;
-    color: #333;
+    color: #c7d2fe;
     margin-bottom: 2px;
   }
 
   small {
     font-size: 12px;
-    color: #777;
+    color: #a5b4fc;
   }
 `;
 
 const DiscountBox = styled.div`
-  background: #4caf50;
-  color: white;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #f1f5f9;
   font-weight: 600;
   border-radius: 8px;
   padding: 6px 10px;
@@ -385,21 +441,28 @@ const DiscountBox = styled.div`
   flex-shrink: 0;
   text-align: center;
   min-width: 90px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(30, 58, 138, 0.4);
+  }
 `;
 
 const GiftBox = styled.div`
   margin-top: 12px;
   font-size: 13px;
-  color: #e65100;
+  color: #facc15;
   font-weight: 600;
-  background: #fff3e0;
-  border: 1px solid #ffcc80;
+  background: rgba(250, 204, 21, 0.1);
+  border: 1px solid rgba(250, 204, 21, 0.3);
   border-radius: 6px;
   padding: 4px 8px;
   display: inline-flex;
   align-items: center;
   max-width: 220px;
-  text-align: left;
 `;
 
 const Thumbnail = styled.img`
@@ -411,9 +474,9 @@ const Thumbnail = styled.img`
 `;
 
 const ProgressBarContainer = styled.div`
-  width: 100%;
-  height: 8px;
-  background: #e0e0e0;
+  width: 40%;
+  height: 6px;
+  background: rgba(15, 23, 42, 0.3);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 6px;
@@ -422,24 +485,7 @@ const ProgressBarContainer = styled.div`
 const ProgressFill = styled.div<{ $percent: number }>`
   height: 100%;
   width: ${({ $percent }) => Math.min($percent, 100)}%;
-  background: ${({ $percent }) =>
-    $percent < 60
-      ? '#4caf50' // xanh nếu còn nhiều
-      : $percent < 90
-        ? '#ff9800' // cam nếu sắp hết
-        : '#f44336'}; // đỏ nếu gần hết
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   transition: width 0.4s ease;
-`;
-
-
-const UsedUpTag = styled.div`
-  position: absolute;
-  bottom: 8px;
-  right: 10px;
-  background: #f44336;
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3px 8px;
   border-radius: 6px;
 `;

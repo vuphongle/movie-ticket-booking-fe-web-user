@@ -23,16 +23,16 @@ const History: React.FC = () => {
     }).format(amount);
   const [downloadPdf] = useDownloadPdfMutation();
 
-  const handleViewPdf = async (orderId: number) => {
-    try {
-      const blob = await downloadPdf(orderId).unwrap();
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } catch (err) {
-      console.error(err);
-      alert(t('PDF_NOT_AVAILABLE'));
-    }
-  };
+const handleViewPdf = async (orderId: number) => {
+  try {
+    const pdfUrl = await downloadPdf(orderId).unwrap();
+    window.open(pdfUrl, '_blank');
+  } catch (err) {
+    console.error(err);
+    alert('PDF không có sẵn');
+  }
+};
+
 
   const filteredHistory = useMemo(() => {
     if (!purchaseHistory) return [];
