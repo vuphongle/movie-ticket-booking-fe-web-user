@@ -36,7 +36,7 @@ export default function MovieComponent({
   const [activeTrailer, setActiveTrailer] = useState<string | null>(null);
 
   if (!movies || movies.length === 0) {
-    return <p>{t('MOVIE_NO_MOVIES')}</p>;
+    return <NoMovies>{t('MOVIE_NO_MOVIES')}</NoMovies>;
   }
 
   const getEmbedUrl = (url: string) => {
@@ -133,4 +133,15 @@ const TrailerModal = styled.div`
     height: 80%;
     border: none;
   }
+`;
+
+const NoMovies = styled.div`
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${theme.colors.textLight};
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
 `;

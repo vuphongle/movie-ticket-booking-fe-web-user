@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { theme } from '@theme/Theme';
 import { useGetAllCouponsQuery } from '@app/services/coupon.api';
 import { useTranslation } from 'react-i18next';
 
@@ -39,7 +38,6 @@ const PAGE_SIZE = 6;
 const CouponPage: React.FC = () => {
   const { t } = useTranslation();
   const { data: coupons, isLoading, isError } = useGetAllCouponsQuery();
-  const [activeTab, setActiveTab] = useState<'DISPLAY' | 'VOUCHER'>('DISPLAY');
   const [currentPage, setCurrentPage] = useState(1);
   const [modalCoupon, setModalCoupon] = useState<Coupon | null>(null);
 
@@ -48,12 +46,7 @@ const CouponPage: React.FC = () => {
   }, []);
 
   const activeCoupons =
-    coupons?.filter(
-      c =>
-        c.status &&
-        ((activeTab === 'DISPLAY' && !c.code) ||
-          (activeTab === 'VOUCHER' && c.code))
-    ) || [];
+    coupons?.filter(c => c.status && !c.code) || [];
 
   const totalPages = Math.ceil(activeCoupons.length / PAGE_SIZE);
   const paginatedCoupons = activeCoupons.slice(
@@ -65,27 +58,6 @@ const CouponPage: React.FC = () => {
     <PageContainer>
       <PageTitle>{t('COUPON_TITLE_LINE')}</PageTitle>
 
-      <TabContainer>
-        <TabButton
-          active={activeTab === 'DISPLAY'}
-          onClick={() => {
-            setActiveTab('DISPLAY');
-            setCurrentPage(1);
-          }}
-        >
-          {t('COUPON_PROMO')}
-        </TabButton>
-        <TabButton
-          active={activeTab === 'VOUCHER'}
-          onClick={() => {
-            setActiveTab('VOUCHER');
-            setCurrentPage(1);
-          }}
-        >
-          {t('COUPON_VOUCHER')}
-        </TabButton>
-      </TabContainer>
-
       {isLoading && <Message>{t('COUPON_LOADING')}</Message>}
       {isError && <Message>{t('COUPON_EMPTY')}</Message>}
 
@@ -95,25 +67,15 @@ const CouponPage: React.FC = () => {
             {paginatedCoupons.map(c => (
               <CouponCard
                 key={c.id}
-                kind={activeTab}
-                onClick={() => activeTab === 'DISPLAY' && setModalCoupon(c)}
+                onClick={() => setModalCoupon(c)}
               >
                 <CouponTitle>{c.name}</CouponTitle>
                 {c.description && <CouponDesc>{c.description}</CouponDesc>}
-                {activeTab === 'VOUCHER' && (
-                  <CouponDesc>{t('COUPON_VALID')}:</CouponDesc>
-                )}
-                <CouponDates kind={activeTab}>
-                  {t('COUPON_VALID')}:{' '}
-                  {new Date(c.startDate).toLocaleDateString()} -{' '}
+
+                <CouponDates>
+                  {t('COUPON_VALID')}: {new Date(c.startDate).toLocaleDateString()} -{' '}
                   {new Date(c.endDate).toLocaleDateString()}
                 </CouponDates>
-
-                {activeTab === 'DISPLAY' && c.code && (
-                  <CouponCode>
-                    {t('COUPON_DISCOUNT')}: {c.code}
-                  </CouponCode>
-                )}
 
                 {c.details?.length > 0 && (
                   <BenefitList>
@@ -178,7 +140,6 @@ const CouponPage: React.FC = () => {
                     .map(d => (
                       <ModalTerms key={d.id}>
                         <BenefitLabel type={d.benefitType}>
-                          {' '}
                           Loại lợi ích:{' '}
                           {d.benefitType === 'DISCOUNT_PERCENT'
                             ? t('COUPON_DISCOUNT') + ' %'
@@ -192,52 +153,26 @@ const CouponPage: React.FC = () => {
                         {d.terms?.percent && (
                           <TermRow>
                             <span>{t('COUPON_DISCOUNT')}: </span>
-                            <strong style={{ marginLeft: '4px' }}>
-                              {d.terms.percent}%
-                            </strong>
+                            <strong>{d.terms.percent}%</strong>
                           </TermRow>
                         )}
 
                         {d.terms?.amount && (
                           <TermRow>
                             <span>{t('COUPON_DISCOUNT')}: </span>
-                            <strong style={{ marginLeft: '4px' }}>
-                              {d.terms.amount.toLocaleString()}₫
-                            </strong>
+                            <strong>{d.terms.amount.toLocaleString()}₫</strong>
                           </TermRow>
                         )}
 
                         {d.terms?.giftServiceId && (
                           <TermRow>
                             <span>Quà tặng: </span>
-                            <strong style={{ marginLeft: '4px' }}>
+                            <strong>
                               {d.terms.giftQuantity} sản phẩm (ID{' '}
                               {d.terms.giftServiceId})
                             </strong>
                           </TermRow>
                         )}
-
-                        {d.terms?.limitQuantityApplied &&
-                          d.terms?.detailUsedCount !== undefined && (
-                            <ProgressContainer>
-                              <ProgressLabel>
-                                Số lượt sử dụng: {d.terms.detailUsedCount} /{' '}
-                                {d.terms.limitQuantityApplied}
-                              </ProgressLabel>
-                              <ProgressBar>
-                                <ProgressFill
-                                  style={{
-                                    width: `${Math.min(
-                                      (d.terms.detailUsedCount /
-                                        d.terms.limitQuantityApplied) *
-                                        100,
-                                      100
-                                    )}%`,
-                                  }}
-                                />
-                              </ProgressBar>
-                            </ProgressContainer>
-                          )}
                       </ModalTerms>
                     ))
                 ) : (
@@ -254,7 +189,7 @@ const CouponPage: React.FC = () => {
 
 export default CouponPage;
 
-// Styled Components
+// =================== Styled ===================
 const PageContainer = styled.div`
   padding: 30px;
   background-color: transparent;
@@ -267,44 +202,14 @@ const PageTitle = styled.h1`
   color: #fff;
 `;
 
-const TabContainer = styled.div`
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-`;
-
-const TabButton = styled.button<{ active?: boolean }>`
-  padding: 8px 20px;
-  border-radius: 20px;
-  border: none;
-  background-color: ${props => (props.active ? theme.colors.primary : '#555')};
-  color: ${props => (props.active ? '#fff' : '#ccc')};
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.2s;
-
-  &:hover {
-    opacity: 0.85;
-  }
-`;
-
 const CouponGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 `;
 
-const CouponCard = styled.div<{
-  kind: 'DISPLAY' | 'VOUCHER';
-  imageUrl?: string;
-}>`
-  position: relative;
-  background: ${props =>
-    props.imageUrl
-      ? `url(${props.imageUrl}) center/cover no-repeat`
-      : props.kind === 'VOUCHER'
-        ? 'linear-gradient(135deg, #6a11cb, #2575fc)'
-        : 'linear-gradient(135deg, #4e54c8, #8f94fb)'};
+const CouponCard = styled.div`
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
   border-radius: 16px;
   padding: 16px;
   color: #fff;
@@ -328,13 +233,14 @@ const CouponDesc = styled.p`
   font-size: 14px;
   margin-bottom: 8px;
 `;
-const CouponCode = styled.div`
-  margin-top: 12px;
-  font-weight: bold;
+
+const CouponDates = styled.p`
+  font-size: 12px;
+  margin-top: 4px;
   background-color: rgba(255, 255, 255, 0.2);
-  padding: 6px 10px;
-  border-radius: 10px;
-  text-align: center;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: #fff;
 `;
 
 const BenefitList = styled.div`
@@ -375,6 +281,7 @@ const PageInfo = styled.span`
   font-weight: bold;
   color: #fff;
 `;
+
 const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
@@ -394,7 +301,6 @@ const ModalContent = styled.div`
   max-height: 70%;
   overflow-y: auto;
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.35);
-  position: relative;
 `;
 
 const ModalHeader = styled.div`
@@ -406,7 +312,6 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
   font-size: 20px;
   font-weight: 700;
-  margin-bottom: 12px;
 `;
 
 const ModalDesc = styled.p`
@@ -432,32 +337,8 @@ const TermRow = styled.div`
   }
   strong {
     color: #222;
+    margin-left: 4px;
   }
-`;
-
-const ProgressContainer = styled.div`
-  margin-top: 8px;
-`;
-
-const ProgressLabel = styled.div`
-  font-size: 12px;
-  margin-bottom: 4px;
-  color: #444;
-`;
-
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 10px;
-  background: #ddd;
-  border-radius: 6px;
-  overflow: hidden;
-`;
-
-const ProgressFill = styled.div`
-  height: 100%;
-  background: linear-gradient(90deg, #6a11cb, #2575fc);
-  border-radius: 6px 0 0 6px;
-  transition: width 0.3s ease;
 `;
 
 const CloseBtn = styled.button`
@@ -479,7 +360,6 @@ const BenefitLabel = styled.div<{ type: string }>`
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  margin-bottom: 6px;
   color: #fff;
   background-color: ${props =>
     props.type === 'DISCOUNT_PERCENT'
@@ -489,17 +369,4 @@ const BenefitLabel = styled.div<{ type: string }>`
         : props.type === 'FREE_PRODUCT'
           ? '#54a0ff'
           : '#ccc'};
-`;
-
-const CouponDates = styled.p<{ kind: 'DISPLAY' | 'VOUCHER' }>`
-  font-size: 12px;
-  margin-top: 4px;
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 4px 8px;
-  border-radius: 8px;
-
-  color: ${props => (props.kind === 'VOUCHER' ? 'transparent' : '#fff')};
-  text-shadow: ${props =>
-    props.kind === 'VOUCHER' ? '0 0 8px rgba(0,0,0,0.3)' : 'none'};
-  user-select: ${props => (props.kind === 'VOUCHER' ? 'none' : 'auto')};
 `;
