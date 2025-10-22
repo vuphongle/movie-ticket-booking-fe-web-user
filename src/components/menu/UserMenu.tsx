@@ -50,7 +50,7 @@ export default function UserMenu({ auth, onLogout }: UserMenuProps) {
     <Wrapper>
       <Trigger onClick={handleClick}>
         <StyledAvatar src={auth?.avatar} alt={auth?.name} />
-        <span>{auth?.name}</span>
+        <NameTitle title={auth?.name}>{auth?.name}</NameTitle>
       </Trigger>
 
       <StyledMenu anchorEl={anchorEl} open={open} onClose={handleClose}>
@@ -89,6 +89,15 @@ const Trigger = styled.div`
   align-items: center;
   gap: 8px;
   cursor: pointer;
+`;
+
+const NameTitle = styled.span`
+  display: inline-block;
+  max-width: 120px; /* adjust as needed */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 `;
 
 const StyledAvatar = styled(MuiAvatar)`
