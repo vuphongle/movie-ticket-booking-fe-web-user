@@ -6,7 +6,7 @@ const coupon = {
   COUPON_INACTIVE: 'Không hoạt động',
   COUPON_VALID: 'Thời gian áp dụng',
   COUPON_DISCOUNT: 'Giảm giá',
-  COUPON_TITLE_LINE: 'Khuyến mãi & Voucher',
+  COUPON_TITLE_LINE: 'Khuyến mại',
   COUPON_PROMO: 'Khuyến mãi',
   COUPON_VOUCHER: 'Voucher',
   CLOSE: 'Đóng',

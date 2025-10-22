@@ -199,31 +199,47 @@ export default function BookingConfirmPage() {
         clearTimer?.();
       }
     };
-    const handleRouteChange = () => {
+
+    const handleRouteChange = async () => {
       if (!isProceedingRef.current && bookingData?.seats) {
-        bookingData.seats.forEach((seat: any) => {
-          cancelSeat({ seatId: seat.id, showtimeId: bookingData.showtimeId });
-        });
+        await Promise.all(
+          bookingData.seats.map((seat: any) =>
+            cancelSeat({
+              seatId: seat.id,
+              showtimeId: bookingData.showtimeId,
+            }).unwrap()
+          )
+        );
         clearTimer?.();
       }
     };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('popstate', handleRouteChange);
+
     return () => {
       if (!isFirstRenderRef.current) {
         if (!isProceedingRef.current && bookingData?.seats) {
-          bookingData.seats.forEach((seat: any) => {
-            cancelSeat({ seatId: seat.id, showtimeId: bookingData.showtimeId });
-          });
-          clearTimer?.();
+          (async () => {
+            await Promise.all(
+              bookingData.seats.map((seat: any) =>
+                cancelSeat({
+                  seatId: seat.id,
+                  showtimeId: bookingData.showtimeId,
+                }).unwrap()
+              )
+            );
+            clearTimer?.();
+          })();
         }
       } else {
         isFirstRenderRef.current = false;
       }
+
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handleRouteChange);
     };
-  }, [bookingData, cancelSeat]);
+  }, [bookingData, cancelSeat, cancelSeatMulti]);
 
   // Navigation guard
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -439,4 +455,3 @@ const CenteredContent = styled.div`
     color: #555;
   }
 `;
-

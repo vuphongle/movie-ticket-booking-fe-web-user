@@ -6,7 +6,7 @@ const coupon = {
   COUPON_INACTIVE: 'Inactive',
   COUPON_VALID: 'Valid',
   COUPON_DISCOUNT: 'Discount',
-  COUPON_TITLE_LINE:"Promotions & Vouchers",
+  COUPON_TITLE_LINE:"Promotions",
   COUPON_PROMO: 'Promotions',
   COUPON_VOUCHER: 'Vouchers',
   CLOSE: 'Close',

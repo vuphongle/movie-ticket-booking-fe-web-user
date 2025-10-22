@@ -11,6 +11,7 @@ export interface CouponDto {
   endDate: number;
   createdAt: number;
   updatedAt: number;
+  kind: string;
   details: CouponDetailDto[];
 }
 

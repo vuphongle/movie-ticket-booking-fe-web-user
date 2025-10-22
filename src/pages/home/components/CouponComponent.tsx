@@ -19,7 +19,9 @@ export default function CouponComponent() {
   if (!coupons.length)
     return <Message>{t('COUPON_EMPTY') ?? 'No coupons available'}</Message>;
 
-  const sliderCoupons = coupons.slice(0, 5);
+  const displayCoupons = coupons.filter(c => c.kind === 'DISPLAY');
+
+  const sliderCoupons = displayCoupons.slice(0, 5);
 
   return (
     <Section>
