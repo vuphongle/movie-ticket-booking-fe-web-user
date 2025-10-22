@@ -49,20 +49,19 @@ const handleViewPdf = async (orderId: number) => {
 
   if (isLoading) return <p>{t('LOADING')}</p>;
   if (error) return <p>{t('ERROR_LOADING')}</p>;
-  if (!purchaseHistory || purchaseHistory.length === 0)
-    return <p>{t('NO_ORDERS')}</p>;
 
   return (
     <HistoryContainer>
       <SearchInput
         type='text'
-        placeholder={t('SEARCH_PLACEHOLDER')}
+        placeholder={t('SEARCH_PLACEHOLDER_HISTORY')}
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
       />
 
       <HistoryList>
-        {visibleOrders.map((order: OrderDto) => (
+        {visibleOrders.length > 0 ? (
+        visibleOrders.map((order: OrderDto) => (
           <HistoryItem key={order.id}>
             <MovieSection>
               <Poster
@@ -151,7 +150,11 @@ const handleViewPdf = async (orderId: number) => {
               )}
             </RightSection>
           </HistoryItem>
-        ))}
+        )) ) : (
+    <HistoryItemEmpty>
+      <EmptyText>{t('NO_ORDERS')}</EmptyText>
+    </HistoryItemEmpty>
+  )}
       </HistoryList>
 
       {visibleCount < filteredHistory.length && (
@@ -382,6 +385,19 @@ const ServiceBox = styled.div`
   font-weight: 500;
 `;
 
+const HistoryItemEmpty = styled(HistoryItem)`
+  background: #fafafa;
+  border: 1px dashed #ccc;
+  justify-content: center;
+  align-items: center;
+  min-height: 380px;
+`;
+
+const EmptyText = styled.span`
+  color: #999;
+  font-size: 16px;
+  font-weight: 500;
+`;
 
 
 export default History;

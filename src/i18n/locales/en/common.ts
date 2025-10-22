@@ -240,7 +240,7 @@ const common = {
   HELD_SEAT_TITLE: 'Notification',
   CLOSE: 'Close',
 
-  PURCHASE_HISTORY: "Purchase History",
+  PURCHASE_HISTORY: 'Purchase History',
   LOADING: 'Loading...',
   ERROR_LOADING: 'Error loading data!',
   NO_ORDERS: 'No purchase history found.',
@@ -267,6 +267,7 @@ const common = {
   UNKNOWN: 'Unknown',
 
   PDF_NOT_AVAILABLE: 'This order is old and has not been PDFed yet!',
+  SEARCH_PLACEHOLDER_HISTORY: 'Search by movie name, cinema',
 };
 
 export default common;
