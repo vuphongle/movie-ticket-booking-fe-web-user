@@ -12,6 +12,7 @@ const coupon = {
   CLOSE: 'Close',
   PREV: 'Prev',
   NEXT: 'Next',
+  COUPON_SEE_MORE: 'See More',
 };
 
 export default coupon;
