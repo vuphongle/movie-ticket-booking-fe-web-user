@@ -17,3 +17,25 @@ export const formatDate = (dateStr?: string | number): string => {
 
   return `${day}/${month}/${year}`;
 };
+
+export const formatDate_corner = (dateInput: number[] | string): string => {
+  let date: Date;
+
+  if (Array.isArray(dateInput)) {
+    const [year, month, day, hour = 0, minute = 0, second = 0] = dateInput;
+    date = new Date(year, month - 1, day, hour, minute, second);
+  } else {
+    date = new Date(dateInput);
+  }
+
+  const dd = `0${date.getDate()}`.slice(-2);
+  const mm = `0${date.getMonth() + 1}`.slice(-2);
+  const yyyy = date.getFullYear();
+  const hh = `0${date.getHours()}`.slice(-2);
+  const min = `0${date.getMinutes()}`.slice(-2);
+
+  return `${hh}:${min} ${dd}/${mm}/${yyyy}`;
+};
+
+
+
