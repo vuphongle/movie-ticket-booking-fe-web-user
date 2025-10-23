@@ -37,7 +37,7 @@ export default function CinemaCornerComponent() {
     { page: 1, limit: 4 }
   );
 
-  const mostViewBlogs: BlogDto[] = mostViewPage?.content ?? [];
+  const mostViewBlogs: BlogDto[] = mostViewPage ?? [];
   const latestBlogs: BlogDto[] = latestPage?.content ?? [];
   const reviews: ReviewDto[] = reviewPage?.content ?? [];
 
@@ -80,7 +80,11 @@ export default function CinemaCornerComponent() {
         {activeTab === CinemaCornerTab.BLOG && latestBlogs.length > 0 && (
           <>
             <MainReview>
-              <ReviewCard>
+              <ReviewCard
+                onClick={() =>
+                  navigate(`/blogs/${latestBlogs[0].id}/${latestBlogs[0].slug}`)
+                }
+              >
                 <img
                   src={latestBlogs[0].thumbnail}
                   alt={latestBlogs[0].title}
@@ -90,7 +94,10 @@ export default function CinemaCornerComponent() {
             </MainReview>
             <SideReviews>
               {latestBlogs.slice(1).map(blog => (
-                <ReviewCard key={blog.id}>
+                <ReviewCard
+                  key={blog.id}
+                  onClick={() => navigate(`/blogs/${blog.id}/${blog.slug}`)}
+                >
                   <img src={blog.thumbnail} alt={blog.title} />
                   <div className='title'>{blog.title}</div>
                 </ReviewCard>
@@ -225,11 +232,11 @@ const ReviewCard = styled.div`
 
   &:hover img {
     transform: scale(1.03);
-    filter: brightness(0.85);
+    filter: brightness(0.5);
   }
 
   &:hover .title {
-    color: ${theme.colors.textPrimary};
+    color: #c3dcff;
   }
 `;
 

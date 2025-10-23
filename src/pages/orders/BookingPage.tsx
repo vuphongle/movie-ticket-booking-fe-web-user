@@ -569,7 +569,7 @@ const Screen = styled.div`
   margin: 0 auto ${theme.spacing.xxl};
   font-weight: 700;
   font-size: 16px;
-  width: 95%;
+  width: 70%;
   box-shadow:
     0 6px 18px rgba(0, 0, 0, 0.15),
     inset 0 -6px 12px rgba(0, 0, 0, 0.05);
@@ -638,7 +638,7 @@ const seatBase = css<{
   $type: SeatType;
 }>`
   aspect-ratio: 1;
-  border-radius: ${theme.borderRadius.small};
+  border-radius: 5px;
   border: 1px solid ${theme.colors.border};
   background: ${theme.colors.white};
   color: #555;
@@ -658,7 +658,7 @@ const seatBase = css<{
   ${({ $type }) =>
     $type !== 'couple' &&
     css`
-      max-width: 40px;
+      max-width: 30px;
     `}
 `;
 

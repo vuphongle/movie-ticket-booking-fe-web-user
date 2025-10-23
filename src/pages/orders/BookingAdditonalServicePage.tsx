@@ -137,18 +137,30 @@ export default function BookingAdditionalServicePage() {
     navigate(-1);
   };
 
-  useEffect(() => {
+useEffect(() => {
     const handleBeforeUnload = () => {
       const navEntries = performance.getEntriesByType('navigation');
       const isReload =
         navEntries.length > 0 &&
         (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
       if (isReload || isProceedingRef.current) return;
+
       if (!isProceedingRef.current && bookingData?.seats?.length) {
-        cancelSeatMulti({
-          showtimeId: bookingData.showtimeId,
-          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
-        });
+        try {
+          const payload = JSON.stringify({
+            showtimeId: bookingData.showtimeId,
+            seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+          });
+
+          const blob = new Blob([payload], { type: 'application/json' });
+          navigator.sendBeacon(
+            'http://localhost:8080/api/seat-reservations/cancel-multiple',
+            blob
+          );
+        } catch (err) {
+          console.error('SendBeacon error:', err);
+        }
+
         clearTimer?.();
       }
     };

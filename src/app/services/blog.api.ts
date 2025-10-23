@@ -1,6 +1,9 @@
-import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { API_DOMAIN_PUBLIC, API_DOMAIN } from '@lib/api';
 
+// -----------------------------
+// Định nghĩa kiểu dữ liệu
+// -----------------------------
 export interface BlogDto {
   id: number;
   title: string;
@@ -8,6 +11,9 @@ export interface BlogDto {
   description: string;
   thumbnail: string;
   publishedAt: string;
+  type?: string;
+  views?: number;
+  content?: string;
 }
 
 export interface Page<T> {
@@ -20,6 +26,9 @@ export interface Page<T> {
   last: boolean;
 }
 
+// -----------------------------
+// Cấu hình API Slice
+// -----------------------------
 export const blogApi = createApi({
   reducerPath: 'blogApi',
   baseQuery: fetchBaseQuery({
@@ -29,7 +38,7 @@ export const blogApi = createApi({
       if (token) headers.set('Authorization', `Bearer ${token}`);
       return headers;
     },
-    responseHandler: async response => {
+    responseHandler: async (response) => {
       const text = await response.text();
       try {
         return JSON.parse(text);
@@ -38,43 +47,99 @@ export const blogApi = createApi({
       }
     },
   }),
-  endpoints: builder => ({
-    getAllBlogs: builder.query<
-      Page<BlogDto>,
-      { type?: string; page?: number; limit?: number }
-    >({
+  endpoints: (builder) => ({
+    getAllBlogs: builder.query<Page<BlogDto>, { type?: string; page?: number; limit?: number }>({
       query: ({ type, page = 1, limit = 10 }) => {
         const params = new URLSearchParams();
         if (type) params.append('type', type);
         params.append('page', page.toString());
         params.append('limit', limit.toString());
-        return `/blogs?${params.toString()}`;
+        return `blogs?${params.toString()}`;
       },
+      transformResponse: (response: Page<BlogDto>) => ({
+        ...response,
+        content: response.content.map((item) => ({
+          ...item,
+          thumbnail: item.thumbnail.startsWith('/api')
+            ? `${API_DOMAIN}${item.thumbnail}`
+            : item.thumbnail,
+        })),
+      }),
     }),
 
-    getLatestBlogs: builder.query<
-      Page<BlogDto>,
-      { type?: string; page?: number; limit?: number }
-    >({
+    getLatestBlogs: builder.query<Page<BlogDto>, { type?: string; page?: number; limit?: number }>({
       query: ({ type, page = 1, limit = 10 }) => {
         const params = new URLSearchParams();
         if (type) params.append('type', type);
         params.append('page', page.toString());
         params.append('limit', limit.toString());
-        return `/blogs/latest?${params.toString()}`;
+        return `blogs/latest?${params.toString()}`;
       },
+      transformResponse: (response: Page<BlogDto>) => ({
+        ...response,
+        content: response.content.map((item) => ({
+          ...item,
+          thumbnail: item.thumbnail.startsWith('/api')
+            ? `${API_DOMAIN}${item.thumbnail}`
+            : item.thumbnail,
+        })),
+      }),
     }),
 
-    getMostViewBlogs: builder.query<
-      Page<BlogDto>,
-      { type?: string; limit?: number }
-    >({
+    loadMoreBlogs: builder.query<Page<BlogDto>, { type?: string; page?: number; limit?: number }>({
+      query: ({ type, page = 1, limit = 10 }) => {
+        const params = new URLSearchParams();
+        if (type) params.append('type', type);
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        return `blogs/load-more?${params.toString()}`;
+      },
+      transformResponse: (response: Page<BlogDto>) => ({
+        ...response,
+        content: response.content.map((item) => ({
+          ...item,
+          thumbnail: item.thumbnail.startsWith('/api')
+            ? `${API_DOMAIN}${item.thumbnail}`
+            : item.thumbnail,
+        })),
+      }),
+    }),
+
+    getBlogDetail: builder.query<BlogDto, { id: number; slug: string }>({
+      query: ({ id, slug }) => `blogs/${id}/${slug}`,
+      transformResponse: (response: BlogDto) => ({
+        ...response,
+        thumbnail: response.thumbnail.startsWith('/api')
+          ? `${API_DOMAIN}${response.thumbnail}`
+          : response.thumbnail,
+      }),
+    }),
+
+    getMostViewBlogs: builder.query<BlogDto[], { type?: string; limit?: number }>({
       query: ({ type, limit = 5 }) => {
         const params = new URLSearchParams();
         if (type) params.append('type', type);
         params.append('limit', limit.toString());
-        return `/blogs/most-view?${params.toString()}`;
+        return `blogs/most-view?${params.toString()}`;
       },
+      transformResponse: (response: BlogDto[]) =>
+        response.map((item) => ({
+          ...item,
+          thumbnail: item.thumbnail.startsWith('/api')
+            ? `${API_DOMAIN}${item.thumbnail}`
+            : item.thumbnail,
+        })),
+    }),
+
+    getRecommendBlogs: builder.query<BlogDto[], { id: number; limit?: number }>({
+      query: ({ id, limit = 5 }) => `blogs/${id}/recommend?limit=${limit}`,
+      transformResponse: (response: BlogDto[]) =>
+        response.map((item) => ({
+          ...item,
+          thumbnail: item.thumbnail.startsWith('/api')
+            ? `${API_DOMAIN}${item.thumbnail}`
+            : item.thumbnail,
+        })),
     }),
   }),
 });
@@ -82,5 +147,10 @@ export const blogApi = createApi({
 export const {
   useGetAllBlogsQuery,
   useGetLatestBlogsQuery,
+  useLoadMoreBlogsQuery,
+  useGetBlogDetailQuery,
   useGetMostViewBlogsQuery,
+  useGetRecommendBlogsQuery,
+  useLazyGetAllBlogsQuery,
+  useLazyLoadMoreBlogsQuery,
 } = blogApi;

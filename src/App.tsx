@@ -14,7 +14,11 @@ import ComingSoon from '@pages/movies/MovieComingSoonPage';
 import NowShowing from '@pages/movies/MovieNowShowingPage';
 import SearchResults from '@pages/movies/SearchResults';
 import MovieDetailPage from './pages/movies/MovieDetailPage';
-import BlogPage from '@pages/blogs/BlogPage';
+import BlogDetail from '@pages/blogs/BlogDetail';
+import BlogList from '@pages/blogs/BlogList';
+import BlogPhimChieuRap from '@pages/blogs/BlogPhimChieuRap';
+import BlogPhimNetflix from '@pages/blogs/BlogPhimNetflix';
+import BlogTongHopPhim from '@pages/blogs/BlogTongHopPhim';
 import ReviewPage from '@pages/reviews/ReviewPage';
 import BookingPage from '@pages/orders/BookingPage';
 import BookingAdditionalPage from '@pages/orders/BookingAdditonalServicePage';
@@ -25,10 +29,8 @@ import AppToastContainer from '@components/base/AppToastContainer';
 import ChatWidget from '@components/chat/ChatWidget';
 import CinemaPage from '@/pages/cinema/Cinemapage';
 import CouponPage from '@/pages/coupons/CouponPage';
-// import { useGlobalBookingTimer } from '@hooks/useGlobalBookingTimer';
 
 function App() {
-  //   useGlobalBookingTimer();
 
   const location = useLocation();
   const hideLayout =
@@ -54,7 +56,13 @@ function App() {
               <Route path='/movies/now-showing' element={<NowShowing />} />
               <Route path='/movies/coming-soon' element={<ComingSoon />} />
               <Route path='/movies/:id/:slug' element={<MovieDetailPage />} />
-              <Route path='/blogs' element={<BlogPage />} />
+              <Route path='/blogs'>
+                <Route index element={<BlogList />} />
+                <Route path='theater-movies' element={<BlogPhimChieuRap />} />
+                <Route path='netflix-movies' element={<BlogPhimNetflix />} />
+                <Route path='movies-summary' element={<BlogTongHopPhim />} />
+                <Route path=':blogId/:blogSlug' element={<BlogDetail />} />
+              </Route>
               <Route path='/reviews' element={<ReviewPage />} />
               <Route path='/cinemas' element={<CinemaPage />} />
               <Route path='/coupons' element={<CouponPage />} />
