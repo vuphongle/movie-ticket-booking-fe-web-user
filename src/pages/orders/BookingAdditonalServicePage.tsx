@@ -17,7 +17,7 @@ import {
 } from '@/app/services/reservation.api';
 import GlobalLoading from '@components/loading/GlobalLoading';
 import { Modal, Button } from 'antd';
-import { ExclamationCircleFilled } from '@ant-design/icons'; 
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
 export default function BookingAdditionalServicePage() {
   const { t } = useTranslation();
@@ -137,66 +137,57 @@ export default function BookingAdditionalServicePage() {
     navigate(-1);
   };
 
-useEffect(() => {
+  useEffect(() => {
     const handleBeforeUnload = () => {
-      const navEntries = performance.getEntriesByType('navigation');
-      const isReload =
-        navEntries.length > 0 &&
-        (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
+      const navEntries = performance.getEntriesByType(
+        'navigation'
+      ) as PerformanceNavigationTiming[];
+      const isReload = navEntries.length > 0 && navEntries[0].type === 'reload';
+
       if (isReload || isProceedingRef.current) return;
 
       if (!isProceedingRef.current && bookingData?.seats?.length) {
-        try {
-          const payload = JSON.stringify({
-            showtimeId: bookingData.showtimeId,
-            seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
-          });
-
-          const blob = new Blob([payload], { type: 'application/json' });
-          navigator.sendBeacon(
-            'http://localhost:8080/api/seat-reservations/cancel-multiple',
-            blob
-          );
-        } catch (err) {
-          console.error('SendBeacon error:', err);
-        }
-
-        clearTimer?.();
-      }
-    };
-
-    const handleRouteChange = async () => {
-      if (!isProceedingRef.current && bookingData?.seats) {
-        await Promise.all(
-          bookingData.seats.map((seat: any) =>
-            cancelSeat({
-              seatId: seat.id,
-              showtimeId: bookingData.showtimeId,
-            }).unwrap()
-          )
+        const payload = JSON.stringify({
+          showtimeId: bookingData.showtimeId,
+          seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
+        });
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(
+          `${process.env.REACT_APP_API_BASE}/seat-reservations/cancel-multiple`,
+          blob
         );
         clearTimer?.();
       }
     };
 
+    // Xử lý chuyển route trong SPA
+    const handleRouteChange = async () => {
+      if (!isProceedingRef.current && bookingData?.seats?.length) {
+        try {
+          await Promise.all(
+            bookingData.seats.map((seat: { id: number }) =>
+              cancelSeat({
+                seatId: seat.id,
+                showtimeId: bookingData.showtimeId,
+              })
+            )
+          );
+        } catch (err) {
+          console.error('Error cancelling seats on route change:', err);
+        } finally {
+          clearTimer?.();
+        }
+      }
+    };
+
+    // Đăng ký listener
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('popstate', handleRouteChange);
 
+    // Cleanup khi unmount
     return () => {
       if (!isFirstRenderRef.current) {
-        if (!isProceedingRef.current && bookingData?.seats) {
-          (async () => {
-            await Promise.all(
-              bookingData.seats.map((seat: any) =>
-                cancelSeat({
-                  seatId: seat.id,
-                  showtimeId: bookingData.showtimeId,
-                }).unwrap()
-              )
-            );
-            clearTimer?.();
-          })();
-        }
+        handleRouteChange(); // hủy ghế nếu còn
       } else {
         isFirstRenderRef.current = false;
       }
@@ -204,7 +195,7 @@ useEffect(() => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handleRouteChange);
     };
-  }, [bookingData, cancelSeat, cancelSeatMulti]);
+  }, [bookingData, cancelSeat, clearTimer]);
 
   // Navigation guard
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -234,7 +225,7 @@ useEffect(() => {
       sessionStorage.removeItem('bookingCancelled');
       setShouldGuard(false);
 
-     Modal.warning({
+      Modal.warning({
         title: 'Luồng đặt vé đã bị hủy',
         content: 'Vui lòng thao tác lại.',
         onOk: () => {
@@ -250,25 +241,41 @@ useEffect(() => {
 
   return (
     <Page>
-       <Modal
+      <Modal
         centered
         open={isConfirmOpen}
         onCancel={() => handleConfirm(false)}
         footer={[
-          <div key="buttons" style={{ textAlign: 'center', gap: '8px', display: 'flex', justifyContent: 'center' }}>
-            <Button key="cancel" onClick={() => handleConfirm(false)}>
-            Ở lại
-          </Button>
-          <Button key="ok" type="primary" danger onClick={() => handleConfirm(true)}>
-            Thoát
-          </Button>
-          </div>
+          <div
+            key='buttons'
+            style={{
+              textAlign: 'center',
+              gap: '8px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Button key='cancel' onClick={() => handleConfirm(false)}>
+              Ở lại
+            </Button>
+            <Button
+              key='ok'
+              type='primary'
+              danger
+              onClick={() => handleConfirm(true)}
+            >
+              Thoát
+            </Button>
+          </div>,
         ]}
       >
         <CenteredContent>
-          <ExclamationCircleFilled className="warning-icon" />
+          <ExclamationCircleFilled className='warning-icon' />
           <h3>Bạn sắp thoát khỏi luồng đặt vé</h3>
-          <p>Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục không?</p>
+          <p>
+            Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục
+            không?
+          </p>
         </CenteredContent>
       </Modal>
       <Main>

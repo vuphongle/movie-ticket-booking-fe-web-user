@@ -265,7 +265,7 @@ const common = {
   COMPLETED: 'Hoàn thành',
   CANCELLED: 'Đã hủy',
 
-  VIEW_ORDER: 'Xem đơn',
+  VIEW_ORDER: 'Tải đơn',
   VIEW_MORE: 'Xem thêm',
   UNKNOWN: 'Không rõ',
 
