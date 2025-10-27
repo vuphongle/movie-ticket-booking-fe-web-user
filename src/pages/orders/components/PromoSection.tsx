@@ -129,7 +129,6 @@ export default function PromoSection({
       handleSelect(bestCoupon);
     }
   }, [displayCoupons, selectedId]);
-  console.log('Available coupons:', displayCoupons);
 
   const handleSelect = async (coupon: any) => {
     if (!bookingData) return;
@@ -177,7 +176,9 @@ export default function PromoSection({
 
       <CouponList>
         {displayCoupons.map((c: any, index: number) => {
-          const isUsedUp = c.detailUsedCount >= c.limitQuantityApplied;
+          const isUnlimited = c.limitQuantityApplied === null;
+          const isUsedUp =
+            !isUnlimited && c.detailUsedCount >= c.limitQuantityApplied;
           const previewResult = c.previewDetail;
           const isGift = c.benefitType === 'FREE_PRODUCT';
           const gifts = c.giftServiceId
@@ -239,18 +240,23 @@ export default function PromoSection({
                         : 'Ưu đãi đặc biệt'}
                 </p>
 
-                <small>
-                  Giới hạn: {c.limitQuantityApplied} | Đã dùng:{' '}
-                  {c.detailUsedCount}
-                </small>
-
-                <ProgressBarContainer>
-                  <ProgressFill
-                    $percent={
-                      (c.detailUsedCount / c.limitQuantityApplied) * 100
-                    }
-                  />
-                </ProgressBarContainer>
+                {isUnlimited ? (
+                  <small>Không giới hạn</small>
+                ) : (
+                  <>
+                    <small>
+                      Giới hạn: {c.limitQuantityApplied} | Đã dùng:{' '}
+                      {c.detailUsedCount}
+                    </small>
+                    <ProgressBarContainer>
+                      <ProgressFill
+                        $percent={
+                          (c.detailUsedCount / c.limitQuantityApplied) * 100
+                        }
+                      />
+                    </ProgressBarContainer>
+                  </>
+                )}
               </Info>
 
               {isGift ? (

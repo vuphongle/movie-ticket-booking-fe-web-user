@@ -80,7 +80,7 @@ export default function BookingPage() {
     data: seatDtos = [],
     isLoading,
     isError,
-    refetch
+    refetch,
   } = useGetSeatsByAuditoriumAndShowtimeQuery(
     {
       auditoriumId: Number(auditorium.id),
@@ -91,10 +91,9 @@ export default function BookingPage() {
     }
   );
 
-  
-useEffect(() => {
-  refetch();
-}, [refetch]);
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   const { data: movie } = useGetMovieByShowtimeQuery(Number(showtimeId));
 
@@ -115,6 +114,7 @@ useEffect(() => {
           status: mapSeatStatus(d.status, d.reservationStatus),
           reservationStatus: mapReservationStatus(d.reservationStatus),
           price: d.price,
+          priceId: d.priceId,
         };
       })
     );
@@ -151,6 +151,12 @@ useEffect(() => {
 
   const toggleSeat = async (seat: Seat) => {
     if (seat.status === 'booked') return;
+
+    if (seat.price === 0) {
+      setModalContent('Ghế này chưa được định giá. Vui lòng chọn ghế khác.');
+      setModalVisible(true);
+      return;
+    }
 
     try {
       const data = await triggerCheckSeatStatus({

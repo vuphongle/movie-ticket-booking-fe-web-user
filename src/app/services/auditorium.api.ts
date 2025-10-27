@@ -13,6 +13,7 @@ export interface SeatDto {
   status: boolean;
   reservationStatus: ReservationStatus;
   price: number;
+  priceId: number;
 }
 
 /** --- API slice --- */
