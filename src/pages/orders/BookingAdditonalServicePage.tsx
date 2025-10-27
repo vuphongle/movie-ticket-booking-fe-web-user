@@ -17,7 +17,7 @@ import {
 } from '@/app/services/reservation.api';
 import GlobalLoading from '@components/loading/GlobalLoading';
 import { Modal, Button } from 'antd';
-import { ExclamationCircleFilled } from '@ant-design/icons'; 
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
 export default function BookingAdditionalServicePage() {
   const { t } = useTranslation();
@@ -33,7 +33,10 @@ export default function BookingAdditionalServicePage() {
     isError: isErrorCombos,
   } = useGetAllAdditionalServicesQuery();
   const [triggerPrice] = useLazyGetAdditionalServicePriceQuery();
-  const [prices, setPrices] = useState<Record<number, number>>({});
+  const [prices, setPrices] = useState<
+    Record<number, { price: number; priceId: number | null }>
+  >({});
+
   const [selectedCombos, setSelectedCombos] = useState<Record<number, number>>(
     {}
   );
@@ -54,8 +57,18 @@ export default function BookingAdditionalServicePage() {
       if (combo.status) {
         triggerPrice(combo.id)
           .unwrap()
-          .then(price => setPrices(prev => ({ ...prev, [combo.id]: price })))
-          .catch(() => setPrices(prev => ({ ...prev, [combo.id]: -1 })));
+          .then(priceData => {
+            setPrices(prev => ({
+              ...prev,
+              [combo.id]: priceData, // { price, priceId }
+            }));
+          })
+          .catch(() => {
+            setPrices(prev => ({
+              ...prev,
+              [combo.id]: { price: -1, priceId: null },
+            }));
+          });
       }
     });
   }, [comboDtos, triggerPrice]);
@@ -108,9 +121,9 @@ export default function BookingAdditionalServicePage() {
   );
 
   const itemTotal = selectedItemList.reduce((s, c: any) => {
-    const price = prices[c.id];
-    if (price === undefined || price === -1) return s;
-    return s + price * c.qty;
+    const priceData = prices[c.id];
+    if (!priceData || priceData.price === -1) return s;
+    return s + priceData.price * c.qty;
   }, 0);
 
   const total = (bookingData?.seatTotal || 0) + itemTotal;
@@ -137,7 +150,7 @@ export default function BookingAdditionalServicePage() {
     navigate(-1);
   };
 
-useEffect(() => {
+  useEffect(() => {
     const handleBeforeUnload = () => {
       const navEntries = performance.getEntriesByType('navigation');
       const isReload =
@@ -234,7 +247,7 @@ useEffect(() => {
       sessionStorage.removeItem('bookingCancelled');
       setShouldGuard(false);
 
-     Modal.warning({
+      Modal.warning({
         title: 'Luồng đặt vé đã bị hủy',
         content: 'Vui lòng thao tác lại.',
         onOk: () => {
@@ -250,25 +263,41 @@ useEffect(() => {
 
   return (
     <Page>
-       <Modal
+      <Modal
         centered
         open={isConfirmOpen}
         onCancel={() => handleConfirm(false)}
         footer={[
-          <div key="buttons" style={{ textAlign: 'center', gap: '8px', display: 'flex', justifyContent: 'center' }}>
-            <Button key="cancel" onClick={() => handleConfirm(false)}>
-            Ở lại
-          </Button>
-          <Button key="ok" type="primary" danger onClick={() => handleConfirm(true)}>
-            Thoát
-          </Button>
-          </div>
+          <div
+            key='buttons'
+            style={{
+              textAlign: 'center',
+              gap: '8px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Button key='cancel' onClick={() => handleConfirm(false)}>
+              Ở lại
+            </Button>
+            <Button
+              key='ok'
+              type='primary'
+              danger
+              onClick={() => handleConfirm(true)}
+            >
+              Thoát
+            </Button>
+          </div>,
         ]}
       >
         <CenteredContent>
-          <ExclamationCircleFilled className="warning-icon" />
+          <ExclamationCircleFilled className='warning-icon' />
           <h3>Bạn sắp thoát khỏi luồng đặt vé</h3>
-          <p>Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục không?</p>
+          <p>
+            Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục
+            không?
+          </p>
         </CenteredContent>
       </Modal>
       <Main>
@@ -311,8 +340,9 @@ useEffect(() => {
                       )}
                     </ComboName>
                     <ComboPrice>
-                      {prices[item.id] !== undefined && prices[item.id] !== -1
-                        ? `${prices[item.id].toLocaleString()} đ`
+                      {prices[item.id] !== undefined &&
+                      prices[item.id].price !== -1
+                        ? `${prices[item.id].price.toLocaleString()} đ`
                         : '...'}
                     </ComboPrice>
                   </div>
@@ -406,7 +436,7 @@ useEffect(() => {
                       ...bookingData,
                       combos: selectedItemList
                         .filter((c): c is NonNullable<typeof c> => c !== null)
-                        .map(c => ({ ...c, price: prices[c.id] ?? -1 })),
+                        .map(c => ({ ...c, price: prices[c.id].price ?? -1, priceId: prices[c.id].priceId })),
                       total,
                     },
                   },

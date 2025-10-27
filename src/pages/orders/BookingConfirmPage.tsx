@@ -74,11 +74,13 @@ export default function BookingConfirmPage() {
       ticketItems: bookingData.seats.map((seat: any) => ({
         seatId: seat.id,
         price: seat.price,
+        priceId: seat.priceId,
       })),
       serviceItems: bookingData.combos?.map((combo: any) => ({
         additionalServiceId: combo.id,
         quantity: combo.qty,
         price: combo.price,
+        priceId: combo.priceId,
       })),
       discounts: { totalDiscount, coupons: couponDetails },
       paymentMethod: selectedPayment,

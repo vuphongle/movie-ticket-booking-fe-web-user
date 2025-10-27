@@ -25,6 +25,11 @@ export interface AdditionalServiceItem {
   };
 }
 
+export interface AdditionalServicePrice {
+  price: number;
+  priceId: number;
+}
+
 export const additionalServiceApi = createApi({
   reducerPath: 'additionalServiceApi',
   baseQuery: fetchBaseQuery({
@@ -42,7 +47,7 @@ export const additionalServiceApi = createApi({
     }),
 
     // Lấy giá của một service
-    getAdditionalServicePrice: builder.query<number, number>({
+    getAdditionalServicePrice: builder.query<AdditionalServicePrice, number>({
       query: id => `/additional-services/${id}/price`,
     }),
 
