@@ -7,7 +7,7 @@ pipeline {
     TAG_BUILD  = "${IMAGE_BASE}:${env.BUILD_NUMBER}"
     
     // VPS Configuration
-    VPS_HOST = "159.223.38.127"
+    VPS_HOST = "104.248.157.211"
     VPS_USER = "root"
     DEPLOY_PATH = "/opt/movie-ticket-booking-fe-user"
   }
