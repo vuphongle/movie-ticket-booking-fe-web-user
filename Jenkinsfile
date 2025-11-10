@@ -62,17 +62,17 @@ pipeline {
       steps {
         script {
           echo "Deploying to VPS: ${VPS_HOST}"
-          withCredentials([sshUserPrivateKey(
-            credentialsId: 'vps-ssh-key',
-            keyFileVariable: 'SSH_KEY',
-            usernameVariable: 'SSH_USER'
+          withCredentials([usernamePassword(
+            credentialsId: 'vps-ssh-password',
+            usernameVariable: 'VPS_SSH_USER',
+            passwordVariable: 'VPS_SSH_PASS'
           )]) {
             sh """
-              ssh -o StrictHostKeyChecking=no -i \${SSH_KEY} ${VPS_USER}@${VPS_HOST} \
-                "cd ${DEPLOY_PATH} && \
+              sshpass -p "\${VPS_SSH_PASS}" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} \
+                'cd ${DEPLOY_PATH} && \
                  docker compose pull frontend-user && \
                  docker compose up -d frontend-user && \
-                 docker image prune -f"
+                 docker image prune -f'
             """
           }
         }
