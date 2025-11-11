@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mở app GoCinema</title>
+  <style>
+    body { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      font-family: sans-serif; 
+      background: #f2f3f5; 
+      margin: 0;
+    }
+    .btn { 
+      padding: 16px 24px; 
+      background: #012e6e; 
+      color: #fff; 
+      border-radius: 8px; 
+      font-size: 18px; 
+      text-decoration: none; 
+      display: inline-block;
+      margin-top: 20px;
+    }
+    .container {
+      text-align: center;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin: 0 0 12px 0;
+      color: #012e6e;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Thanh toán thành công</h2>
+    <p>Nhấn nút bên dưới để quay về ứng dụng GoCinema</p>
+    <a id="openAppBtn" class="btn" href="#">Mở app</a>
+  </div>
+
+  <script>
+    // Lấy thông tin từ query params
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('orderId');
+    const status = params.get('status');
+    const pdfUrl = encodeURIComponent(params.get('pdfUrl') || '');
+
+    // Xây dựng deep link
+    const deepLink = `gocinema://thanh-toan-don-hang/${orderId}?status=${status}&pdfUrl=${pdfUrl}`;
+
+    // Gán href cho nút
+    document.getElementById('openAppBtn').href = deepLink;
+  </script>
+</body>
+</html>
