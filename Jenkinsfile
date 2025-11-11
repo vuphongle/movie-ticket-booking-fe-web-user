@@ -57,7 +57,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Deploy to VPS') {
       steps {
         script {
@@ -68,18 +68,25 @@ pipeline {
             passwordVariable: 'VPS_SSH_PASS'
           )]) {
             sh """
-              sshpass -p "\${VPS_SSH_PASS}" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} \
-                'cd ${DEPLOY_PATH} && \
-                 docker compose pull frontend-user && \
-                 docker compose up -d frontend-user && \
-                 docker image prune -f'
+              sshpass -p "\${VPS_SSH_PASS}" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} '
+                cd ${DEPLOY_PATH} &&
+                echo "🛑 Stopping old container..." &&
+                docker stop movie-booking-frontend-user || true &&
+                docker rm movie-booking-frontend-user || true &&
+                echo "⬇️ Pulling new image..." &&
+                docker compose pull frontend-user &&
+                echo "🚀 Starting new container..." &&
+                docker compose up -d frontend-user &&
+                echo "🧹 Cleaning old images..." &&
+                docker image prune -f
+              '
             """
           }
         }
       }
     }
   }
-  
+
   post {
     success {
       echo '✅ Pipeline completed successfully!'
