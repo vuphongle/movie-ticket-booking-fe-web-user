@@ -85,6 +85,7 @@ export default function BookingConfirmPage() {
       discounts: { totalDiscount, coupons: couponDetails },
       paymentMethod: selectedPayment,
       expireSeconds,
+      platform: "web",
     };
 
     try {
