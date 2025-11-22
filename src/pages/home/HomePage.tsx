@@ -12,6 +12,10 @@ import {
   useGetComingSoonMoviesQuery,
 } from '@app/services/movie.api';
 import { useTranslation } from 'react-i18next';
+import banner5 from '@/assets/image/banners/banner5.png';
+import banner2 from '@/assets/image/banners/banner2.png';
+import banner3 from '@/assets/image/banners/banner3.png';
+import banner4 from '@/assets/image/banners/banner4.png';
 
 const HomePage: React.FC = () => {
   const { t } = useTranslation();
@@ -24,13 +28,13 @@ const HomePage: React.FC = () => {
 
   return (
     <PageContainer>
-      {/* Banner */}
       <HomeSliderComponent
-        slides={nowShowing.map(movie => ({
-          id: movie.id,
-          image: movie.poster,
-          alt: movie.name,
-        }))}
+        slides={[
+          { id: 1, image: banner2, alt: 'Ưu đãi combo bắp nước' },
+          { id: 2, image: banner5, alt: 'Giảm giá bắp nước' },
+          { id: 3, image: banner3, alt: 'Khuyến mãi combo' },
+          { id: 4, image: banner4, alt: 'Giảm giá bắp nước' },
+        ]}
       />
 
       <QuickBookingComponent />
