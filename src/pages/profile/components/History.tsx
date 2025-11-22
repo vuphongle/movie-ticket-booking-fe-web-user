@@ -7,51 +7,69 @@ import {
   useDownloadPdfMutation,
 } from '@app/services/Order.api';
 import type { OrderDto } from '@app/services/Order.api';
-import { FileText } from 'lucide-react';
+import { FileText, TicketX } from 'lucide-react';
 import { formatDate, formatGraphicLabel } from '@utils/functionUtils';
+
+const ORDER_STATUS_FILTERS = [
+  { key: "ALL", label: "Tất cả" },
+  { key: "CONFIRMED", label: "Đã thanh toán" },
+  { key: "PENDING", label: "Chờ thanh toán" },
+  { key: "CANCELLED", label: "Đã hủy" },
+  { key: "RETURNED", label: "Đã trả vé" },
+];
 
 const History: React.FC = () => {
   const { t } = useTranslation();
   const { data: purchaseHistory, isLoading, error } = useGetAllOrdersQuery();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleCount, setVisibleCount] = useState(3);
+
+  /** trạng thái đang chọn */
+  const [selectedStatus, setSelectedStatus] = useState("ALL");
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
     }).format(amount);
+
   const [downloadPdf] = useDownloadPdfMutation();
 
-const handleViewPdf = async (orderId: number) => {
-  try {
-    const pdfUrl = await downloadPdf(orderId).unwrap();
-    window.open(pdfUrl, '_blank');
-  } catch (err) {
-    console.error(err);
-    alert('PDF không có sẵn');
-  }
-};
+  const handleViewPdf = async (orderId: number) => {
+    try {
+      const pdfUrl = await downloadPdf(orderId).unwrap();
+      window.open(pdfUrl, '_blank');
+    } catch (err) {
+      console.error(err);
+      alert('PDF không có sẵn');
+    }
+  };
 
-
-  const filteredHistory = useMemo(() => {
+  const filteredSearch = useMemo(() => {
     if (!purchaseHistory) return [];
     return purchaseHistory.filter(order => {
       const movieName = order.showtime?.movie?.name?.toLowerCase() || '';
-      const cinemaName =
-        order.showtime?.auditorium?.cinema?.name?.toLowerCase() || '';
+      const cinemaName = order.showtime?.auditorium?.cinema?.name?.toLowerCase() || '';
       const term = searchTerm.toLowerCase();
       return movieName.includes(term) || cinemaName.includes(term);
     });
   }, [purchaseHistory, searchTerm]);
 
-  const visibleOrders = filteredHistory.slice(0, visibleCount);
+  const filteredByStatus = useMemo(() => {
+    return filteredSearch.filter(order => {
+      return selectedStatus === "ALL" || order.status === selectedStatus;
+    });
+  }, [filteredSearch, selectedStatus]);
+
+  const visibleOrders = filteredByStatus.slice(0, visibleCount);
 
   if (isLoading) return <p>{t('LOADING')}</p>;
   if (error) return <p>{t('ERROR_LOADING')}</p>;
 
   return (
     <HistoryContainer>
+
       <SearchInput
         type='text'
         placeholder={t('SEARCH_PLACEHOLDER_HISTORY')}
@@ -59,105 +77,109 @@ const handleViewPdf = async (orderId: number) => {
         onChange={e => setSearchTerm(e.target.value)}
       />
 
+      <TabContainer>
+        {ORDER_STATUS_FILTERS.map(tab => (
+          <TabItem
+            key={tab.key}
+            active={selectedStatus === tab.key}
+            onClick={() => setSelectedStatus(tab.key)}
+          >
+            {tab.label}
+          </TabItem>
+        ))}
+      </TabContainer>
+
       <HistoryList>
         {visibleOrders.length > 0 ? (
-        visibleOrders.map((order: OrderDto) => (
-          <HistoryItem key={order.id}>
-            <MovieSection>
-              <Poster
-                src={order.showtime?.movie?.poster}
-                alt={order.showtime?.movie?.name}
-              />
-              <MovieDetails>
-                <MovieTitle>{order.showtime?.movie?.name}</MovieTitle>
-                <CinemaInfo>
-                  {order.showtime?.auditorium?.cinema?.name} - {t('ROOM')}{' '}
-                  {order.showtime?.auditorium?.name}
-                </CinemaInfo>
-                <SmallText>
-                  {t('FORMAT')}: {formatGraphicLabel(order.showtime?.graphicsType)} |{' '}
-                  {order.showtime?.translationType === 'DUBBING'
-                    ? t('DUBBING')
-                    : t('SUBTITLE')}
-                </SmallText>
-                <DateTime>
-                  {order.showtime?.startTime} - {order.showtime?.endTime} |{' '}
-                  {formatDate(order.showtime?.date)}
-                </DateTime>
-              </MovieDetails>
-            </MovieSection>
+          visibleOrders.map((order: OrderDto) => (
+            <HistoryItem key={order.id}>
+              {/* movie section */}
+              <MovieSection>
+                <Poster src={order.showtime?.movie?.poster} alt={order.showtime?.movie?.name} />
+                <MovieDetails>
+                  <MovieTitle>{order.showtime?.movie?.name}</MovieTitle>
 
-            <TicketDetails>
-              <DetailRow>
-                <Label>{t('SEATS')}:</Label>
-                <SeatsContainer>
-                  {order.ticketItems?.map(t => (
-                    <SeatBox key={t.seat?.code}>{t.seat?.code}</SeatBox>
-                  ))}
-                </SeatsContainer>
-              </DetailRow>
+                  <CinemaInfo>
+                    {order.showtime?.auditorium?.cinema?.name} – {t('ROOM')} {order.showtime?.auditorium?.name}
+                  </CinemaInfo>
 
-              {order.serviceItems?.length > 0 && (
+                  <SmallText>
+                    {t('FORMAT')}: {formatGraphicLabel(order.showtime?.graphicsType)} |{' '}
+                    {order.showtime?.translationType === 'DUBBING' ? t('DUBBING') : t('SUBTITLE')}
+                  </SmallText>
+
+                  <DateTime>
+                    {order.showtime?.startTime} - {order.showtime?.endTime} |{' '}
+                    {formatDate(order.showtime?.date)}
+                  </DateTime>
+                </MovieDetails>
+              </MovieSection>
+
+              <TicketDetails>
                 <DetailRow>
-                  <Label>{t('SERVICES')}:</Label>
-                  <ServicesContainer>
-                    {order.serviceItems.map(s => (
-                      <ServiceBox key={s.additionalService?.id}>
-                        {s.additionalService?.name} x{s.quantity}
-                      </ServiceBox>
+                  <Label>{t('SEATS')}:</Label>
+                  <SeatsContainer>
+                    {order.ticketItems?.map(t => (
+                      <SeatBox key={t.seat?.code}>{t.seat?.code}</SeatBox>
                     ))}
-                  </ServicesContainer>
+                  </SeatsContainer>
                 </DetailRow>
-              )}
 
-              <DetailRow>
-                <Label>{t('DISCOUNT')}:</Label>
-                <Value style={{ fontWeight: 700 }}>
-                  {formatCurrency(order.discount || 0)}
-                </Value>
-              </DetailRow>
+                {order.serviceItems?.length > 0 && (
+                  <DetailRow>
+                    <Label>{t('SERVICES')}:</Label>
+                    <ServicesContainer>
+                      {order.serviceItems.map(s => (
+                        <ServiceBox key={s.additionalService?.id}>
+                          {s.additionalService?.name} x{s.quantity}
+                        </ServiceBox>
+                      ))}
+                    </ServicesContainer>
+                  </DetailRow>
+                )}
 
-              <DetailRow>
-                <Label>{t('TOTAL')}:</Label>
-                <TotalPrice>{formatCurrency(order.totalPrice)}</TotalPrice>
-              </DetailRow>
+                <DetailRow>
+                  <Label>{t('DISCOUNT')}:</Label>
+                  <Value>{formatCurrency(order.discount || 0)}</Value>
+                </DetailRow>
 
-              <DetailRow>
-                <Label>{t('PAYMENT')}:</Label>
-                <Value>
-                  {JSON.parse(order.requestSnapshot || '{}')?.paymentMethod || t('UNKNOWN')}
-                </Value>
-              </DetailRow>
+                <DetailRow>
+                  <Label>{t('TOTAL')}:</Label>
+                  <TotalPrice>{formatCurrency(order.totalPrice)}</TotalPrice>
+                </DetailRow>
 
-              <DetailRow>
-                <Label>{t('PURCHASE_DATE')}:</Label>
-                <Value>
-                  {order.createdAt
-                    ? `${order.createdAt[2]}/${order.createdAt[1]}/${order.createdAt[0]} ${order.createdAt[3]}:${order.createdAt[4]}`
-                    : ''}
-                </Value>
-              </DetailRow>
-            </TicketDetails>
+                <DetailRow>
+                  <Label>{t('PURCHASE_DATE')}:</Label>
+                  <Value>
+                    {order.createdAt
+                      ? `${order.createdAt[2]}/${order.createdAt[1]}/${order.createdAt[0]} ${order.createdAt[3]}:${order.createdAt[4]}`
+                      : ''}
+                  </Value>
+                </DetailRow>
+              </TicketDetails>
 
-            <RightSection>
-              <Status status={order.status}>
-                {order.status === 'CONFIRMED' ? t('COMPLETED') : t('CANCELLED')}
-              </Status>
-              {order.qrCodePath && (
-                <ButtonStyled onClick={() => handleViewPdf(order.id)}>
-                  <FileText size={16} /> {t('VIEW_ORDER')}
-                </ButtonStyled>
-              )}
-            </RightSection>
-          </HistoryItem>
-        )) ) : (
-    <HistoryItemEmpty>
-      <EmptyText>{t('NO_ORDERS')}</EmptyText>
-    </HistoryItemEmpty>
-  )}
+              <RightSection>
+                <Status status={order.status}>
+                  {order.status === 'CONFIRMED' ? t('COMPLETED') : t('CANCELLED')}
+                </Status>
+
+                {order.qrCodePath && (
+                  <ButtonStyled onClick={() => handleViewPdf(order.id)}>
+                    <FileText size={16} /> {t('VIEW_ORDER')}
+                  </ButtonStyled>
+                )}
+              </RightSection>
+            </HistoryItem>
+          ))
+        ) : (
+          <HistoryItemEmpty>
+            <EmptyIcon />
+            <EmptyText>{t('NO_ORDERS')}</EmptyText>
+          </HistoryItemEmpty>
+        )}
       </HistoryList>
 
-      {visibleCount < filteredHistory.length && (
+      {visibleCount < filteredByStatus.length && (
         <LoadMoreButton onClick={() => setVisibleCount(prev => prev + 3)}>
           {t('VIEW_MORE')}
         </LoadMoreButton>
@@ -166,13 +188,45 @@ const handleViewPdf = async (orderId: number) => {
   );
 };
 
-/* --- Styled Components --- */
 const HistoryContainer = styled.div`
-  background: #ffffff; /* trắng sáng */
+  background: #ffffff;
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e0e0e0;
+`;
+
+const TabContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+`;
+
+const TabItem = styled.div<{ active: boolean }>`
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 0.2s;
+
+  ${({ active }) =>
+    active
+      ? `
+    background: ${theme.colors.primary};
+    color: white;
+  `
+      : `
+    background: #eeeeee;
+    color: #444;
+  `}
+
+  &:hover {
+    opacity: 0.9;
+  }
 `;
 
 const HistoryList = styled.div`
@@ -184,22 +238,32 @@ const HistoryList = styled.div`
 const HistoryItem = styled.div`
   border-radius: 10px;
   padding: 16px;
+  background: #f0f0f0;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: box-shadow 0.2s ease;
-  background: #f0f0f0;
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
 
   @media (min-width: 768px) {
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-start;
   }
 `;
+
+const HistoryItemEmpty = styled(HistoryItem)`
+  background: #fafafa;
+  border: 1px dashed #ccc;
+  justify-content: center;
+  align-items: center;
+  min-height: 380px;
+  flex-direction: column;
+`;
+
+const EmptyText = styled.span`
+  color: #999;
+  font-size: 16px;
+  font-weight: 500;
+`;
+
 
 const MovieSection = styled.div`
   display: flex;
@@ -385,18 +449,10 @@ const ServiceBox = styled.div`
   font-weight: 500;
 `;
 
-const HistoryItemEmpty = styled(HistoryItem)`
-  background: #fafafa;
-  border: 1px dashed #ccc;
-  justify-content: center;
-  align-items: center;
-  min-height: 380px;
-`;
-
-const EmptyText = styled.span`
-  color: #999;
-  font-size: 16px;
-  font-weight: 500;
+const EmptyIcon = styled(TicketX)`
+  width: 64px;
+  height: 64px;
+  color: #bdbdbd;
 `;
 
 

@@ -32,6 +32,9 @@ const review = {
     EDIT_REVIEW_ADD_IMAGES: "Add Images",
     SAVE_CHANGES: "Save Changes",
     REVIEWS: 'reviews',
+    MOVIE_REVIEW_SUBMIT_FAILED: "Failed to submit review. Please try again.",
+    MOVIE_REVIEW_DELETE_FAILED: "Failed to delete review. Please try again.",
+    MOVIE_REVIEW_UPDATE_FAILED: "Failed to update review. Please try again.",
 };
 
 export default review;

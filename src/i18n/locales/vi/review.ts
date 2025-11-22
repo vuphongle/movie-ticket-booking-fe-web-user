@@ -32,6 +32,9 @@ const review = {
   EDIT_REVIEW_ADD_IMAGES: 'Thêm hình ảnh',
   SAVE_CHANGES: 'Lưu thay đổi',
   REVIEWS: 'bình luận',
+  MOVIE_REVIEW_SUBMIT_FAILED: 'Gửi đánh giá thất bại. Vui lòng thử lại.',
+  MOVIE_REVIEW_DELETE_FAILED: 'Xóa đánh giá thất bại. Vui lòng thử lại.',
+  MOVIE_REVIEW_UPDATE_FAILED: 'Cập nhật đánh giá thất bại. Vui lòng thử lại.',
 };
 
 export default review;
