@@ -243,7 +243,7 @@ const common = {
   PURCHASE_HISTORY: 'Purchase History',
   LOADING: 'Loading...',
   ERROR_LOADING: 'Error loading data!',
-  NO_ORDERS: 'No purchase history found.',
+  NO_ORDERS: 'No orders found',
 
   SEATS: 'Seats',
   SERVICES: 'Services',

@@ -187,7 +187,6 @@ export default function Header() {
                         <SubMenuItem onClick={() => navigate('/reviews')}>
                           {t('NAV_REVIEWS_MOVIES')}
                         </SubMenuItem>
-                        <SubMenuItem>{t('NAV_ACTORS_DIRECTORS')}</SubMenuItem>
                       </SubMenu>
                     )}
                   </MenuItemWrapper>

@@ -247,7 +247,7 @@ const common = {
   PURCHASE_HISTORY: 'Lịch sử mua vé',
   LOADING: 'Đang tải...',
   ERROR_LOADING: 'Lỗi khi tải dữ liệu!',
-  NO_ORDERS: 'Không có lịch sử mua vé',
+  NO_ORDERS: 'Không có vé nào',
 
   SEATS: 'Ghế',
   SERVICES: 'Dịch vụ',
