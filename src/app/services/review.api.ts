@@ -13,6 +13,7 @@ export interface MovieDto {
   id: number;
   name: string;
   poster: string;
+  slug: string;
 }
 
 export interface ReviewDto {
@@ -37,6 +38,14 @@ export interface Page<T> {
   last: boolean;
 }
 
+export interface MovieWithReviewsDto {
+  id: number;
+  name: string;
+  slug: string;
+  poster: string;
+  reviews: ReviewDto[];
+}
+
 export const reviewApi = createApi({
   reducerPath: 'reviewApi',
   baseQuery: fetchBaseQuery({
@@ -49,7 +58,7 @@ export const reviewApi = createApi({
   }),
   endpoints: builder => ({
     getAllReviews: builder.query<
-      Page<ReviewDto>,
+      Page<MovieWithReviewsDto>,
       { page?: number; limit?: number }
     >({
       query: ({ page = 1, limit = 6 }) => {

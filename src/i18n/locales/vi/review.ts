@@ -35,6 +35,8 @@ const review = {
   MOVIE_REVIEW_SUBMIT_FAILED: 'Gửi đánh giá thất bại. Vui lòng thử lại.',
   MOVIE_REVIEW_DELETE_FAILED: 'Xóa đánh giá thất bại. Vui lòng thử lại.',
   MOVIE_REVIEW_UPDATE_FAILED: 'Cập nhật đánh giá thất bại. Vui lòng thử lại.',
+  REVIEWS_DATE_LOADED: 'Ngày tải bình luận',
+  REVIEWS_COMMENT: 'Nội dung bình luận',
 };
 
 export default review;

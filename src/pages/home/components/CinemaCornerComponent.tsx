@@ -1,47 +1,75 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import {
-  useGetMostViewBlogsQuery,
-  useGetLatestBlogsQuery,
-} from '@app/services/blog.api';
+import { useGetLatestBlogsQuery } from '@app/services/blog.api';
 import type { BlogDto } from '@app/services/blog.api';
 import { useGetAllReviewsQuery } from '@app/services/review.api';
-import type { ReviewDto } from '@app/services/review.api';
 import { theme } from '@theme/Theme';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import {
+  useGetShowingNowMoviesQuery,
+  useGetComingSoonMoviesQuery,
+} from '@/app/services/movie.api';
 
 enum CinemaCornerTab {
   BLOG = 'BLOG',
   REVIEW = 'REVIEW',
-  CAST = 'CAST',
 }
 
 export default function CinemaCornerComponent() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { data: showingMovies = [] } = useGetShowingNowMoviesQuery();
+  const { data: comingSoonMovies = [] } = useGetComingSoonMoviesQuery();
+  const showingIds = showingMovies.map(m => m.id);
+  const comingIds = comingSoonMovies.map(m => m.id);
+  const validMovieIds = [...showingIds, ...comingIds];
 
   const [activeTab, setActiveTab] = useState<CinemaCornerTab>(
     CinemaCornerTab.BLOG
   );
 
-  // Blog queries
-  const { data: mostViewPage, isLoading: loadingMost } =
-    useGetMostViewBlogsQuery({ limit: 4 });
   const { data: latestPage, isLoading: loadingLatest } = useGetLatestBlogsQuery(
     { limit: 4 }
   );
 
-  // Review query
   const { data: reviewPage, isLoading: loadingReviews } = useGetAllReviewsQuery(
-    { page: 1, limit: 4 }
+    { page: 1, limit: 1000 }
   );
 
-  const mostViewBlogs: BlogDto[] = mostViewPage ?? [];
   const latestBlogs: BlogDto[] = latestPage?.content ?? [];
-  const reviews: ReviewDto[] = reviewPage?.content ?? [];
+  const raw = reviewPage?.content ?? [];
 
-  if (loadingMost || loadingLatest || loadingReviews)
+  const filteredMovies = raw.filter(movie => validMovieIds.includes(movie.id));
+
+  const allReviews = filteredMovies.flatMap(movie =>
+    movie.reviews.map(r => ({
+      ...r,
+      movie: {
+        id: movie.id,
+        name: movie.name,
+        slug: movie.slug,
+        poster: movie.poster,
+      },
+    }))
+  );
+
+  const shuffle = <T,>(arr: T[]): T[] =>
+    [...arr].sort(() => Math.random() - 0.5);
+
+  const reviews = shuffle(allReviews).slice(0, 4);
+
+  const formatDateTime = (isoString: string) => {
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    return `${hour}:${minute} ${day}/${month}/${year}`;
+  };
+
+  if (loadingLatest || loadingReviews)
     return <div>{t('CINEMACORNER_LOADING')}</div>;
 
   return (
@@ -64,19 +92,9 @@ export default function CinemaCornerComponent() {
         >
           {t('CINEMACORNER_TAB_REVIEW')}
         </div>
-        <div
-          style={{
-            color: activeTab === CinemaCornerTab.CAST ? '#FFFFFF' : '#B0B0B0',
-          }}
-          onClick={() => setActiveTab(CinemaCornerTab.CAST)}
-        >
-          {t('CINEMACORNER_TAB_CAST')}
-        </div>
       </Tabs>
 
-      {/* Content */}
       <Content>
-        {/* Tab Blog */}
         {activeTab === CinemaCornerTab.BLOG && latestBlogs.length > 0 && (
           <>
             <MainReview>
@@ -92,6 +110,7 @@ export default function CinemaCornerComponent() {
                 <div className='title'>{latestBlogs[0].title}</div>
               </ReviewCard>
             </MainReview>
+
             <SideReviews>
               {latestBlogs.slice(1).map(blog => (
                 <ReviewCard
@@ -106,50 +125,40 @@ export default function CinemaCornerComponent() {
           </>
         )}
 
-        {/* Tab Review */}
         {activeTab === CinemaCornerTab.REVIEW && reviews.length > 0 && (
-          <ReviewList>
+          <ReviewGrid>
             {reviews.map(r => (
-              <ReviewItem key={r.id}>
-                {r.movie?.poster && (
-                  <img
-                    src={r.movie.poster}
-                    alt={r.movie.name}
-                    className='poster'
-                  />
-                )}
-                <p className='content'>“{r.comment}”</p>
-                <span className='meta'>
-                  — {r.user?.name ?? t('REVIEWS_ANONYMOUS')} (
-                  {r.movie?.name ?? t('CINEMACORNER_MOVIE')}), ⭐ {r.rating}/10
-                  — {new Date(r.createdAt).toLocaleDateString()}
-                </span>
-              </ReviewItem>
-            ))}
-          </ReviewList>
-        )}
+              <ReviewCardItem
+                key={r.id}
+                onClick={() =>
+                  navigate(`/movies/${r.movie?.id}/${r.movie?.slug}#reviews`)
+                }
+              >
+                <PosterWrapper>
+                  <img src={r.movie?.poster} alt={r.movie?.name} />
+                  <RatingBadge>⭐ {r.rating}/10</RatingBadge>
+                </PosterWrapper>
 
-        {/* Tab Cast */}
-        {activeTab === CinemaCornerTab.CAST && mostViewBlogs.length > 0 && (
-          <>
-            <MainReview>
-              <ReviewCard>
-                <img
-                  src={mostViewBlogs[0].thumbnail}
-                  alt={mostViewBlogs[0].title}
-                />
-                <div className='title'>{mostViewBlogs[0].title}</div>
-              </ReviewCard>
-            </MainReview>
-            <SideReviews>
-              {mostViewBlogs.slice(1).map(blog => (
-                <ReviewCard key={blog.id}>
-                  <img src={blog.thumbnail} alt={blog.title} />
-                  <div className='title'>{blog.title}</div>
-                </ReviewCard>
-              ))}
-            </SideReviews>
-          </>
+                <InfoWrapper>
+                  <MovieName>{r.movie?.name}</MovieName>
+
+                  <ReviewComment>
+                    {t('REVIEWS_COMMENT')}: “{r.comment}”
+                  </ReviewComment>
+
+                  <UserInfo>
+                    <img src={r.user?.avatar} alt={r.user?.name} />
+                    <span>{r.user?.name || t('REVIEWS_ANONYMOUS')}</span>
+                  </UserInfo>
+
+                  <ReviewDate>
+                    {t('REVIEWS_DATE_LOADED')}{' '}
+                    {formatDateTime(r.updatedAt)}
+                  </ReviewDate>
+                </InfoWrapper>
+              </ReviewCardItem>
+            ))}
+          </ReviewGrid>
         )}
       </Content>
 
@@ -288,6 +297,119 @@ const ButtonMore = styled.button`
     color: ${theme.colors.white};
     font-weight: 700;
   }
+`;
+
+const ReviewGrid = styled.div`
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${theme.spacing.md};
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ReviewCardItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+
+  padding: 16px;
+  color: ${theme.colors.textLight};
+  cursor: pointer;
+  transition: 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const PosterWrapper = styled.div`
+  flex-shrink: 0;
+  width: 110px; /* nhỏ gọn */
+  height: 165px; /* đúng ratio 2:3 */
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const RatingBadge = styled.div`
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #ffeb3b;
+  font-weight: 700;
+`;
+
+const InfoWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const MovieName = styled.h3`
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px;
+  text-align: left;
+`;
+
+const ReviewComment = styled.p`
+  font-size: 15px;
+  font-style: italic;
+  opacity: 0.9;
+  line-height: 1.5;
+  margin: 0 0 10px;
+  text-align: left;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+
+const UserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  span {
+    font-size: 16px;
+    font-weight: bold;
+  }
+`;
+
+const ReviewDate = styled.div`
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: left;
+  margin-top: auto;
 `;
 
 export {
