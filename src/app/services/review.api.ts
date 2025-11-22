@@ -1,4 +1,4 @@
-import { API_DOMAIN_PUBLIC, API_DOMAIN } from '@lib/api';
+import { API_DOMAIN_PUBLIC, API_BASE_URL } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export interface UserDto {
@@ -49,7 +49,7 @@ export interface MovieWithReviewsDto {
 export const reviewApi = createApi({
   reducerPath: 'reviewApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: API_DOMAIN,
+    baseUrl: API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -71,7 +71,7 @@ export const reviewApi = createApi({
 
     createReview: builder.mutation<ReviewDto, FormData>({
       query: formData => ({
-        url: '/api/reviews',
+        url: '/reviews',
         method: 'POST',
         body: formData,
       }),
@@ -79,7 +79,7 @@ export const reviewApi = createApi({
 
     updateReview: builder.mutation<ReviewDto, FormData>({
       query: formData => ({
-        url: '/api/reviews',
+        url: '/reviews',
         method: 'PUT',
         body: formData,
       }),
@@ -87,7 +87,7 @@ export const reviewApi = createApi({
 
     deleteReview: builder.mutation<void, number>({
       query: reviewId => ({
-        url: `/api/reviews/${reviewId}`,
+        url: `/reviews/${reviewId}`,
         method: 'DELETE',
       }),
     }),
