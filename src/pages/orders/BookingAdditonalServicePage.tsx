@@ -18,6 +18,7 @@ import {
 import GlobalLoading from '@components/loading/GlobalLoading';
 import { Modal, Button } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
+import { cancelSeatMultiBeacon } from '@utils/cancelSeatMultiBeacon';
 
 export default function BookingAdditionalServicePage() {
   const { t } = useTranslation();
@@ -151,73 +152,52 @@ export default function BookingAdditionalServicePage() {
   };
 
   useEffect(() => {
+    if (!bookingData?.seats?.length) return;
+
+    const showtimeId = bookingData.showtimeId;
+    const seatIds = bookingData.seats.map((s: any) => s.id);
+
+    /** Detect reload (CHUẨN 100% CHROME) */
+    const navEntry = performance.getEntriesByType('navigation')[0];
+    const isReload =
+      (navEntry && (navEntry as any).type === 'reload') ||
+      window.performance?.navigation?.type === 1;
+
+    /** 1. Close tab / leave site */
     const handleBeforeUnload = () => {
-      const navEntries = performance.getEntriesByType('navigation');
-      const isReload =
-        navEntries.length > 0 &&
-        (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
-      if (isReload || isProceedingRef.current) return;
+      if (isProceedingRef.current) return;
 
-      if (!isProceedingRef.current && bookingData?.seats?.length) {
-        try {
-          const payload = JSON.stringify({
-            showtimeId: bookingData.showtimeId,
-            seatIds: bookingData.seats.map((seat: { id: number }) => seat.id),
-          });
+      if (isReload) return; // Don't cancel on F5
 
-          const blob = new Blob([payload], { type: 'application/json' });
-          navigator.sendBeacon(
-            'http://localhost:8080/api/seat-reservations/cancel-multiple',
-            blob
-          );
-        } catch (err) {
-          console.error('SendBeacon error:', err);
-        }
-
-        clearTimer?.();
-      }
+      cancelSeatMultiBeacon(showtimeId, seatIds);
+      clearTimer?.();
     };
 
-    const handleRouteChange = async () => {
-      if (!isProceedingRef.current && bookingData?.seats) {
-        await Promise.all(
-          bookingData.seats.map((seat: any) =>
-            cancelSeat({
-              seatId: seat.id,
-              showtimeId: bookingData.showtimeId,
-            }).unwrap()
-          )
-        );
-        clearTimer?.();
-      }
+    /** 2. Back button */
+    const handlePopState = () => {
+      if (isProceedingRef.current) return;
+      cancelSeatMultiBeacon(showtimeId, seatIds);
+      clearTimer?.();
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('popstate', handlePopState);
 
+    /** 3. Unmount (navigate inside SPA) */
     return () => {
       if (!isFirstRenderRef.current) {
-        if (!isProceedingRef.current && bookingData?.seats) {
-          (async () => {
-            await Promise.all(
-              bookingData.seats.map((seat: any) =>
-                cancelSeat({
-                  seatId: seat.id,
-                  showtimeId: bookingData.showtimeId,
-                }).unwrap()
-              )
-            );
-            clearTimer?.();
-          })();
+        if (!isProceedingRef.current && !isReload) {
+          cancelSeatMultiBeacon(showtimeId, seatIds);
+          clearTimer?.();
         }
       } else {
         isFirstRenderRef.current = false;
       }
 
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('popstate', handlePopState);
     };
-  }, [bookingData, cancelSeat, cancelSeatMulti]);
+  }, [bookingData]);
 
   // Navigation guard
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -436,7 +416,11 @@ export default function BookingAdditionalServicePage() {
                       ...bookingData,
                       combos: selectedItemList
                         .filter((c): c is NonNullable<typeof c> => c !== null)
-                        .map(c => ({ ...c, price: prices[c.id].price ?? -1, priceId: prices[c.id].priceId })),
+                        .map(c => ({
+                          ...c,
+                          price: prices[c.id].price ?? -1,
+                          priceId: prices[c.id].priceId,
+                        })),
                       total,
                     },
                   },
