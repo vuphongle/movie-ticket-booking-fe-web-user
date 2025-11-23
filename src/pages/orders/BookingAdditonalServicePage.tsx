@@ -11,10 +11,6 @@ import {
 import { BookingMovieInfo } from './components/BookingMovieInfo';
 import TimerBar from './components/TimerBar';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
-import {
-  useCancelSeatMutation,
-  useCancelSeatMultiMutation,
-} from '@/app/services/reservation.api';
 import GlobalLoading from '@components/loading/GlobalLoading';
 import { Modal, Button } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
@@ -43,8 +39,6 @@ export default function BookingAdditionalServicePage() {
   );
 
   const [activeTab, setActiveTab] = useState<'COMBO' | 'SINGLE'>('COMBO');
-  const [cancelSeat] = useCancelSeatMutation();
-  const [cancelSeatMulti] = useCancelSeatMultiMutation();
 
   const { timer, expireAt, clearTimer } = useBookingTimer({
     autoCancel: true,
