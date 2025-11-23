@@ -22,7 +22,6 @@ export default function BookingAdditionalServicePage() {
   const location = useLocation();
   const { bookingData } = location.state || {};
   const isProceedingRef = useRef(false);
-  const isFirstRenderRef = useRef(true);
 
   const {
     data: comboDtos = [],
@@ -151,45 +150,25 @@ export default function BookingAdditionalServicePage() {
     const showtimeId = bookingData.showtimeId;
     const seatIds = bookingData.seats.map((s: any) => s.id);
 
-    /** Detect reload (CHUẨN 100% CHROME) */
-    const navEntry = performance.getEntriesByType('navigation')[0];
-    const isReload =
-      (navEntry && (navEntry as any).type === 'reload') ||
-      window.performance?.navigation?.type === 1;
-
-    /** 1. Close tab / leave site */
-    const handleBeforeUnload = () => {
+    const sendCancel = () => {
       if (isProceedingRef.current) return;
-
-      if (isReload) return; // Don't cancel on F5
 
       cancelSeatMultiBeacon(showtimeId, seatIds);
       clearTimer?.();
     };
 
-    /** 2. Back button */
-    const handlePopState = () => {
-      if (isProceedingRef.current) return;
-      cancelSeatMultiBeacon(showtimeId, seatIds);
-      clearTimer?.();
-    };
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') sendCancel();
+    });
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('pagehide', sendCancel);
 
-    /** 3. Unmount (navigate inside SPA) */
+    window.addEventListener('beforeunload', sendCancel);
+
     return () => {
-      if (!isFirstRenderRef.current) {
-        if (!isProceedingRef.current && !isReload) {
-          cancelSeatMultiBeacon(showtimeId, seatIds);
-          clearTimer?.();
-        }
-      } else {
-        isFirstRenderRef.current = false;
-      }
-
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
+      document.removeEventListener('visibilitychange', () => {});
+      window.removeEventListener('pagehide', sendCancel);
+      window.removeEventListener('beforeunload', sendCancel);
     };
   }, [bookingData]);
 

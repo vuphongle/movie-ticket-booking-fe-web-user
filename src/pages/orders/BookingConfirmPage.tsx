@@ -19,7 +19,6 @@ export default function BookingConfirmPage() {
   const navigate = useNavigate();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const isProceedingRef = useRef(false);
-  const isFirstRenderRef = useRef(true);
   const { timer, clearTimer } = useBookingTimer({
     autoCancel: true,
     onExpire: () => {
@@ -182,53 +181,34 @@ export default function BookingConfirmPage() {
     navigate(-1);
   };
 
-  useEffect(() => {
-    if (!bookingData?.seats?.length) return;
+useEffect(() => {
+  if (!bookingData?.seats?.length) return;
 
-    const showtimeId = bookingData.showtimeId;
-    const seatIds = bookingData.seats.map((s: any) => s.id);
+  const showtimeId = bookingData.showtimeId;
+  const seatIds = bookingData.seats.map((s: any) => s.id);
 
-    /** Detect reload (CHUẨN 100% CHROME) */
-    const navEntry = performance.getEntriesByType('navigation')[0];
-    const isReload =
-      (navEntry && (navEntry as any).type === 'reload') ||
-      window.performance?.navigation?.type === 1;
+  const sendCancel = () => {
+    if (isProceedingRef.current) return;
 
-    /** 1. Close tab / leave site */
-    const handleBeforeUnload = () => {
-      if (isProceedingRef.current) return;
+    cancelSeatMultiBeacon(showtimeId, seatIds);
+    clearTimer?.();
+  };
 
-      if (isReload) return; // Don't cancel on F5
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") sendCancel();
+  });
 
-      cancelSeatMultiBeacon(showtimeId, seatIds);
-      clearTimer?.();
-    };
+  window.addEventListener("pagehide", sendCancel);
 
-    /** 2. Back button */
-    const handlePopState = () => {
-      if (isProceedingRef.current) return;
-      cancelSeatMultiBeacon(showtimeId, seatIds);
-      clearTimer?.();
-    };
+  window.addEventListener("beforeunload", sendCancel);
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
+  return () => {
+    document.removeEventListener("visibilitychange", () => {});
+    window.removeEventListener("pagehide", sendCancel);
+    window.removeEventListener("beforeunload", sendCancel);
+  };
+}, [bookingData]);
 
-    /** 3. Unmount (navigate inside SPA) */
-    return () => {
-      if (!isFirstRenderRef.current) {
-        if (!isProceedingRef.current && !isReload) {
-          cancelSeatMultiBeacon(showtimeId, seatIds);
-          clearTimer?.();
-        }
-      } else {
-        isFirstRenderRef.current = false;
-      }
-
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [bookingData]);
 
   // Navigation guard
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
