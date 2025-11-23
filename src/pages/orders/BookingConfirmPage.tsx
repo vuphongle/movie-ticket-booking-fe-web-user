@@ -9,10 +9,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useCreateOrderMutation } from '@app/services/payment.api';
 import BookingConfirmModal from './components/modals/BookingConfirmModal';
 import { useBookingTimer } from '@/hooks/useBookingTimer';
-import {
-  useCancelSeatMutation,
-  useCancelSeatMultiMutation,
-} from '@/app/services/reservation.api';
 import { Modal, Button } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { useNavigationGuard } from '@/hooks/useNavigationGuard';
@@ -24,8 +20,6 @@ export default function BookingConfirmPage() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const isProceedingRef = useRef(false);
   const isFirstRenderRef = useRef(true);
-  const [cancelSeat] = useCancelSeatMutation();
-  const [cancelSeatMulti] = useCancelSeatMultiMutation();
   const { timer, clearTimer } = useBookingTimer({
     autoCancel: true,
     onExpire: () => {
