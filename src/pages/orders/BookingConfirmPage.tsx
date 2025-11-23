@@ -181,34 +181,48 @@ export default function BookingConfirmPage() {
     navigate(-1);
   };
 
-useEffect(() => {
-  if (!bookingData?.seats?.length) return;
+  useEffect(() => {
+    if (!bookingData?.seats?.length) return;
 
-  const showtimeId = bookingData.showtimeId;
-  const seatIds = bookingData.seats.map((s: any) => s.id);
+    const showtimeId = bookingData.showtimeId;
+    const seatIds = bookingData.seats.map((s: any) => s.id);
 
-  const sendCancel = () => {
+    const allowedPaths = ['/booking/additional', '/booking/confirm'];
+
+    const isAllowed = allowedPaths.some(path =>
+      location.pathname.includes(path)
+    );
+
+    // 1. Không hủy khi reload
+    const navEntry = performance.getEntriesByType('navigation')[0];
+    const isReload =
+      (navEntry && (navEntry as any).type === 'reload') ||
+      window.performance?.navigation?.type === 1;
+
+    if (isReload) return;
+
+    // 2. Không hủy khi đang forward sang confirm
     if (isProceedingRef.current) return;
 
-    cancelSeatMultiBeacon(showtimeId, seatIds);
-    clearTimer?.();
-  };
+    // 3. Hủy khi user rời flow đặt vé (route change)
+    if (!isAllowed) {
+      cancelSeatMultiBeacon(showtimeId, seatIds);
+      clearTimer?.();
+    }
 
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") sendCancel();
-  });
+    // 4. Hủy khi tắt tab / tắt browser
+    const handleUnload = () => {
+      if (isProceedingRef.current) return;
+      cancelSeatMultiBeacon(showtimeId, seatIds);
+      clearTimer?.();
+    };
 
-  window.addEventListener("pagehide", sendCancel);
+    window.addEventListener('beforeunload', handleUnload);
 
-  window.addEventListener("beforeunload", sendCancel);
-
-  return () => {
-    document.removeEventListener("visibilitychange", () => {});
-    window.removeEventListener("pagehide", sendCancel);
-    window.removeEventListener("beforeunload", sendCancel);
-  };
-}, [bookingData]);
-
+    return () => {
+      window.removeEventListener('beforeunload', handleUnload);
+    };
+  }, [location.pathname]);
 
   // Navigation guard
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
