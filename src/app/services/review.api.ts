@@ -1,4 +1,4 @@
-import { API_DOMAIN_PUBLIC, API_BASE_URL } from '@lib/api';
+import { API_BASE_URL } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export interface UserDto {
@@ -65,7 +65,7 @@ export const reviewApi = createApi({
         const params = new URLSearchParams();
         params.append('page', page.toString());
         params.append('limit', limit.toString());
-        return `${API_DOMAIN_PUBLIC}/reviews?${params.toString()}`;
+        return `/public/reviews?${params.toString()}`;
       },
     }),
 
