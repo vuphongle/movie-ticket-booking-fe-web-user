@@ -35,6 +35,11 @@ const review = {
     MOVIE_REVIEW_SUBMIT_FAILED: "Failed to submit review. Please try again.",
     MOVIE_REVIEW_DELETE_FAILED: "Failed to delete review. Please try again.",
     MOVIE_REVIEW_UPDATE_FAILED: "Failed to update review. Please try again.",
+    MOVIE_REVIEW_SUBMIT_SUCCESS: "Your review has been submitted successfully!",
+    MOVIE_REVIEW_DELETE_SUCCESS: "Review has been deleted successfully!",
+    MOVIE_REVIEW_UPDATE_SUCCESS: "Review has been updated successfully!",
+    MOVIE_REVIEW_SUBMITTING: "Submitting...",
+    EDIT: "Edit",
     REVIEWS_DATE_LOADED: "Review Load Date",
     REVIEWS_COMMENT: "Comment Content",
 };

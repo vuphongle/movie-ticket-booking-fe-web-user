@@ -15,6 +15,7 @@ import ErrorModal from './ReviewModal/ErrorModal';
 import ConfirmDeleteModal from './ReviewModal/ConfirmDeleteModal';
 import EditReviewModal from './ReviewModal/EditReviewModal';
 import { FiUpload } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 
 type Review = {
   id: number;
@@ -56,6 +57,8 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
   const { openLogin } = useLoginModal();
 
   const [createReview, { isLoading }] = useCreateReviewMutation();
+  const [updateReview, { isLoading: isUpdating }] = useUpdateReviewMutation();
+  const [deleteReview, { isLoading: isDeleting }] = useDeleteReviewMutation();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -101,7 +104,11 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
       setCommentText('');
       setRating(10);
       setFiles([]);
-      window.location.reload();
+      toast.success(
+        t('MOVIE_REVIEW_SUBMIT_SUCCESS') ||
+          'Đánh giá của bạn đã được gửi thành công!'
+      );
+      // RTK Query sẽ tự động refetch data thông qua cache invalidation
     } catch (err: any) {
       console.error(err);
 
@@ -109,9 +116,6 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
       setErrorMsg(message);
     }
   };
-
-  const [updateReview] = useUpdateReviewMutation();
-  const [deleteReview] = useDeleteReviewMutation();
 
   const handleEdit = (review: Review) => {
     setReviewToEdit(review);
@@ -226,9 +230,13 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
           try {
             const reviewId = reviewToDelete?.id;
             if (!reviewId) return;
-            await deleteReview(reviewId).unwrap();
+            await deleteReview({ reviewId, movieId }).unwrap();
             setShowDeleteModal(false);
-            window.location.reload();
+            toast.success(
+              t('MOVIE_REVIEW_DELETE_SUCCESS') ||
+                'Đánh giá đã được xóa thành công!'
+            );
+            // RTK Query sẽ tự động refetch data thông qua cache invalidation
           } catch (err: any) {
             console.error(err);
             setErrorMsg(err?.data?.message || t('MOVIE_REVIEW_DELETE_FAILED'));
@@ -252,9 +260,14 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
             }
 
             await updateReview(formData).unwrap();
-            window.location.reload();
+            setShowEditModal(false);
+            toast.success(
+              t('MOVIE_REVIEW_UPDATE_SUCCESS') ||
+                'Đánh giá đã được cập nhật thành công!'
+            );
+            // RTK Query sẽ tự động refetch data thông qua cache invalidation
           } catch {
-            alert(t('MOVIE_REVIEW_UPDATE_FAILED'));
+            setErrorMsg(t('MOVIE_REVIEW_UPDATE_FAILED'));
           }
         }}
         initialComment={reviewToEdit?.comment || ''}
@@ -328,7 +341,9 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
           disabled={isLoading || !commentText}
           onClick={handleSubmit}
         >
-          {t('MOVIE_REVIEW_SUBMIT')}
+          {isLoading
+            ? t('MOVIE_REVIEW_SUBMITTING') || 'Đang gửi...'
+            : t('MOVIE_REVIEW_SUBMIT')}
         </SubmitButton>
       </ReviewForm>
 
@@ -351,9 +366,17 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
             )}
             {String(r.user.id) === String(currentUserId) && (
               <ActionButtons>
-                <EditButton onClick={() => handleEdit(r)}>Edit</EditButton>
-                <DeleteButton onClick={() => handleDelete(r)}>
-                  Delete
+                <EditButton
+                  onClick={() => handleEdit(r)}
+                  disabled={isUpdating || isDeleting}
+                >
+                  {t('EDIT') || 'Edit'}
+                </EditButton>
+                <DeleteButton
+                  onClick={() => handleDelete(r)}
+                  disabled={isUpdating || isDeleting}
+                >
+                  {t('DELETE') || 'Delete'}
                 </DeleteButton>
               </ActionButtons>
             )}
@@ -622,14 +645,19 @@ const EditButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgba(59, 130, 246, 0.25);
     color: #e2e8f0;
     transform: translateY(-1px);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -644,13 +672,18 @@ const DeleteButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgba(239, 68, 68, 0.25);
     color: #fecaca;
     transform: translateY(-1px);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;

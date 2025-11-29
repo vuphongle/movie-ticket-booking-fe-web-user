@@ -40,7 +40,6 @@ const common = {
   // REVIEW
   REVIEW_TITLE: 'Đánh giá',
   REVIEW_YOUR_REVIEW: 'Đánh giá của bạn',
-  REVIEW_SUBMIT_REVIEW: 'Gửi đánh giá',
   REVIEW_NO_REVIEWS: 'Chưa có đánh giá nào.',
 
   // USER

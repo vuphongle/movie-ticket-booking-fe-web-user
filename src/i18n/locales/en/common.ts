@@ -38,7 +38,6 @@ const common = {
   // REVIEW
   REVIEW_TITLE: 'Reviews',
   REVIEW_YOUR_REVIEW: 'Your review',
-  REVIEW_SUBMIT_REVIEW: 'Submit Review',
   REVIEW_NO_REVIEWS: 'No reviews yet.',
 
   // USER

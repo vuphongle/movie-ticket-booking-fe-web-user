@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { movieApi } from './movie.api';
 
 export interface UserDto {
   id: number;
@@ -56,6 +57,7 @@ export const reviewApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['Review'],
   endpoints: builder => ({
     getAllReviews: builder.query<
       Page<MovieWithReviewsDto>,
@@ -67,6 +69,7 @@ export const reviewApi = createApi({
         params.append('limit', limit.toString());
         return `/public/reviews?${params.toString()}`;
       },
+      providesTags: ['Review'],
     }),
 
     createReview: builder.mutation<ReviewDto, FormData>({
@@ -75,6 +78,17 @@ export const reviewApi = createApi({
         method: 'POST',
         body: formData,
       }),
+      invalidatesTags: ['Review'],
+      async onQueryStarted(formData, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          const movieId = Number(formData.get('movieId'));
+          // Invalidate MovieDetail cache để refetch movie detail
+          dispatch(
+            movieApi.util.invalidateTags([{ type: 'MovieDetail', id: movieId }])
+          );
+        } catch {}
+      },
     }),
 
     updateReview: builder.mutation<ReviewDto, FormData>({
@@ -83,13 +97,34 @@ export const reviewApi = createApi({
         method: 'PUT',
         body: formData,
       }),
+      invalidatesTags: ['Review'],
+      async onQueryStarted(formData, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          const movieId = Number(formData.get('movieId'));
+          // Invalidate MovieDetail cache để refetch movie detail
+          dispatch(
+            movieApi.util.invalidateTags([{ type: 'MovieDetail', id: movieId }])
+          );
+        } catch {}
+      },
     }),
 
-    deleteReview: builder.mutation<void, number>({
-      query: reviewId => ({
+    deleteReview: builder.mutation<void, { reviewId: number; movieId: number }>({
+      query: ({ reviewId }) => ({
         url: `/reviews/${reviewId}`,
         method: 'DELETE',
       }),
+      invalidatesTags: ['Review'],
+      async onQueryStarted({ movieId }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Invalidate MovieDetail cache để refetch movie detail
+          dispatch(
+            movieApi.util.invalidateTags([{ type: 'MovieDetail', id: movieId }])
+          );
+        } catch {}
+      },
     }),
   }),
 });
