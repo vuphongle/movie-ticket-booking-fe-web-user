@@ -11,11 +11,13 @@ import { FileText, TicketX } from 'lucide-react';
 import { formatDate, formatGraphicLabel } from '@utils/functionUtils';
 
 const ORDER_STATUS_FILTERS = [
-  { key: "ALL", label: "Tất cả" },
-  { key: "CONFIRMED", label: "Đã thanh toán" },
-  { key: "PENDING", label: "Chờ thanh toán" },
-  { key: "CANCELLED", label: "Đã hủy" },
-  { key: "RETURNED", label: "Đã trả vé" },
+  { key: 'UPCOMING', label: 'Sắp tới' },
+  { key: 'WATCHED', label: 'Đã xem' },
+  { key: 'ALL', label: 'Tất cả' },
+  { key: 'CONFIRMED', label: 'Đã thanh toán' },
+  { key: 'PENDING', label: 'Chờ thanh toán' },
+  { key: 'CANCELLED', label: 'Đã hủy' },
+  { key: 'RETURNED', label: 'Đã trả vé' },
 ];
 
 const History: React.FC = () => {
@@ -26,7 +28,7 @@ const History: React.FC = () => {
   const [visibleCount, setVisibleCount] = useState(3);
 
   /** trạng thái đang chọn */
-  const [selectedStatus, setSelectedStatus] = useState("ALL");
+  const [selectedStatus, setSelectedStatus] = useState('ALL');
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('vi-VN', {
@@ -35,6 +37,64 @@ const History: React.FC = () => {
     }).format(amount);
 
   const [downloadPdf] = useDownloadPdfMutation();
+
+  // Helper function to check if showtime is in the future
+  const isUpcoming = (showtimeDate?: string | number[], startTime?: string) => {
+    if (!showtimeDate || !startTime) return false;
+
+    let showtimeDateTime: Date;
+
+    // Handle array format [year, month, day]
+    if (Array.isArray(showtimeDate)) {
+      if (showtimeDate.length < 3) return false;
+      const [year, month, day] = showtimeDate;
+      const [hours, minutes] = startTime.split(':').map(Number);
+      showtimeDateTime = new Date(year, month - 1, day, hours, minutes);
+    } else {
+      // Handle string format
+      const [hours, minutes] = startTime.split(':').map(Number);
+      const dateObj = new Date(showtimeDate);
+      showtimeDateTime = new Date(
+        dateObj.getFullYear(),
+        dateObj.getMonth(),
+        dateObj.getDate(),
+        hours,
+        minutes
+      );
+    }
+
+    const now = new Date();
+    return showtimeDateTime > now;
+  };
+
+  // Helper function to check if showtime has passed
+  const isWatched = (showtimeDate?: string | number[], endTime?: string) => {
+    if (!showtimeDate || !endTime) return false;
+
+    let showtimeDateTime: Date;
+
+    // Handle array format [year, month, day]
+    if (Array.isArray(showtimeDate)) {
+      if (showtimeDate.length < 3) return false;
+      const [year, month, day] = showtimeDate;
+      const [hours, minutes] = endTime.split(':').map(Number);
+      showtimeDateTime = new Date(year, month - 1, day, hours, minutes);
+    } else {
+      // Handle string format
+      const [hours, minutes] = endTime.split(':').map(Number);
+      const dateObj = new Date(showtimeDate);
+      showtimeDateTime = new Date(
+        dateObj.getFullYear(),
+        dateObj.getMonth(),
+        dateObj.getDate(),
+        hours,
+        minutes
+      );
+    }
+
+    const now = new Date();
+    return showtimeDateTime <= now;
+  };
 
   const handleViewPdf = async (orderId: number) => {
     try {
@@ -50,7 +110,8 @@ const History: React.FC = () => {
     if (!purchaseHistory) return [];
     return purchaseHistory.filter(order => {
       const movieName = order.showtime?.movie?.name?.toLowerCase() || '';
-      const cinemaName = order.showtime?.auditorium?.cinema?.name?.toLowerCase() || '';
+      const cinemaName =
+        order.showtime?.auditorium?.cinema?.name?.toLowerCase() || '';
       const term = searchTerm.toLowerCase();
       return movieName.includes(term) || cinemaName.includes(term);
     });
@@ -58,7 +119,26 @@ const History: React.FC = () => {
 
   const filteredByStatus = useMemo(() => {
     return filteredSearch.filter(order => {
-      return selectedStatus === "ALL" || order.status === selectedStatus;
+      if (selectedStatus === 'ALL') return true;
+
+      // Handle UPCOMING filter
+      if (selectedStatus === 'UPCOMING') {
+        return (
+          order.status === 'CONFIRMED' &&
+          isUpcoming(order.showtime?.date, order.showtime?.startTime)
+        );
+      }
+
+      // Handle WATCHED filter
+      if (selectedStatus === 'WATCHED') {
+        return (
+          order.status === 'CONFIRMED' &&
+          isWatched(order.showtime?.date, order.showtime?.endTime)
+        );
+      }
+
+      // Handle other status filters
+      return order.status === selectedStatus;
     });
   }, [filteredSearch, selectedStatus]);
 
@@ -69,7 +149,6 @@ const History: React.FC = () => {
 
   return (
     <HistoryContainer>
-
       <SearchInput
         type='text'
         placeholder={t('SEARCH_PLACEHOLDER_HISTORY')}
@@ -95,17 +174,24 @@ const History: React.FC = () => {
             <HistoryItem key={order.id}>
               {/* movie section */}
               <MovieSection>
-                <Poster src={order.showtime?.movie?.poster} alt={order.showtime?.movie?.name} />
+                <Poster
+                  src={order.showtime?.movie?.poster}
+                  alt={order.showtime?.movie?.name}
+                />
                 <MovieDetails>
                   <MovieTitle>{order.showtime?.movie?.name}</MovieTitle>
 
                   <CinemaInfo>
-                    {order.showtime?.auditorium?.cinema?.name} – {t('ROOM')} {order.showtime?.auditorium?.name}
+                    {order.showtime?.auditorium?.cinema?.name} – {t('ROOM')}{' '}
+                    {order.showtime?.auditorium?.name}
                   </CinemaInfo>
 
                   <SmallText>
-                    {t('FORMAT')}: {formatGraphicLabel(order.showtime?.graphicsType)} |{' '}
-                    {order.showtime?.translationType === 'DUBBING' ? t('DUBBING') : t('SUBTITLE')}
+                    {t('FORMAT')}:{' '}
+                    {formatGraphicLabel(order.showtime?.graphicsType)} |{' '}
+                    {order.showtime?.translationType === 'DUBBING'
+                      ? t('DUBBING')
+                      : t('SUBTITLE')}
                   </SmallText>
 
                   <DateTime>
@@ -160,7 +246,9 @@ const History: React.FC = () => {
 
               <RightSection>
                 <Status status={order.status}>
-                  {order.status === 'CONFIRMED' ? t('COMPLETED') : t('CANCELLED')}
+                  {order.status === 'CONFIRMED'
+                    ? t('COMPLETED')
+                    : t('CANCELLED')}
                 </Status>
 
                 {order.qrCodePath && (
@@ -263,7 +351,6 @@ const EmptyText = styled.span`
   font-size: 16px;
   font-weight: 500;
 `;
-
 
 const MovieSection = styled.div`
   display: flex;
@@ -442,10 +529,10 @@ const ServicesContainer = styled.div`
 
 const ServiceBox = styled.div`
   background: #fff8e1;
-  color: #f57f17;  
-  padding: 2px 6px; 
+  color: #f57f17;
+  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 12px; 
+  font-size: 12px;
   font-weight: 500;
 `;
 
@@ -454,6 +541,5 @@ const EmptyIcon = styled(TicketX)`
   height: 64px;
   color: #bdbdbd;
 `;
-
 
 export default History;

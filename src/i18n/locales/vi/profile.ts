@@ -21,7 +21,6 @@ const profile = {
     C_FRIENDS_LABEL: "Tích điểm C'Friends",
     CUSTOMER_INFO: "Thông tin khách hàng",
     CINESTAR_MEMBER: "Thành viên Cinestar",
-    PURCHASE_HISTORY: "Lịch sử mua hàng",
     LOGOUT: "Đăng xuất"
 }
 
