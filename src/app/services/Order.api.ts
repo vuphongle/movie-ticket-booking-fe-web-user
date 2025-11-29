@@ -73,7 +73,7 @@ export interface UserDto {
 
 export interface OrderDto {
   id: number;
-  status: 'CONFIRMED' | 'CANCELLED' | 'PENDING';
+  status: 'CONFIRMED' | 'CANCELLED' | 'PENDING' | 'RETURNED';
   totalPrice: number;
   discount: number;
   discountPrice: number;

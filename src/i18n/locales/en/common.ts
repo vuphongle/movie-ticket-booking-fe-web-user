@@ -260,6 +260,7 @@ const common = {
   COMPLETED: 'Completed',
   PENDING: 'Pending',
   CANCELLED: 'Cancelled',
+  RETURNED: 'Returned',
 
   VIEW_ORDER: 'View Order',
   VIEW_MORE: 'View More',

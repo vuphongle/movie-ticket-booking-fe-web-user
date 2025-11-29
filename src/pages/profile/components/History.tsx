@@ -248,7 +248,11 @@ const History: React.FC = () => {
                 <Status status={order.status}>
                   {order.status === 'CONFIRMED'
                     ? t('COMPLETED')
-                    : t('CANCELLED')}
+                    : order.status === 'RETURNED'
+                      ? t('RETURNED')
+                      : order.status === 'PENDING'
+                        ? t('PENDING')
+                        : t('CANCELLED')}
                 </Status>
 
                 {order.qrCodePath && (

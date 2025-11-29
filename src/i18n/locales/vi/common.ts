@@ -263,6 +263,8 @@ const common = {
 
   COMPLETED: 'Hoàn thành',
   CANCELLED: 'Đã hủy',
+  PENDING: 'Chờ thanh toán',
+  RETURNED: 'Đã trả vé',
 
   VIEW_ORDER: 'Xem đơn',
   VIEW_MORE: 'Xem thêm',
