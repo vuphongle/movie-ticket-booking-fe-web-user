@@ -86,6 +86,7 @@ export const movieApi = createApi({
       }
     },
   }),
+  tagTypes: ['MovieDetail'],
   endpoints: builder => ({
     getShowingNowMovies: builder.query<Movie[], void>({
       query: () => '/movies/showing-now',
@@ -95,6 +96,7 @@ export const movieApi = createApi({
     }),
     getMovieDetail: builder.query<MovieDetail, { id: number; slug: string }>({
       query: ({ id, slug }) => `/movies/${id}/${slug}`,
+      providesTags: (result, error, { id }) => [{ type: 'MovieDetail', id }],
     }),
     getMovieByShowtime: builder.query<Movie, number>({
       query: id => `/movie-by-showtimeId/${id}`,
