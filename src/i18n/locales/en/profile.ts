@@ -21,7 +21,6 @@ const profile = {
     C_FRIENDS_LABEL: "Earn C'Friends Points",
     CUSTOMER_INFO: "Customer Information",
     CINESTAR_MEMBER: "CineStar Member",
-    PURCHASE_HISTORY: "Purchase History",
     LOGOUT: "Logout"
 }
 
