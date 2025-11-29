@@ -96,7 +96,7 @@ export const movieApi = createApi({
     }),
     getMovieDetail: builder.query<MovieDetail, { id: number; slug: string }>({
       query: ({ id, slug }) => `/movies/${id}/${slug}`,
-      providesTags: (result, error, { id }) => [{ type: 'MovieDetail', id }],
+      providesTags: (_result, _error, { id }) => [{ type: 'MovieDetail', id }],
     }),
     getMovieByShowtime: builder.query<Movie, number>({
       query: id => `/movie-by-showtimeId/${id}`,
