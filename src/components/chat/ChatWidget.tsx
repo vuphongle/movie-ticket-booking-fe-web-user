@@ -669,6 +669,14 @@ const SendButton = styled.button`
     transform 0.2s ease,
     box-shadow 0.2s ease;
 
+  svg {
+    width: 20px !important;
+    height: 20px !important;
+    stroke: currentColor !important;
+    fill: none !important;
+    flex-shrink: 0;
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
