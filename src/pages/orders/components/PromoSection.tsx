@@ -122,14 +122,6 @@ export default function PromoSection({
       });
   }, [couponDetails, previewMap]);
 
-  useEffect(() => {
-    if (displayCoupons.length > 0 && selectedId === null) {
-      const bestCoupon = displayCoupons[0];
-      setSelectedId(bestCoupon.id);
-      handleSelect(bestCoupon);
-    }
-  }, [displayCoupons, selectedId]);
-
   const handleSelect = async (coupon: any) => {
     if (!bookingData) return;
     setSelectedId(coupon.id);
@@ -164,6 +156,15 @@ export default function PromoSection({
     }
   };
 
+  const handleNoPromo = () => {
+    setSelectedId(null);
+    onApplyCoupon({
+      finalAmount: bookingData?.total || 0,
+      discount: 0,
+      gifts: [],
+    });
+  };
+
   // ----- loading / error UI -----
   if (isLoading || previewResult.isLoading)
     return <Section>Đang tải khuyến mãi...</Section>;
@@ -175,6 +176,32 @@ export default function PromoSection({
       <h2>Khuyến mãi dành cho đơn của bạn</h2>
 
       <CouponList>
+        <CouponRow selected={selectedId === null} onClick={handleNoPromo}>
+          <LeftPart>
+            <RadioInput
+              type='radio'
+              name='coupon'
+              checked={selectedId === null}
+              onChange={handleNoPromo}
+            />
+            <ImageWrapper>
+              <img
+                src='https://cdn-icons-png.flaticon.com/512/1828/1828843.png'
+                alt='no promo'
+                loading='lazy'
+              />
+            </ImageWrapper>
+          </LeftPart>
+
+          <Info>
+            <h4>Không sử dụng khuyến mãi</h4>
+            <p>Thanh toán với giá gốc</p>
+            <small>Bạn có thể chọn khuyến mãi bên dưới nếu muốn</small>
+          </Info>
+
+          <DiscountBox>0₫</DiscountBox>
+        </CouponRow>
+
         {displayCoupons.map((c: any, index: number) => {
           const isUnlimited = c.limitQuantityApplied === null;
           const isUsedUp =
