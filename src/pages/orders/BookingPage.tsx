@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { theme } from '@theme/Theme';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useGetSeatsByAuditoriumAndShowtimeQuery } from '@app/services/auditorium.api';
 import type { SeatDto } from '@app/services/auditorium.api';
 import { useGetMovieByShowtimeQuery } from '@app/services/movie.api';
@@ -13,6 +13,7 @@ import { HeldSeatModal } from './components/modals/HeldSeatModal';
 import { SelectSeatModal } from './components/modals/SelectSeatModal';
 import { AgeConfirmModal } from './components/modals/AgeConfirmModal';
 import { useLazyCheckSeatStatusQuery } from '@app/services/reservation.api';
+import { useGetShowtimeDetailQuery } from '@app/services/showTime.api';
 
 /** ---- UI types ---- */
 type SeatType = 'normal' | 'vip' | 'couple';
@@ -60,6 +61,17 @@ const mapReservationStatus = (
   }
 };
 
+const buildFormatLabel = (graphicsType?: string, translationType?: string) => {
+  if (!graphicsType) return '';
+  const normalizedGraphics = graphicsType.replace(/_/g, ' ');
+  const normalizedTranslation = translationType
+    ? translationType.trim().toUpperCase()
+    : '';
+  return normalizedTranslation
+    ? `SHOWTIME_${normalizedGraphics}_${normalizedTranslation}`
+    : `SHOWTIME_${normalizedGraphics}`;
+};
+
 export default function BookingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -73,8 +85,70 @@ export default function BookingPage() {
   }, []);
 
   const location = useLocation();
-  const { showtimeId, cinema, auditorium, time, date, format } =
-    location.state || {};
+  const params = useParams();
+  const locationState = (location.state as any) || {};
+  const stateShowtimeId = locationState?.showtimeId
+    ? Number(locationState.showtimeId)
+    : undefined;
+  const routeShowtimeId = params.showtimeId ? Number(params.showtimeId) : undefined;
+  const effectiveShowtimeId = stateShowtimeId ?? routeShowtimeId;
+  const hasStateContext =
+    !!locationState?.auditorium?.id &&
+    !!locationState?.cinema &&
+    !!locationState?.time &&
+    !!locationState?.date &&
+    !!locationState?.format;
+
+  const {
+    data: showtimeDetail,
+    isFetching: isShowtimeDetailLoading,
+    isError: showtimeDetailError,
+  } = useGetShowtimeDetailQuery(effectiveShowtimeId ?? 0, {
+    skip: hasStateContext || !effectiveShowtimeId,
+  });
+
+  const bookingContext = useMemo(() => {
+    if (hasStateContext) {
+      return {
+        ...locationState,
+        showtimeId: stateShowtimeId ?? locationState.showtimeId,
+      };
+    }
+    if (showtimeDetail) {
+      return {
+        showtimeId: showtimeDetail.id,
+        cinema: {
+          id: showtimeDetail.cinemaId,
+          name: showtimeDetail.cinemaName,
+          address: showtimeDetail.cinemaAddress,
+        },
+        auditorium: {
+          id: showtimeDetail.auditoriumId,
+          name: showtimeDetail.auditoriumName,
+          totalSeats: showtimeDetail.auditoriumTotalSeats,
+          totalRows: showtimeDetail.auditoriumTotalRows,
+          totalColumns: showtimeDetail.auditoriumTotalColumns,
+          type: showtimeDetail.auditoriumType,
+        },
+        time: showtimeDetail.startTime,
+        date: showtimeDetail.date,
+        format: buildFormatLabel(
+          showtimeDetail.graphicsType || undefined,
+          showtimeDetail.translationType || undefined
+        ),
+        graphicsType: showtimeDetail.graphicsType,
+        translationType: showtimeDetail.translationType,
+      };
+    }
+    return null;
+  }, [hasStateContext, locationState, showtimeDetail, stateShowtimeId]);
+
+  const showtimeId = bookingContext?.showtimeId;
+  const cinema = bookingContext?.cinema;
+  const auditorium = bookingContext?.auditorium;
+  const time = bookingContext?.time;
+  const date = bookingContext?.date;
+  const format = bookingContext?.format;
 
   const {
     data: seatDtos = [],
@@ -83,19 +157,23 @@ export default function BookingPage() {
     refetch,
   } = useGetSeatsByAuditoriumAndShowtimeQuery(
     {
-      auditoriumId: Number(auditorium.id),
+      auditoriumId: Number(auditorium?.id),
       showtimeId: Number(showtimeId),
     },
     {
       refetchOnMountOrArgChange: true,
+      skip: !auditorium?.id || !showtimeId,
     }
   );
 
   useEffect(() => {
+    if (!auditorium?.id || !showtimeId) return;
     refetch();
-  }, [refetch]);
+  }, [auditorium?.id, refetch, showtimeId]);
 
-  const { data: movie } = useGetMovieByShowtimeQuery(Number(showtimeId));
+  const { data: movie } = useGetMovieByShowtimeQuery(Number(showtimeId), {
+    skip: !showtimeId,
+  });
 
   const [seats, setSeats] = useState<Seat[]>([]);
   const selectedSeatsRef = useRef<Seat[]>([]);
@@ -152,6 +230,12 @@ export default function BookingPage() {
   const toggleSeat = async (seat: Seat) => {
     if (seat.status === 'booked') return;
 
+    if (!showtimeId || !auditorium?.id) {
+      setModalContent(t('BOOKING_ERROR_SEAT'));
+      setModalVisible(true);
+      return;
+    }
+
     if (seat.price === 0) {
       setModalContent('Ghế này chưa được định giá. Vui lòng chọn ghế khác.');
       setModalVisible(true);
@@ -183,6 +267,10 @@ export default function BookingPage() {
 
   const seatTotal = selectedSeats.reduce((s, x) => s + x.price, 0);
   const totalPrice = seatTotal;
+  const formattedDate = formatDate(date);
+  const showtimeLabel = time
+    ? `${time}${formattedDate !== 'N/A' ? ` - ${formattedDate}` : ''}`
+    : formattedDate;
 
   // ====== Restore từ sessionStorage ======
   useEffect(() => {
@@ -198,6 +286,22 @@ export default function BookingPage() {
   useEffect(() => {
     sessionStorage.removeItem('bookingCancelled');
   }, []);
+
+  if (!bookingContext && isShowtimeDetailLoading) {
+    return (
+      <Page>
+        <InfoLine>Đang tải thông tin suất chiếu...</InfoLine>
+      </Page>
+    );
+  }
+
+  if (!bookingContext && (showtimeDetailError || !effectiveShowtimeId)) {
+    return (
+      <Page>
+        <InfoLine>Không tìm thấy thông tin suất chiếu.</InfoLine>
+      </Page>
+    );
+  }
 
   return (
     <Page>
@@ -306,9 +410,9 @@ export default function BookingPage() {
               poster={movie.poster}
               age={movie.age}
               graphics={movie.graphics}
-              cinema={cinema.name}
-              auditorium={auditorium.name}
-              showtime={`${time} - ${formatDate(date)}`}
+              cinema={cinema?.name || ''}
+              auditorium={auditorium?.name || ''}
+              showtime={showtimeLabel}
             />
           )}
           <Divider />
@@ -337,6 +441,12 @@ export default function BookingPage() {
             <PrimaryButton
               type='button'
               onClick={async () => {
+                if (!showtimeId || !auditorium?.id) {
+                  setModalContent(t('BOOKING_ERROR_SEAT'));
+                  setModalVisible(true);
+                  return;
+                }
+
                 if (selectedSeats.length === 0) {
                   setSelectSeatModalVisible(true);
                   return;
@@ -402,11 +512,11 @@ export default function BookingPage() {
                       expireAt,
                       bookingData: {
                         showtimeId,
-                        format,
+                        format: format ?? '',
                         movie,
-                        cinema: cinema.name,
-                        auditorium: auditorium.name,
-                        showtime: `${time} - ${formatDate(date)}`,
+                        cinema: cinema?.name ?? '',
+                        auditorium: auditorium?.name ?? '',
+                        showtime: showtimeLabel,
                         seats: selectedSeats,
                         seatTotal,
                       },
@@ -439,6 +549,11 @@ export default function BookingPage() {
         age={movie?.age ?? 'P'}
         onConfirm={async () => {
           setAgeModalVisible(false);
+          if (!showtimeId || !auditorium?.id) {
+            setModalContent(t('BOOKING_ERROR_SEAT'));
+            setModalVisible(true);
+            return;
+          }
           try {
             const seatStatusResults = await Promise.all(
               selectedSeats.map(seat =>
@@ -494,11 +609,11 @@ export default function BookingPage() {
                 expireAt,
                 bookingData: {
                   showtimeId,
-                  format,
+                  format: format ?? '',
                   movie,
-                  cinema: cinema.name,
-                  auditorium: auditorium.name,
-                  showtime: `${time} - ${formatDate(date)}`,
+                  cinema: cinema?.name ?? '',
+                  auditorium: auditorium?.name ?? '',
+                  showtime: showtimeLabel,
                   seats: selectedSeats,
                   seatTotal,
                 },

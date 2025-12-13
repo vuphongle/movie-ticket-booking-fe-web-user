@@ -64,6 +64,31 @@ export interface ShowtimeDto2 {
   updatedAt: number;
 }
 
+export interface ShowtimeDetailDto {
+  id: number;
+  date: number[] | string;
+  startTime: string;
+  endTime?: string;
+  graphicsType?: string;
+  translationType?: string;
+  cinemaId?: number;
+  cinemaName?: string;
+  cinemaAddress?: string;
+  auditoriumId?: number;
+  auditoriumName?: string;
+  auditoriumTotalSeats?: number;
+  auditoriumTotalRows?: number;
+  auditoriumTotalColumns?: number;
+  auditoriumType?: string;
+  movieId?: number;
+  movieName?: string;
+  movieSlug?: string;
+  moviePoster?: string;
+  movieAge?: string;
+  movieRating?: number;
+  movieDuration?: number;
+}
+
 export const showtimeApi = createApi({
   reducerPath: 'showtimeApi',
   baseQuery: fetchBaseQuery({
@@ -137,6 +162,9 @@ export const showtimeApi = createApi({
       query: cinemaName =>
         `/cinemas/${cinemaName}/movies-showtimes-by-cinema-name`,
     }),
+    getShowtimeDetail: builder.query<ShowtimeDetailDto, number>({
+      query: showtimeId => `/showtimes/${showtimeId}`,
+    }),
   }),
 });
 
@@ -145,4 +173,5 @@ export const {
   useCheckMovieHasShowtimesQuery,
   useGetMoviesShowtimesByCinemaQuery,
   useGetMoviesShowtimesByCinemaNameQuery,
+  useGetShowtimeDetailQuery,
 } = showtimeApi;
