@@ -10,13 +10,21 @@ interface SelectSeatModalProps {
   onClose: () => void;
 }
 
-export const SelectSeatModal: React.FC<SelectSeatModalProps> = ({ isOpen, onClose }) => {
+export const SelectSeatModal: React.FC<SelectSeatModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const { t } = useTranslation();
 
   return (
-    <ModalBase isOpen={isOpen} size="xs" onClose={onClose} hideCloseButton={true}>
+    <ModalBase
+      isOpen={isOpen}
+      size='xs'
+      onClose={onClose}
+      hideCloseButton={true}
+    >
       <ModalContent>
-        <Icon src={WarningIcon} alt="warning" />
+        <Icon src={WarningIcon} alt='warning' />
         <ModalTitle>{t('SELECT_SEAT_TITLE')}</ModalTitle>
         <ModalBody>{t('SELECT_SEAT_CONTENT')}</ModalBody>
         <ModalFooter>
@@ -35,7 +43,7 @@ const ModalContent = styled.div`
   gap: 8px;
   justify-content: center;
   align-items: center;
-  text-align: center; 
+  text-align: center;
 `;
 
 const ModalTitle = styled.h3`

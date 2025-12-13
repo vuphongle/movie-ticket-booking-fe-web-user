@@ -93,6 +93,11 @@ export const ContentWrapper = styled.div`
   margin-bottom: ${theme.spacing.xl};
   flex-wrap: wrap;
   align-items: flex-start;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    gap: ${theme.spacing.md};
+  }
 `;
 
 export const Poster = styled.div`
@@ -100,6 +105,15 @@ export const Poster = styled.div`
   flex-shrink: 0;
   align-self: stretch;
   overflow: hidden;
+
+  @media (max-width: 900px) {
+    width: 260px;
+  }
+
+  @media (max-width: 640px) {
+    width: 100%;
+    align-self: auto;
+  }
 
   img {
     width: 100%;
@@ -117,6 +131,10 @@ export const Info = styled.div`
   border-radius: ${theme.borderRadius.medium};
   padding: ${theme.spacing.md};
   backdrop-filter: blur(6px);
+
+  @media (max-width: 640px) {
+    padding: ${theme.spacing.sm};
+  }
 `;
 
 export const Title = styled.h1`
@@ -124,6 +142,10 @@ export const Title = styled.h1`
   font-weight: 700;
   margin-bottom: 4px;
   color: ${theme.colors.darkTextPrimary};
+
+  @media (max-width: 640px) {
+    font-size: 1.6rem;
+  }
 `;
 
 export const SubTitle = styled.p`
@@ -131,6 +153,10 @@ export const SubTitle = styled.p`
   color: ${theme.colors.darkTextSecondary};
   margin-bottom: ${theme.spacing.sm};
   font-style: italic;
+
+  @media (max-width: 640px) {
+    font-size: 1rem;
+  }
 `;
 
 export const Meta = styled.div`
@@ -139,6 +165,11 @@ export const Meta = styled.div`
   gap: ${theme.spacing.lg};
   font-size: 0.95rem;
   margin-bottom: ${theme.spacing.md};
+
+  @media (max-width: 640px) {
+    gap: ${theme.spacing.sm};
+    font-size: 0.9rem;
+  }
 `;
 
 export const MetaItem = styled.div`
@@ -169,6 +200,15 @@ export const MetaItem = styled.div`
       color 0.25s ease;
   }
 
+  @media (max-width: 640px) {
+    gap: 4px;
+
+    .icon {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
   .duration {
     color: #38bdf8;
   }
@@ -194,6 +234,10 @@ export const SectionTitle = styled.h2`
   color: ${theme.colors.darkTextPrimary};
   border-bottom: 2px solid ${theme.colors.darkBorder};
   padding-bottom: 4px;
+
+  @media (max-width: 640px) {
+    font-size: 1.1rem;
+  }
 `;
 
 export const AvatarList = styled.div<{ $horizontal?: boolean }>`
@@ -203,6 +247,10 @@ export const AvatarList = styled.div<{ $horizontal?: boolean }>`
   overflow-x: ${({ $horizontal }) => ($horizontal ? 'auto' : 'visible')};
   padding-bottom: ${({ $horizontal }) =>
     $horizontal ? theme.spacing.sm : '0'};
+
+  @media (max-width: 640px) {
+    gap: ${theme.spacing.sm};
+  }
 `;
 
 export const AvatarItem = styled.div`
@@ -227,6 +275,10 @@ export const AvatarItem = styled.div`
     font-size: 0.8rem;
     color: ${theme.colors.darkTextSecondary};
     transition: color 0.25s ease;
+
+    @media (max-width: 640px) {
+      font-size: 0.75rem;
+    }
   }
 
   &:hover {

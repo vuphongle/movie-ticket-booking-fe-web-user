@@ -19,9 +19,11 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useLoginModal } from '@contexts/LoginContext';
+import FlagVN from '@/assets/image/flags/vn.png';
+import FlagUS from '@/assets/image/flags/us.png';
 
 export default function Header() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { auth, isAuthenticated } = useSelector(
@@ -40,6 +42,13 @@ export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+  const [viewportWidth, setViewportWidth] = useState<number>(
+    typeof window !== 'undefined' ? window.innerWidth : 1920
+  );
+  const [isLangMenuOpen, setLangMenuOpen] = useState(false);
+
+  const isMobile = viewportWidth <= 767;
+  const isTablet = viewportWidth >= 768 && viewportWidth <= 1023;
 
   const openLoginModal = () => openLogin();
   const closeLoginModal = () => closeLogin();
@@ -48,7 +57,11 @@ export default function Header() {
   const openForgotModal = () => setIsForgotOpen(true);
   const closeForgotModal = () => setIsForgotOpen(false);
 
-  const toggleMobileMenu = () => setMobileMenuOpen(prev => !prev);
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(prev => !prev);
+    setLangMenuOpen(false);
+    setHoveredMenu(null);
+  };
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -64,8 +77,12 @@ export default function Header() {
 
   useEffect(() => {
     function handleResize() {
-      if (window.innerWidth > 1450) {
+      setViewportWidth(window.innerWidth);
+      if (window.innerWidth > 767) {
         setMobileMenuOpen(false);
+        setLangMenuOpen(false);
+      }
+      if (window.innerWidth > 1023) {
         setHoveredMenu(null);
       }
     }
@@ -92,106 +109,203 @@ export default function Header() {
     window.location.href = '/';
   };
 
+  type MenuItemConfig = {
+    key: string;
+    label: string;
+    onClick?: () => void;
+    subItems?: { key: string; label: string; onClick: () => void }[];
+  };
+
+  const menuItems: MenuItemConfig[] = [
+    {
+      key: 'movies',
+      label: t('NAV_MOVIES'),
+      subItems: [
+        {
+          key: 'movies-now',
+          label: t('NAV_MOVIES_NOW_SHOWING'),
+          onClick: () => navigate('/movies/now-showing'),
+        },
+        {
+          key: 'movies-soon',
+          label: t('NAV_MOVIES_COMING_SOON'),
+          onClick: () => navigate('/movies/coming-soon'),
+        },
+      ],
+    },
+    {
+      key: 'cinemas',
+      label: t('NAV_CINEMAS'),
+      onClick: () => navigate('/cinemas'),
+    },
+    {
+      key: 'coupons',
+      label: t('NAV_PROMOTIONS'),
+      onClick: () => navigate('/coupons'),
+    },
+    {
+      key: 'cinema_corner',
+      label: t('NAV_CINEMA_CORNER'),
+      subItems: [
+        { key: 'blogs', label: t('NAV_BLOG_MOVIES'), onClick: () => navigate('/blogs') },
+        { key: 'reviews', label: t('NAV_REVIEWS_MOVIES'), onClick: () => navigate('/reviews') },
+      ],
+    },
+  ];
+
+  const visibleTabletCount = 3;
+  const visibleMenuItems = isTablet
+    ? menuItems.slice(0, visibleTabletCount)
+    : menuItems;
+  const extraMenuItems = isTablet ? menuItems.slice(visibleTabletCount) : [];
+
+  const currentLang = i18n.language?.startsWith('en') ? 'en' : 'vi';
+  const currentFlag = currentLang === 'vi' ? FlagVN : FlagUS;
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+  };
+
   return (
     <>
       <Container>
         <ContentWrapper>
           <HeaderContent>
-            <Nav>
-              <LeftGroup>
-                <LogoArea>
-                  <Link to='/'>
-                    <Logo src={LogoImg} alt='GoCinema' />
-                  </Link>
-                </LogoArea>
+            <TopRow>
+              {isMobile && (
+                <MobileLeft>
+                  <HamburgerButton
+                    onClick={toggleMobileMenu}
+                    aria-label='Toggle menu'
+                  >
+                    {isMobileMenuOpen ? (
+                      <CloseIcon size={20} />
+                    ) : (
+                      <MenuIcon size={20} />
+                    )}
+                  </HamburgerButton>
+                </MobileLeft>
+              )}
 
-                <SearchBox>
-                  <SearchInput
-                    placeholder={t('SEARCH_PLACEHOLDER') || 'Tìm phim, rạp'}
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                  />
-                  <SearchIcon
-                    onClick={handleSearch}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </SearchBox>
-              </LeftGroup>
+              <LogoArea $centerMobile={isMobile}>
+                <Link to='/'>
+                  <Logo src={LogoImg} alt='GoCinema' />
+                </Link>
+              </LogoArea>
 
-              <RightGroup>
-                <HamburgerButton
-                  onClick={toggleMobileMenu}
-                  aria-label='Toggle menu'
-                >
-                  {isMobileMenuOpen ? (
-                    <CloseIcon size={24} />
-                  ) : (
-                    <MenuIcon size={24} />
+              {!isMobile && (
+                <DesktopSearch>
+                  <SearchBox>
+                    <SearchInput
+                      placeholder={t('SEARCH_PLACEHOLDER') || 'Tìm phim, rạp'}
+                      value={searchTerm}
+                      onChange={e => setSearchTerm(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                    />
+                    <SearchIcon
+                      onClick={handleSearch}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  </SearchBox>
+                </DesktopSearch>
+              )}
+
+              {!isMobile && (
+                <Menu ref={menuRef} $isTablet={isTablet}>
+                  {visibleMenuItems.map(item => (
+                    <MenuItemWrapper
+                      key={item.key}
+                      onMouseEnter={() => !isMobile && setHoveredMenu(item.key)}
+                      onMouseLeave={() => !isMobile && setHoveredMenu(null)}
+                    >
+                      <MenuItem
+                        onClick={() => {
+                          if (item.subItems) {
+                            setHoveredMenu(prev =>
+                              prev === item.key ? null : item.key
+                            );
+                          } else {
+                            item.onClick?.();
+                            setHoveredMenu(null);
+                          }
+                        }}
+                      >
+                        {item.label}
+                        {item.subItems &&
+                          (hoveredMenu === item.key ? (
+                            <FaChevronUp size={12} style={{ marginLeft: 4 }} />
+                          ) : (
+                            <FaChevronDown
+                              size={12}
+                              style={{ marginLeft: 4 }}
+                            />
+                          ))}
+                      </MenuItem>
+                      {item.subItems && hoveredMenu === item.key && (
+                        <SubMenu>
+                          {item.subItems.map(sub => (
+                            <SubMenuItem
+                              key={sub.key}
+                              onClick={() => {
+                                sub.onClick();
+                                setHoveredMenu(null);
+                              }}
+                            >
+                              {sub.label}
+                            </SubMenuItem>
+                          ))}
+                        </SubMenu>
+                      )}
+                    </MenuItemWrapper>
+                  ))}
+
+                  {isTablet && extraMenuItems.length > 0 && (
+                    <MenuItemWrapper
+                      onMouseEnter={() => setHoveredMenu('more')}
+                      onMouseLeave={() => setHoveredMenu(null)}
+                    >
+                      <MenuItem>
+                        Thêm
+                        {hoveredMenu === 'more' ? (
+                          <FaChevronUp size={12} style={{ marginLeft: 4 }} />
+                        ) : (
+                          <FaChevronDown size={12} style={{ marginLeft: 4 }} />
+                        )}
+                      </MenuItem>
+                      {hoveredMenu === 'more' && (
+                        <SubMenu>
+                          {extraMenuItems.map(item => (
+                            <div key={item.key}>
+                              <SubMenuItem
+                                onClick={() => {
+                                  item.onClick?.();
+                                  setHoveredMenu(null);
+                                }}
+                              >
+                                {item.label}
+                              </SubMenuItem>
+                              {item.subItems?.map(sub => (
+                                <NestedSubMenuItem
+                                  key={sub.key}
+                                  onClick={() => {
+                                    sub.onClick();
+                                    setHoveredMenu(null);
+                                  }}
+                                >
+                                  {sub.label}
+                                </NestedSubMenuItem>
+                              ))}
+                            </div>
+                          ))}
+                        </SubMenu>
+                      )}
+                    </MenuItemWrapper>
                   )}
-                </HamburgerButton>
-
-                <Menu open={isMobileMenuOpen} ref={menuRef}>
-                  <MenuItemWrapper
-                    onMouseEnter={() => setHoveredMenu('movies')}
-                    onMouseLeave={() => setHoveredMenu(null)}
-                  >
-                    <MenuItem>
-                      {t('NAV_MOVIES')}
-                      {hoveredMenu === 'movies' ? (
-                        <FaChevronUp size={12} style={{ marginLeft: 4 }} />
-                      ) : (
-                        <FaChevronDown size={12} style={{ marginLeft: 4 }} />
-                      )}
-                    </MenuItem>
-                    {hoveredMenu === 'movies' && (
-                      <SubMenu>
-                        <SubMenuItem
-                          onClick={() => navigate('/movies/now-showing')}
-                        >
-                          {t('NAV_MOVIES_NOW_SHOWING')}
-                        </SubMenuItem>
-                        <SubMenuItem
-                          onClick={() => navigate('/movies/coming-soon')}
-                        >
-                          {t('NAV_MOVIES_COMING_SOON')}
-                        </SubMenuItem>
-                      </SubMenu>
-                    )}
-                  </MenuItemWrapper>
-
-                  <MenuItem onClick={() => navigate('/cinemas')}>
-                    {t('NAV_CINEMAS')}
-                  </MenuItem>
-                  <MenuItem onClick={() => navigate('/coupons')}>
-                    {t('NAV_PROMOTIONS')}
-                  </MenuItem>
-
-                  <MenuItemWrapper
-                    onMouseEnter={() => setHoveredMenu('cinema_corner')}
-                    onMouseLeave={() => setHoveredMenu(null)}
-                  >
-                    <MenuItem>
-                      {t('NAV_CINEMA_CORNER')}
-                      {hoveredMenu === 'cinema_corner' ? (
-                        <FaChevronUp size={12} style={{ marginLeft: 4 }} />
-                      ) : (
-                        <FaChevronDown size={12} style={{ marginLeft: 4 }} />
-                      )}
-                    </MenuItem>
-                    {hoveredMenu === 'cinema_corner' && (
-                      <SubMenu>
-                        <SubMenuItem onClick={() => navigate('/blogs')}>
-                          {t('NAV_BLOG_MOVIES')}
-                        </SubMenuItem>
-                        <SubMenuItem onClick={() => navigate('/reviews')}>
-                          {t('NAV_REVIEWS_MOVIES')}
-                        </SubMenuItem>
-                      </SubMenu>
-                    )}
-                  </MenuItemWrapper>
                 </Menu>
+              )}
 
+              {!isMobile && (
                 <RightArea>
                   {isAuthenticated && auth ? (
                     <UserMenu auth={auth} onLogout={handleLogout} />
@@ -205,15 +319,108 @@ export default function Header() {
                       </ButtonPrimary>
                     </>
                   )}
+                  <LanguageSelectorWrapper>
+                    <LanguageSelector />
+                  </LanguageSelectorWrapper>
                 </RightArea>
-              </RightGroup>
-            </Nav>
+              )}
 
-            <LanguageSelectorWrapper>
-              <LanguageSelector />
-            </LanguageSelectorWrapper>
+              {isMobile && (
+                <RightCompact>
+                  {isAuthenticated && auth ? (
+                    <UserMenu auth={auth} onLogout={handleLogout} />
+                  ) : (
+                    <CompactLoginButton onClick={openLoginModal}>
+                      {t('AUTH_LOGIN')}
+                    </CompactLoginButton>
+                  )}
+                  <MobileLangButton onClick={() => setLangMenuOpen(p => !p)}>
+                    <img src={currentFlag} alt='lang' />
+                  </MobileLangButton>
+                  {isLangMenuOpen && (
+                    <MobileLangMenu>
+                      <LangOption
+                        onClick={() => {
+                          changeLanguage('vi');
+                          setLangMenuOpen(false);
+                        }}
+                      >
+                        <img src={FlagVN} alt='VN' />
+                        <span>VN</span>
+                      </LangOption>
+                      <LangOption
+                        onClick={() => {
+                          changeLanguage('en');
+                          setLangMenuOpen(false);
+                        }}
+                      >
+                        <img src={FlagUS} alt='EN' />
+                        <span>EN</span>
+                      </LangOption>
+                    </MobileLangMenu>
+                  )}
+                </RightCompact>
+              )}
+            </TopRow>
+
+            {isMobile && (
+              <MobileSearchRow>
+                <SearchBox>
+                  <SearchInput
+                    placeholder={t('SEARCH_PLACEHOLDER') || 'Tìm phim, rạp'}
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                  />
+                  <SearchIcon onClick={handleSearch} style={{ cursor: 'pointer' }} />
+                </SearchBox>
+              </MobileSearchRow>
+            )}
           </HeaderContent>
         </ContentWrapper>
+
+        {isMobile && isMobileMenuOpen && (
+          <MobileDrawer>
+            <DrawerOverlay onClick={() => setMobileMenuOpen(false)} />
+            <DrawerPanel>
+              <DrawerHeader>
+                <span>{t('NAV_MENU') || 'Menu'}</span>
+                <CloseSmall onClick={() => setMobileMenuOpen(false)}>
+                  <CloseIcon size={18} />
+                </CloseSmall>
+              </DrawerHeader>
+              <DrawerMenu>
+                {menuItems.map(item => (
+                  <DrawerItem key={item.key}>
+                    <DrawerItemTitle
+                      onClick={() => {
+                        item.onClick?.();
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      {item.label}
+                    </DrawerItemTitle>
+                    {item.subItems && (
+                      <DrawerSubList>
+                        {item.subItems.map(sub => (
+                          <button
+                            key={sub.key}
+                            onClick={() => {
+                              sub.onClick();
+                              setMobileMenuOpen(false);
+                            }}
+                          >
+                            {sub.label}
+                          </button>
+                        ))}
+                      </DrawerSubList>
+                    )}
+                  </DrawerItem>
+                ))}
+              </DrawerMenu>
+            </DrawerPanel>
+          </MobileDrawer>
+        )}
       </Container>
 
       <LoginModal
@@ -234,119 +441,50 @@ export default function Header() {
 }
 
 const Container = styled.header`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  height: 80px;
+  width: 100%;
   font-family: ${theme.fontFamily.primary};
-
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   background: #fff;
   z-index: 100;
-
-  & > div.language-selector {
-    width: 200px;
-    flex-shrink: 0;
-  }
-
-  & > nav {
-    flex-grow: 1;
-    min-width: 300px;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: row;
-
-    & > nav {
-      min-width: unset;
-      flex-grow: 1;
-    }
-  }
 `;
 
 const HeaderContent = styled.header`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${theme.spacing.md};
-`;
+  flex-direction: column;
+  gap: ${theme.spacing.sm};
+  padding: ${theme.spacing.md} ${theme.spacing.sm};
 
-const Nav = styled.nav`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: ${theme.colors.white};
-  padding: 0 ${theme.spacing.md};
-  padding-left: 0;
-  gap: ${theme.spacing.md};
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    flex-wrap: wrap;
-    justify-content: center;
+  @media (max-width: 900px) {
     padding: ${theme.spacing.sm};
-    gap: ${theme.spacing.sm};
-  }
-
-  @media (max-width: 1275px) and (min-width: 769px) {
-    flex-wrap: nowrap;
-    justify-content: space-between;
   }
 `;
 
-const LanguageSelectorWrapper = styled.div`
-  width: 90px;
-  flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    width: 80px;
-    display: flex;
-    justify-content: flex-end;
-    align-self: flex-end;
-    margin-bottom: ${theme.spacing.sm};
-    gap: ${theme.spacing.xs};
-  }
-`;
-
-const LeftGroup = styled.div`
+const TopRow = styled.div`
   display: flex;
   align-items: center;
-  gap: ${theme.spacing.lg};
-  flex: 1 1 0;
-  min-width: 0;
-
-  @media (max-width: 768px) {
-    flex-basis: 100%;
-    justify-content: flex-start;
-  }
+  justify-content: space-between;
+  gap: ${theme.spacing.md};
 `;
 
-const RightGroup = styled.div`
+const DesktopSearch = styled.div`
+  flex: 1 1 320px;
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: ${theme.spacing.lg};
-  flex: 2 1 0;
-  min-width: 0;
-
-  @media (max-width: 768px) {
-    flex-basis: 100%;
-    justify-content: space-between;
-    gap: ${theme.spacing.xs};
-  }
+  justify-content: center;
 `;
 
-const LogoArea = styled.div`
+const MobileLeft = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const LogoArea = styled.div<{ $centerMobile?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: ${({ $centerMobile }) =>
+    $centerMobile ? 'center' : 'flex-start'};
+  flex: ${({ $centerMobile }) => ($centerMobile ? '1 1 auto' : '0 0 auto')};
 `;
 
 const Logo = styled.img`
@@ -366,21 +504,23 @@ const SearchBox = styled.div`
   background: ${theme.colors.backgroundHover};
   border-radius: ${theme.borderRadius.large};
   padding: ${theme.spacing.sm} ${theme.spacing.md};
-  max-width: 250px;
+  max-width: 520px;
+  width: 100%;
   flex: 1 1 auto;
   min-width: 0;
   border: 2px solid rgba(0, 120, 200, 0.4);
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: #3b82f6; /* xanh đậm nổi bật hơn */
+    border-color: #3b82f6;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    background: #daf0fc; /* xanh nhạt hơn khi hover */
+    background: #daf0fc;
   }
 
   @media (max-width: 768px) {
-    max-width: 180px;
-    width: 100%;
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    gap: ${theme.spacing.xs};
+    max-width: none;
   }
 `;
 
@@ -397,6 +537,10 @@ const SearchInput = styled.input`
     color: #4b5563;
     opacity: 0.8;
   }
+
+  @media (max-width: 640px) {
+    font-size: 13px;
+  }
 `;
 
 const SearchIcon = styled(Search)`
@@ -411,66 +555,30 @@ const HamburgerButton = styled.button`
   border: none;
   cursor: pointer;
   background-color: ${theme.colors.backgroundHover};
-  position: relative;
+  padding: 8px;
+  border-radius: ${theme.borderRadius.medium};
 
-  @media (max-width: 1275px) {
-    display: block;
-  }
-
-  @media (max-width: 768px) {
-    display: block;
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-    padding: 6px 8px;
+  @media (max-width: 767px) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
-const Menu = styled.div<{ open?: boolean }>`
+const Menu = styled.div<{ $isTablet?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${theme.spacing.md};
+  flex-wrap: ${({ $isTablet }) => ($isTablet ? 'wrap' : 'nowrap')};
 
-  @media (min-width: 1251px) {
-    display: flex !important;
-  }
-
-  @media (min-width: 769px) and (max-width: 1275px) {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 210px;
-    background: ${theme.colors.white};
-    flex-direction: column;
-    padding: ${theme.spacing.sm} 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    max-height: 300px;
-    overflow-y: auto;
-    gap: 0;
-    display: ${({ open }) => (open ? 'flex' : 'none')};
-    z-index: 10;
-    text-align: left;
-    align-items: flex-start;
+  @media (max-width: 1023px) {
+    display: ${({ $isTablet }) => ($isTablet ? 'flex' : 'none')};
+    justify-content: center;
+    gap: ${theme.spacing.sm};
   }
 
   @media (max-width: 768px) {
-    display: ${({ open }) => (open ? 'flex' : 'none')};
-    flex-direction: column;
-    width: 220px;
-    max-height: 300px;
-    overflow-y: auto;
-    background: ${theme.colors.white};
-    position: absolute;
-    top: 100%;
-    left: 0;
-    padding: ${theme.spacing.sm} 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    z-index: 10;
-    text-align: left;
-    align-items: flex-start;
+    display: none;
   }
 `;
 
@@ -480,7 +588,7 @@ const MenuItem = styled.div`
   color: ${theme.colors.textPrimary};
   cursor: pointer;
   white-space: nowrap;
-  padding: 8px 3px;
+  padding: 8px 6px;
   border-radius: 6px;
   transition:
     background-color 0.3s,
@@ -493,19 +601,14 @@ const MenuItem = styled.div`
     outline: none;
   }
 
-  @media (min-width: 769px) and (max-width: 1275px), (max-width: 768px) {
-    display: block;
+  @media (max-width: 1023px) {
+    font-size: 15px;
   }
 `;
 
 const MenuItemWrapper = styled.div`
   position: relative;
   display: inline-block;
-
-  @media (max-width: 768px) {
-    display: block;
-    position: static;
-  }
 `;
 
 const SubMenu = styled.ul<{ nested?: boolean }>`
@@ -519,36 +622,12 @@ const SubMenu = styled.ul<{ nested?: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
-  top: calc(100%);
-  min-width: 180px;
+  min-width: 200px;
   z-index: 1000;
-
-  ${props =>
-    props.nested &&
-    `
-    left: 100%;
-    top: 0;
-  `}
-
-  @media (min-width: 769px) and (max-width: 1275px) {
-    position: static;
-    box-shadow: none;
-    border: none;
-    padding-left: ${props => (props.nested ? '24px' : '16px')};
-    min-width: auto;
-  }
-
-  @media (max-width: 768px) {
-    position: static;
-    box-shadow: none;
-    border: none;
-    padding-left: ${props => (props.nested ? '24px' : '16px')};
-    min-width: auto;
-  }
 `;
 
 const SubMenuItem = styled.li`
-  padding: 8px 16px;
+  padding: 10px 16px;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
@@ -559,10 +638,21 @@ const SubMenuItem = styled.li`
   }
 `;
 
+const NestedSubMenuItem = styled(SubMenuItem)`
+  padding-left: 28px;
+  font-size: 14px;
+`;
+
 const RightArea = styled.div`
   display: flex;
   align-items: center;
-  gap: ${theme.spacing.sm};
+  gap: ${theme.spacing.md};
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+  @media (max-width: 1023px) {
+    gap: ${theme.spacing.sm};
+  }
 `;
 
 const ButtonOutline = styled.button`
@@ -576,10 +666,6 @@ const ButtonOutline = styled.button`
 
   &:hover {
     border-color: ${theme.colors.gray};
-  }
-
-  @media (max-width: 768px) {
-    padding: 6px 8px;
   }
 `;
 
@@ -596,8 +682,168 @@ const ButtonPrimary = styled.button`
   &:hover {
     background: ${theme.colors.primaryHover};
   }
+`;
 
-  @media (max-width: 768px) {
-    padding: 6px 8px;
+const LanguageSelectorWrapper = styled.div`
+  width: 90px;
+  flex-shrink: 0;
+
+  @media (max-width: 1023px) {
+    width: 80px;
+  }
+`;
+
+const RightCompact = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing.sm};
+  position: relative;
+`;
+
+const CompactLoginButton = styled.button`
+  background: ${theme.colors.primary};
+  color: ${theme.colors.white};
+  border: none;
+  padding: 8px 12px;
+  border-radius: ${theme.borderRadius.medium};
+  font-size: 13px;
+  cursor: pointer;
+`;
+
+const MobileLangButton = styled.button`
+  background: ${theme.colors.backgroundHover};
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.borderRadius.medium};
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  img {
+    width: 20px;
+    height: 14px;
+    display: block;
+  }
+`;
+
+const MobileLangMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: ${theme.colors.white};
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.borderRadius.medium};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 20;
+`;
+
+const LangOption = styled.button`
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: ${theme.borderRadius.small};
+
+  &:hover {
+    background: ${theme.colors.backgroundHover};
+  }
+
+  img {
+    width: 20px;
+    height: 14px;
+  }
+`;
+
+const MobileSearchRow = styled.div`
+  margin-top: ${theme.spacing.sm};
+`;
+
+const MobileDrawer = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+`;
+
+const DrawerOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+`;
+
+const DrawerPanel = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 82%;
+  max-width: 320px;
+  height: 100%;
+  background: ${theme.colors.white};
+  padding: ${theme.spacing.md};
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.md};
+`;
+
+const DrawerHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 18px;
+`;
+
+const CloseSmall = styled.button`
+  background: ${theme.colors.backgroundHover};
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.borderRadius.medium};
+  padding: 6px;
+  cursor: pointer;
+`;
+
+const DrawerMenu = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.sm};
+`;
+
+const DrawerItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const DrawerItemTitle = styled.div`
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  color: ${theme.colors.textPrimary};
+`;
+
+const DrawerSubList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  button {
+    text-align: left;
+    border: none;
+    background: ${theme.colors.background};
+    padding: 8px 10px;
+    border-radius: ${theme.borderRadius.small};
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover {
+      background: ${theme.colors.backgroundHover};
+    }
   }
 `;

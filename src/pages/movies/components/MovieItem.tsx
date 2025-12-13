@@ -32,11 +32,15 @@ export default function MovieItem({
   const { t } = useTranslation();
 
   useEffect(() => {
-  window.scrollTo(0, 0);
-}, []);
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
-    <Card compact={compact} onClick={onAction} style={{ cursor: onAction ? 'pointer' : 'default' }}>
+    <Card
+      compact={compact}
+      onClick={onAction}
+      style={{ cursor: onAction ? 'pointer' : 'default' }}
+    >
       <PosterWrapper compact={compact}>
         <Poster src={poster} alt={title} />
         <Overlay>
@@ -70,7 +74,7 @@ export default function MovieItem({
 
 /* styled */
 const Card = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'compact',
+  shouldForwardProp: prop => prop !== 'compact',
 })<{ compact?: boolean }>`
   display: flex;
   flex-direction: column;
@@ -79,8 +83,16 @@ const Card = styled.div.withConfig({
   background: ${theme.colors.white};
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   position: relative;
-  margin-bottom: ${({ compact }) => (compact ? '0px' : '36px')};
-  max-width: ${({ compact }) => (compact ? '220px' : '260px')};
+  margin-bottom: ${({ compact }) => (compact ? '0px' : '32px')};
+  width: 100%;
+  max-width: ${({ compact }) => (compact ? '240px' : '300px')};
+  min-width: 220px;
+
+  @media (max-width: 768px) {
+    min-width: 0;
+    max-width: 100%;
+    margin-bottom: 24px;
+  }
 `;
 
 const Overlay = styled.div`
@@ -96,11 +108,12 @@ const Overlay = styled.div`
 `;
 
 const PosterWrapper = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'compact',
+  shouldForwardProp: prop => prop !== 'compact',
 })<{ compact?: boolean }>`
   position: relative;
   width: 100%;
-  height: ${({ compact }) => (compact ? '320px' : '400px')};
+  aspect-ratio: 2 / 3;
+  min-height: ${({ compact }) => (compact ? '260px' : '320px')};
   overflow: hidden;
 
   &:hover ${Overlay} {
@@ -122,9 +135,10 @@ const Poster = styled.img`
 `;
 
 const ActionButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== 'primary' && prop !== 'compact',
+  shouldForwardProp: prop => prop !== 'primary' && prop !== 'compact',
 })<{ primary?: boolean; compact?: boolean }>`
   width: 170px;
+  max-width: 100%;
   padding: 10px 24px;
   font-size: 14px;
   border: none;
@@ -134,6 +148,12 @@ const ActionButton = styled.button.withConfig({
   justify-content: center;
   align-items: center;
   transition: all 0.3s ease;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
 
   background: ${({ primary }) =>
     primary ? theme.colors.primary : 'rgba(0,0,0,0.35)'};
@@ -148,7 +168,6 @@ const ActionButton = styled.button.withConfig({
     font-weight: bold;
   }
 `;
-
 
 const TopLeft = styled.div`
   position: absolute;
@@ -178,7 +197,7 @@ const AgeBadge = styled(Badge)`
 `;
 
 const Info = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'compact',
+  shouldForwardProp: prop => prop !== 'compact',
 })<{ compact?: boolean }>`
   padding: ${({ compact }) => (compact ? '8px' : '12px')};
   text-align: center;

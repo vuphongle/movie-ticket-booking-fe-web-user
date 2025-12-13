@@ -46,6 +46,24 @@ const ModalWrapper = styled.div<{ size: ModalSize; isOpen: boolean }>`
   transition: all 0.3s ease-in-out;
   transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(100%)')};
   opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
+
+  @media (max-width: 768px) {
+    width: ${({ size }) => {
+      if (size === 'xs') return '85%';
+      if (size === 'sm') return '90%';
+      if (size === 'smm') return '92%';
+      return '95%';
+    }};
+    max-width: 400px;
+  }
+
+  @media (max-width: 480px) {
+    width: ${({ size }) => {
+      if (size === 'xs') return '90%';
+      return '95%';
+    }};
+    max-width: 340px;
+  }
 `;
 
 const CloseButton = styled.button`

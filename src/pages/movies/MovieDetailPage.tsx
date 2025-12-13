@@ -36,18 +36,29 @@ const MovieDetailPage: React.FC = () => {
   const { data: movies = [] } = useGetShowingNowMoviesQuery();
 
   useEffect(() => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}, [id]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [id]);
 
   if (isLoading) return <Message>{t('MOVIE_LOADING_DETAIL')}</Message>;
   if (error) return <Message>{t('MOVIE_ERROR_DETAIL')}</Message>;
   if (!movie) return <Message>{t('MOVIE_NOT_FOUND')}</Message>;
 
+  const getEmbedUrl = (url: string) => {
+    if (!url) return url;
+    if (url.includes('youtube.com/watch')) {
+      return url.replace('watch?v=', 'embed/');
+    }
+    if (url.includes('youtu.be/')) {
+      return url.replace('youtu.be/', 'www.youtube.com/embed/');
+    }
+    return url;
+  };
+
   return (
     <PageWrapper>
       <Banner>
         <iframe
-          src={movie.trailer}
+          src={getEmbedUrl(movie.trailer)}
           allowFullScreen
           title={t('MOVIE_TRAILER')}
         />
@@ -102,15 +113,23 @@ export default MovieDetailPage;
 /* ---------------- STYLES cho PAGE ---------------- */
 export const PageWrapper = styled.div`
   padding: ${theme.spacing.lg};
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   color: ${theme.colors.darkTextPrimary};
+  overflow-x: hidden;
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.md} ${theme.spacing.sm};
+  }
 `;
 
 export const Banner = styled.div`
   position: relative;
   width: 100%;
-  height: 400px;
+  aspect-ratio: 16 / 9;
+  max-height: 520px;
+  min-height: 240px;
   background: ${theme.colors.backgroundFocus};
   margin-bottom: ${theme.spacing.lg};
   border-radius: ${theme.borderRadius.medium};
@@ -118,14 +137,23 @@ export const Banner = styled.div`
   box-shadow: ${theme.colors.darkShadow};
 
   iframe {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     border: none;
+    display: block;
+  }
+
+  @media (max-width: 900px) {
+    max-height: 420px;
   }
 `;
 
 export const Block = styled.div`
   margin-top: 20px;
+  overflow: hidden;
+  width: 100%;
 `;
 
 export const SectionTitle = styled.h2`
@@ -144,6 +172,13 @@ export const Description = styled.p`
   line-height: 1.6;
   color: ${theme.colors.darkTextPrimary};
   margin-bottom: ${theme.spacing.md};
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
 `;
 
 export const Message = styled.p`
@@ -162,6 +197,7 @@ export const MainLayout = styled.div`
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
+    margin-top: ${theme.spacing.lg};
   }
 `;
 
@@ -169,6 +205,8 @@ export const LeftColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing.lg};
+  min-width: 0;
+  overflow: hidden;
 `;
 
 export const RightColumn = styled.div`
@@ -182,6 +220,10 @@ export const MovieListVertical = styled.div`
   flex-direction: column;
   gap: ${theme.spacing.md};
   margin-bottom: ${theme.spacing.md};
+
+  @media (max-width: 640px) {
+    gap: ${theme.spacing.sm};
+  }
 `;
 
 const ShowMoreButton = styled.button`
@@ -204,6 +246,10 @@ const ShowMoreButton = styled.button`
     color: ${theme.colors.white};
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     border-color: ${theme.colors.primaryHoverGradient};
+  }
+
+  @media (max-width: 640px) {
+    width: 100%;
   }
 `;
 

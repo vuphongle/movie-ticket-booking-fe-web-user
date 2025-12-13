@@ -7,14 +7,14 @@ import {
   useGetShowtimesByMovieQuery,
   useCheckMovieHasShowtimesQuery,
 } from '@app/services/showTime.api';
-import {
-  useGetAllCinemaNamesQuery,
-} from '@app/services/cine.api';
+import { useGetAllCinemaNamesQuery } from '@app/services/cine.api';
 import { setDataToLocalStorage } from '@utils/localStorageUtils';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@app/Store';
 import { useNavigate } from 'react-router-dom';
 import { useLoginModal } from '@contexts/LoginContext';
+import Select from 'react-select';
+import type { GroupBase, StylesConfig } from 'react-select';
 
 export interface MovieShowtimesProps {
   movieId: number;
@@ -167,7 +167,7 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
         auditorium: st.auditorium,
         time: st.startTime,
         date: st.date,
-        format: st.format
+        format: st.format,
       });
 
       formatGroup.times.sort((a: { time: string }, b: { time: string }) => {
@@ -222,14 +222,21 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
             </DateFilter>
 
             <FilterRow>
-              <Select value={cinema} onChange={e => setCinema(e.target.value)}>
-                <option value='ALL_CINEMA'>{t('MOVIE_ALL_CINEMA')}</option>
-                {cinemaOptions.map(c => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </Select>
+              <Select
+                options={[
+                  { value: 'ALL_CINEMA', label: t('MOVIE_ALL_CINEMA') },
+                  ...cinemaOptions.map(c => ({ value: c, label: c })),
+                ]}
+                value={
+                  cinema === 'ALL_CINEMA'
+                    ? { value: 'ALL_CINEMA', label: t('MOVIE_ALL_CINEMA') }
+                    : { value: cinema, label: cinema }
+                }
+                onChange={option => setCinema(option?.value || 'ALL_CINEMA')}
+                placeholder={t('MOVIE_ALL_CINEMA')}
+                styles={customSelectStyles}
+                isSearchable={true}
+              />
             </FilterRow>
           </FilterHeader>
 
@@ -243,9 +250,11 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({ movieId, slug }) => {
                     {room.formats.map((f: any) => (
                       <FormatBlock key={f.format}>
                         <RoomAndFormat>
-                          <span className="room">{t("SHOWTIME_ROOM")} {room.type}</span>
+                          <span className='room'>
+                            {t('SHOWTIME_ROOM')} {room.type}
+                          </span>
                           <span className='separator'> | </span>
-                          <span className="format">{t(f.format)}</span>
+                          <span className='format'>{t(f.format)}</span>
                         </RoomAndFormat>
 
                         <Times>
@@ -303,12 +312,38 @@ const FilterHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${theme.spacing.md};
+  flex-wrap: wrap;
+  gap: ${theme.spacing.sm};
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: ${theme.spacing.md};
+  }
 `;
 
 const DateFilter = styled.div`
   display: flex;
   gap: ${theme.spacing.sm};
   margin-bottom: ${theme.spacing.md};
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    gap: ${theme.spacing.xs};
+    margin-bottom: 0;
+    padding-bottom: ${theme.spacing.xs};
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+  }
 `;
 
 const DateButton = styled.button<{ active?: boolean }>`
@@ -317,6 +352,8 @@ const DateButton = styled.button<{ active?: boolean }>`
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
   background: ${({ active }) =>
     active ? theme.colors.primary : theme.colors.darkCardBg};
   color: ${({ active }) =>
@@ -326,56 +363,84 @@ const DateButton = styled.button<{ active?: boolean }>`
     background: ${({ active }) =>
       active ? theme.colors.primaryHover : theme.colors.primaryHoverGradient};
   }
+
+  @media (max-width: 640px) {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
 `;
 
 const FilterRow = styled.div`
   display: flex;
   gap: ${theme.spacing.md};
   margin-bottom: ${theme.spacing.md};
-`;
+  flex-wrap: wrap;
 
-const Select = styled.select`
-  width: 260px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: ${theme.colors.background};
-  color: ${theme.colors.textPrimary};
-  border: 1px solid ${theme.colors.border};
-  font-size: 0.9rem;
-  cursor: pointer;
-  outline: none;
-  appearance: none;
-  transition: all 0.2s ease;
-
-  background-image: url("data:image/svg+xml;utf8,<svg fill='${encodeURIComponent(
-    theme.colors.textPrimary
-  )}' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-  padding-right: 32px;
-
-  &:hover {
-    border-color: ${theme.colors.primary};
-    background: ${theme.colors.bgLight};
-  }
-
-  &:focus {
-    border-color: ${theme.colors.primary};
-    box-shadow: 0 0 0 2px rgba(0, 150, 255, 0.3);
-  }
-
-  option {
-    background: ${theme.colors.white};
-    color: ${theme.colors.textPrimary};
-  }
-
-  option:hover,
-  option:checked {
-    background: ${theme.colors.primary};
-    color: ${theme.colors.white};
+  @media (max-width: 640px) {
+    width: 100%;
+    margin-bottom: 0;
+    gap: ${theme.spacing.sm};
   }
 `;
+
+const customSelectStyles: StylesConfig<any, false, GroupBase<any>> = {
+  control: (base, state) => ({
+    ...base,
+    width: '100%',
+    maxWidth: '260px',
+    background: 'white',
+    borderColor: state.isFocused ? theme.colors.primary : theme.colors.border,
+    boxShadow: state.isFocused ? `0 0 0 2px ${theme.colors.primary}33` : 'none',
+    borderRadius: '8px',
+    padding: '2px 4px',
+    cursor: 'pointer',
+    minHeight: '38px',
+    '&:hover': { borderColor: theme.colors.primary },
+    '@media (max-width: 640px)': {
+      maxWidth: '100%',
+    },
+  }),
+  singleValue: base => ({
+    ...base,
+    color: theme.colors.textPrimary,
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? theme.colors.primary
+      : state.isFocused
+        ? `${theme.colors.primary}1a`
+        : 'white',
+    color: state.isSelected ? 'white' : theme.colors.textPrimary,
+    cursor: 'pointer',
+    padding: '12px 16px',
+    fontSize: '16px',
+    lineHeight: '1.5',
+    '&:active': {
+      backgroundColor: theme.colors.primary,
+    },
+  }),
+  menu: base => ({
+    ...base,
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    overflow: 'hidden',
+    zIndex: 1000,
+  }),
+  menuList: base => ({
+    ...base,
+    maxHeight: '300px',
+    padding: 0,
+  }),
+  placeholder: base => ({
+    ...base,
+    color: theme.colors.darkTextSecondary,
+  }),
+  input: base => ({
+    ...base,
+    color: theme.colors.textPrimary,
+  }),
+};
 
 const ShowtimeWrapper = styled.div`
   display: flex;

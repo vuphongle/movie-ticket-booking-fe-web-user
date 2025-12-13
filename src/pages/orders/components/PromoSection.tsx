@@ -330,12 +330,40 @@ const Section = styled.div`
     margin-bottom: 16px;
     color: #f1f5f9;
   }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: 10px;
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    margin-bottom: 16px;
+
+    h2 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+  }
 `;
 
 const CouponList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
 `;
 
 const CouponRow = styled.div<{ selected?: boolean; $disabled?: boolean }>`
@@ -370,6 +398,18 @@ const CouponRow = styled.div<{ selected?: boolean; $disabled?: boolean }>`
       $disabled ? 'none' : '0 8px 24px rgba(0, 0, 0, 0.35)'};
     transform: ${({ $disabled }) => ($disabled ? 'none' : 'translateY(-3px)')};
   }
+
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+    border-radius: 8px;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 `;
 
 const LeftPart = styled.div`
@@ -377,6 +417,14 @@ const LeftPart = styled.div`
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
 `;
 
 const ImageWrapper = styled.div`
@@ -406,6 +454,26 @@ const ImageWrapper = styled.div`
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
+
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+
+    img {
+      width: 42px;
+      height: 42px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 45px;
+    height: 45px;
+
+    img {
+      width: 38px;
+      height: 38px;
+    }
+  }
 `;
 
 const BestChoiceTag = styled.div`
@@ -420,6 +488,18 @@ const BestChoiceTag = styled.div`
   padding: 3px 8px;
   border-radius: 6px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+    padding: 2px 7px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+    padding: 2px 6px;
+    top: -2px;
+    right: -2px;
+  }
 `;
 
 const UsedUpTag = styled.div`
@@ -432,6 +512,20 @@ const UsedUpTag = styled.div`
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+    padding: 2px 7px;
+    bottom: 6px;
+    right: 8px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+    padding: 2px 6px;
+    bottom: 4px;
+    right: 6px;
+  }
 `;
 
 const RadioInput = styled.input`
@@ -439,6 +533,16 @@ const RadioInput = styled.input`
   width: 18px;
   height: 18px;
   cursor: pointer;
+
+  @media (max-width: 768px) {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 480px) {
+    width: 15px;
+    height: 15px;
+  }
 `;
 
 const Info = styled.div`
@@ -462,6 +566,42 @@ const Info = styled.div`
     font-size: 12px;
     color: #a5b4fc;
   }
+
+  @media (max-width: 768px) {
+    margin-left: 8px;
+
+    h4 {
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+
+    small {
+      font-size: 11px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    margin-left: 0;
+    width: 100%;
+    flex-basis: 100%;
+
+    h4 {
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    p {
+      font-size: 12px;
+    }
+
+    small {
+      font-size: 10px;
+    }
+  }
 `;
 
 const DiscountBox = styled.div`
@@ -482,6 +622,19 @@ const DiscountBox = styled.div`
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(30, 58, 138, 0.4);
   }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    padding: 5px 9px;
+    min-width: 80px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 11px;
+    padding: 4px 8px;
+    min-width: 70px;
+    margin-left: auto;
+  }
 `;
 
 const GiftBox = styled.div`
@@ -496,6 +649,20 @@ const GiftBox = styled.div`
   display: inline-flex;
   align-items: center;
   max-width: 220px;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    padding: 3px 7px;
+    max-width: 200px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 11px;
+    padding: 3px 6px;
+    max-width: 100%;
+    margin-top: 8px;
+    margin-left: auto;
+  }
 `;
 
 const Thumbnail = styled.img`
@@ -504,6 +671,17 @@ const Thumbnail = styled.img`
   border-radius: 4px;
   object-fit: cover;
   margin-right: 6px;
+
+  @media (max-width: 768px) {
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 480px) {
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+  }
 `;
 
 const ProgressBarContainer = styled.div`
@@ -513,6 +691,18 @@ const ProgressBarContainer = styled.div`
   border-radius: 6px;
   overflow: hidden;
   margin-top: 6px;
+
+  @media (max-width: 768px) {
+    width: 50%;
+    height: 5px;
+    margin-top: 5px;
+  }
+
+  @media (max-width: 480px) {
+    width: 60%;
+    height: 4px;
+    margin-top: 4px;
+  }
 `;
 
 const ProgressFill = styled.div<{ $percent: number }>`
