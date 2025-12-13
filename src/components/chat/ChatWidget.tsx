@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { MessageCircle, Send, X, RotateCw } from 'lucide-react';
-import { useGetRecommendationsMutation } from '@app/services/chat.api';
+import {
+  useGetRecommendationsMutation,
+  type RecommendedShowtime,
+} from '@app/services/chat.api';
 import type {
   ChatRecommendationResponse,
   RecommendedMovie,
@@ -10,8 +13,10 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@app/Store';
 import { useTranslation } from 'react-i18next';
 import slugify from 'slugify';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import { useLoginModal } from '@contexts/LoginContext';
+import { setDataToLocalStorage } from '@utils/localStorageUtils';
 
 interface ChatMessage {
   id: string;
@@ -92,12 +97,15 @@ const ChatWidget = () => {
   const [inputValue, setInputValue] = useState('');
   const [conversationId, setConversationId] = useState<string | undefined>();
   const authState = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = authState?.isAuthenticated;
   const userId = authState?.auth?.id ?? null;
   const storageKey = useMemo(
     () => getStorageKey(userId ?? undefined),
     [userId]
   );
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const { openLogin } = useLoginModal();
   const buildGreetingMessage = useCallback(
     () => createGreetingMessage(t('CHAT_GREETING')),
     [t]
@@ -134,6 +142,105 @@ const ChatWidget = () => {
   const toggleWidget = () => {
     setIsOpen(prev => !prev);
   };
+
+  const buildFormatLabel = useCallback(
+    (graphicsType?: string | null, translationType?: string | null) => {
+      const translationMap: Record<string, string> = {
+        SUBTITLING: 'Phụ đề',
+        DUBBING: 'Lồng tiếng',
+      };
+      const parts = [];
+      if (graphicsType) {
+        parts.push(graphicsType.replace(/_/g, ' '));
+      }
+      if (translationType) {
+        parts.push(translationMap[translationType] ?? translationType);
+      }
+      return parts.join(' ').trim();
+    },
+    []
+  );
+
+  const buildFormatKey = useCallback(
+    (graphicsType?: string | null, translationType?: string | null) => {
+      if (!graphicsType) return '';
+      const normalizedGraphics = graphicsType.replace(/_/g, ' ');
+      const normalizedTranslation = translationType
+        ? translationType.trim().toUpperCase()
+        : '';
+      return normalizedTranslation
+        ? `SHOWTIME_${normalizedGraphics}_${normalizedTranslation}`
+        : `SHOWTIME_${normalizedGraphics}`;
+    },
+    []
+  );
+
+  const formatShortDate = useCallback((date: RecommendedShowtime['date']) => {
+    if (!date) return '';
+    if (Array.isArray(date) && date.length >= 3) {
+      const [year, month, day] = date;
+      const dd = String(day).padStart(2, '0');
+      const mm = String(month).padStart(2, '0');
+      return `${dd}/${mm}/${year}`;
+    }
+    if (typeof date === 'string' || typeof date === 'number') {
+      const parsed = new Date(date);
+      if (Number.isNaN(parsed.getTime())) return '';
+      const dd = String(parsed.getDate()).padStart(2, '0');
+      const mm = String(parsed.getMonth() + 1).padStart(2, '0');
+      return `${dd}/${mm}/${parsed.getFullYear()}`;
+    }
+    return '';
+  }, []);
+
+  const formatShowtimeMeta = useCallback(
+    (showtime: RecommendedShowtime) => {
+      if (!showtime) return '';
+      const dateText = formatShortDate(showtime.date);
+      const formatText = buildFormatLabel(
+        showtime.graphicsType,
+        showtime.translationType
+      );
+      const cinemaText = showtime.cinemaName || '';
+      return [dateText, cinemaText, formatText]
+        .filter(Boolean)
+        .join(' • ');
+    },
+    [buildFormatLabel, formatShortDate]
+  );
+
+  const handleShowtimeClick = useCallback(
+    (showtime: RecommendedShowtime, detailSlug: string) => {
+      if (!showtime?.id) return;
+      const payload = {
+        showtimeId: showtime.id,
+        cinema: {
+          id: showtime.cinemaId,
+          name: showtime.cinemaName,
+        },
+        auditorium: {
+          id: showtime.auditoriumId,
+          name: showtime.auditoriumName,
+        },
+        time: showtime.startTime,
+        date: showtime.date,
+        format: buildFormatKey(showtime.graphicsType, showtime.translationType),
+        graphicsType: showtime.graphicsType,
+        translationType: showtime.translationType,
+      };
+
+      if (!isAuthenticated) {
+        setDataToLocalStorage('pendingBooking', payload);
+        openLogin();
+        return;
+      }
+
+      navigate(`/booking/${detailSlug}/${showtime.id}`, {
+        state: payload,
+      });
+    },
+    [buildFormatKey, isAuthenticated, navigate, openLogin]
+  );
 
   const resetConversation = useCallback(() => {
     const newConversationId = createConversationId(storageKey);
@@ -253,6 +360,24 @@ const ChatWidget = () => {
                           <li key={`${movie.movieId}-${reason}`}>{reason}</li>
                         ))}
                       </ReasonList>
+                    ) : null}
+                    {movie.showtimes?.length ? (
+                      <ShowtimeList>
+                        {movie.showtimes.map(showtime => {
+                          const meta = formatShowtimeMeta(showtime);
+                          return (
+                            <ShowtimeButton
+                              key={`${movie.movieId}-${showtime.id}`}
+                              onClick={() =>
+                                handleShowtimeClick(showtime, detailSlug)
+                              }
+                            >
+                              <span className='time'>{showtime.startTime}</span>
+                              {meta && <span className='meta'>{meta}</span>}
+                            </ShowtimeButton>
+                          );
+                        })}
+                      </ShowtimeList>
                     ) : null}
                     <StyledLink to={`/movies/${movie.movieId}/${detailSlug}`}>
                       {viewDetailsLabel}
@@ -607,6 +732,48 @@ const ReasonList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 4px;
+`;
+
+const ShowtimeList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const ShowtimeButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(96, 165, 250, 0.1);
+  color: #e2e8f0;
+  cursor: pointer;
+  min-width: 120px;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+
+  .time {
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .meta {
+    font-size: 11px;
+    color: rgba(226, 232, 240, 0.8);
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgba(96, 165, 250, 0.8);
+    background: rgba(96, 165, 250, 0.18);
+  }
 `;
 
 const StyledLink = styled(Link)`

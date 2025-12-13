@@ -18,7 +18,22 @@ export interface RecommendedMovie {
   genres?: string[] | null;
   genreDisplayNames?: string[] | null;
   reasons?: string[] | null;
-  showtimes?: string[] | null;
+  showtimes?: RecommendedShowtime[] | null;
+}
+
+export interface RecommendedShowtime {
+  id: number;
+  date: number[] | string;
+  startTime: string;
+  endTime?: string | null;
+  graphicsType?: string | null;
+  translationType?: string | null;
+  cinemaId?: number | null;
+  cinemaName?: string | null;
+  cinemaAddress?: string | null;
+  auditoriumId?: number | null;
+  auditoriumName?: string | null;
+  auditoriumType?: string | null;
 }
 
 export interface ChatRecommendationResponse {
