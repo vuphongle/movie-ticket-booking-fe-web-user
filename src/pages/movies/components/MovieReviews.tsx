@@ -127,45 +127,6 @@ const MovieReviews: React.FC<MovieReviewsProps> = ({ reviews, movieId }) => {
     setShowDeleteModal(true);
   };
 
-  const StarContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
-  `;
-
-  const Star = styled.span<{ filled: boolean }>`
-    font-size: 22px;
-    cursor: pointer;
-    color: ${({ filled }) => (filled ? '#facc15' : '#475569')};
-    text-shadow: ${({ filled }) =>
-      filled ? '0 0 8px rgba(250, 204, 21, 0.6)' : 'none'};
-    transition: all 0.25s ease;
-
-    &:hover {
-      transform: scale(1.2);
-      color: #fde047;
-    }
-  `;
-
-  const RatingInfo = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-  `;
-
-  const RatingText = styled.span`
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #f1f5f9;
-  `;
-
-  const FeelingText = styled.span`
-    font-size: 0.9rem;
-    color: #94a3b8;
-  `;
-
   const StarRating: React.FC<{
     rating: number;
     setRating: (r: number) => void;
@@ -424,11 +385,16 @@ const ReviewCard = styled.div`
   background: ${theme.colors.darkCardBg};
   backdrop-filter: blur(4px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  position: relative;
 
   p {
     margin: 0;
     color: ${theme.colors.darkTextPrimary};
     line-height: 1.6;
+
+    @media (max-width: 640px) {
+      font-size: 0.9rem;
+    }
   }
 `;
 
@@ -466,6 +432,7 @@ const ReviewImages = styled.div`
   display: flex;
   gap: ${theme.spacing.sm};
   margin-top: ${theme.spacing.sm};
+  flex-wrap: wrap;
 
   img {
     width: 80px;
@@ -493,6 +460,10 @@ const ShowMoreButton = styled.button`
 
   &:hover {
     background: ${theme.colors.primaryHoverGradient};
+  }
+
+  @media (max-width: 640px) {
+    width: 100%;
   }
 `;
 
@@ -686,4 +657,45 @@ const DeleteButton = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
+`;
+
+const StarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+`;
+
+const Star = styled.span.withConfig({
+  shouldForwardProp: prop => prop !== 'filled',
+})<{ filled: boolean }>`
+  font-size: 22px;
+  cursor: pointer;
+  color: ${({ filled }) => (filled ? '#facc15' : '#475569')};
+  text-shadow: ${({ filled }) =>
+    filled ? '0 0 8px rgba(250, 204, 21, 0.6)' : 'none'};
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: scale(1.2);
+    color: #fde047;
+  }
+`;
+
+const RatingInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+`;
+
+const RatingText = styled.span`
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f1f5f9;
+`;
+
+const FeelingText = styled.span`
+  font-size: 0.9rem;
+  color: #94a3b8;
 `;
