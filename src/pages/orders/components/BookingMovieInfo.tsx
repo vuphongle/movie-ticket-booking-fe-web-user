@@ -55,6 +55,18 @@ const Card = styled.div`
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   margin-bottom: 20px;
   margin-top: 12px;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    margin-bottom: 16px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
 `;
 
 const PosterWrapper = styled.div`
@@ -62,6 +74,16 @@ const PosterWrapper = styled.div`
   width: 120px;
   height: 180px;
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 100px;
+    height: 150px;
+  }
+
+  @media (max-width: 480px) {
+    width: 80px;
+    height: 120px;
+  }
 `;
 
 const Poster = styled.img`
@@ -95,6 +117,14 @@ const Badge = styled.span`
 
 const AgeBadge = styled(Badge)`
   background: red;
+
+  @media (max-width: 768px) {
+    padding: 6px 10px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 4px 8px;
+  }
   font-size: 10px;
   border-radius: 4px;
   padding: 2px 6px;
@@ -104,10 +134,27 @@ const Info = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+    margin: 0 0 5px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    margin: 0 0 4px;
+  }
   padding: 8px 12px;
 `;
 
 const Title = styled.h3`
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 11px;
+  }
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 6px;
@@ -123,6 +170,18 @@ const Detail = styled.p`
 const ShowtimeDetail = styled.p`
   font-size: 13px;
   margin: 6px 0 0;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    padding: 3px 7px;
+    margin: 5px 0 0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+    padding: 3px 6px;
+    margin: 4px 0 0;
+  }
   padding: 4px 8px;
   border-radius: 6px;
   background: ${theme.colors.primary}20;
@@ -132,4 +191,3 @@ const ShowtimeDetail = styled.p`
   transition: all 0.2s ease;
   text-align: center;
 `;
-

@@ -432,6 +432,24 @@ const Page = styled.div`
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: ${theme.spacing.lg};
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr 320px;
+    gap: ${theme.spacing.md};
+    margin: 20px auto;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    padding: 0 ${theme.spacing.sm};
+    margin: 16px auto;
+    gap: ${theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    padding: 0 12px;
+    margin: 12px auto;
+  }
 `;
 
 const Main = styled.div`
@@ -443,6 +461,11 @@ const Aside = styled.aside`
   position: sticky;
   top: ${theme.spacing.xxxl};
   align-self: start;
+
+  @media (max-width: 768px) {
+    position: static;
+    order: -1;
+  }
 `;
 
 const Header = styled.div`
@@ -450,6 +473,36 @@ const Header = styled.div`
   padding: ${theme.spacing.md};
   color: white;
   border-radius: ${theme.borderRadius.medium};
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 18px;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+
+    @media (max-width: 480px) {
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.sm};
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 `;
 
 const Card = styled.section`
@@ -458,6 +511,14 @@ const Card = styled.section`
   border-radius: ${theme.borderRadius.medium};
   box-shadow: 0 8px 24px rgba(2, 22, 46, 0.05);
   padding: ${theme.spacing.lg};
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 `;
 
 const ComboList = styled.div`
@@ -484,6 +545,16 @@ const ComboItem = styled.div`
     background: rgba(30, 58, 138, 0.35);
     border-color: rgba(255, 255, 255, 0.12);
   }
+
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 `;
 
 const ComboInfo = styled.div`
@@ -505,6 +576,16 @@ const Thumbnail = styled.img`
     transform: scale(1.08) rotate(2deg);
     box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
   }
+
+  @media (max-width: 768px) {
+    width: 55px;
+    height: 55px;
+  }
+
+  @media (max-width: 480px) {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 const ComboName = styled.div`
@@ -519,12 +600,33 @@ const ComboName = styled.div`
     color: rgba(255, 255, 255, 0.6);
     margin-top: 2px;
   }
+
+  @media (max-width: 768px) {
+    font-size: ${theme.fontSize.sm};
+
+    .desc {
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+
+    .desc {
+      font-size: 11px;
+    }
+  }
 `;
 
 const ComboPrice = styled.div`
   color: rgba(255, 255, 255, 0.7);
   font-size: ${theme.fontSize.sm};
   margin-top: 6px;
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin-top: 4px;
+  }
 `;
 
 const QtyInput = styled.input`
@@ -558,6 +660,14 @@ const QtyInput = styled.input`
     opacity: 0.4;
     cursor: pointer;
   }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 60px;
+    margin-left: auto;
+    padding: 10px;
+    font-size: 14px;
+  }
 `;
 
 const Divider = styled.hr`
@@ -569,18 +679,47 @@ const Divider = styled.hr`
 const SummaryCard = styled(Card)`
   padding: ${theme.spacing.lg};
   background: white;
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 `;
 
 const SummaryTitle = styled.h3`
   margin: 0 0 ${theme.spacing.sm};
   color: ${theme.colors.textPrimary};
+  font-size: 18px;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 15px;
+  }
 `;
 
 const SummaryLine = styled.p`
   margin: 6px 0;
   color: ${theme.colors.textSecondary};
+  font-size: 14px;
+
   strong {
     color: ${theme.colors.textPrimary};
+  }
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin: 5px 0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin: 4px 0;
   }
 `;
 
@@ -591,10 +730,28 @@ const Total = styled.div`
   font-size: ${theme.fontSize.md};
   color: ${theme.colors.textSecondary};
   margin: ${theme.spacing.sm} 0 ${theme.spacing.md};
+
   span {
     font-size: 22px;
     color: ${theme.colors.textPrimary};
     font-weight: 800;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+
+    span {
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    margin: 8px 0 12px;
+
+    span {
+      font-size: 18px;
+    }
   }
 `;
 
@@ -602,6 +759,11 @@ const Actions = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: ${theme.spacing.sm};
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 `;
 
 const PrimaryButton = styled.button`
@@ -611,17 +773,25 @@ const PrimaryButton = styled.button`
   color: ${theme.colors.white};
   background: ${theme.colors.primaryHoverGradient};
   font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
   transition:
     transform 0.12s ease,
     filter 0.12s ease;
+
   &:hover {
     filter: brightness(1.03);
     transform: translateY(-1px);
     background: ${theme.colors.primaryHover};
   }
+
   &:active {
     transform: translateY(1px);
+  }
+
+  @media (max-width: 480px) {
+    padding: 14px 16px;
+    font-size: 15px;
   }
 `;
 
@@ -632,16 +802,24 @@ const GhostButton = styled.button`
   background: ${theme.colors.closeButtonBg};
   color: ${theme.colors.textPrimary};
   font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
   transition:
     background 0.12s ease,
     transform 0.12s ease;
+
   &:hover {
     background: ${theme.colors.closeButtonBgHover};
     transform: translateY(-1px);
   }
+
   &:active {
     transform: translateY(1px);
+  }
+
+  @media (max-width: 480px) {
+    padding: 14px 16px;
+    font-size: 15px;
   }
 `;
 
@@ -689,6 +867,17 @@ const TabButton = styled.button<{ active: boolean }>`
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+  }
+
+  @media (max-width: 768px) {
+    min-width: 140px;
+    font-size: ${theme.fontSize.sm};
+  }
+
+  @media (max-width: 480px) {
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 13px;
   }
 `;
 

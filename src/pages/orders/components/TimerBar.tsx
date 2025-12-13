@@ -10,7 +10,9 @@ export default function TimerBar({ timer }: TimerBarProps) {
   if (!timer || timer <= 0) return null;
 
   const formatTime = (sec: number) => {
-    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const m = Math.floor(sec / 60)
+      .toString()
+      .padStart(2, '0');
     const s = (sec % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
@@ -31,7 +33,11 @@ export default function TimerBar({ timer }: TimerBarProps) {
         Thời gian giữ ghế:<strong>{formatTime(timer)}</strong>
       </Bar>
       <ProgressContainer>
-        <ProgressFill danger={danger} warning={warning} style={{ width: `${progress}%` }} />
+        <ProgressFill
+          danger={danger}
+          warning={warning}
+          style={{ width: `${progress}%` }}
+        />
       </ProgressContainer>
     </Wrapper>
   );
@@ -44,7 +50,11 @@ const Wrapper = styled.div`
 
 const Bar = styled.div<{ danger?: boolean; warning?: boolean }>`
   background: ${({ danger, warning }) =>
-    danger ? theme.colors.error : warning ? theme.colors.warning : theme.colors.primary};
+    danger
+      ? theme.colors.error
+      : warning
+        ? theme.colors.warning
+        : theme.colors.primary};
   color: white;
   font-weight: bold;
   display: flex;
@@ -73,8 +83,35 @@ const Bar = styled.div<{ danger?: boolean; warning?: boolean }>`
   }
 
   @keyframes blink {
-    0%, 100% { color: white; }
-    50% { color: yellow; }
+    0%,
+    100% {
+      color: white;
+    }
+    50% {
+      color: yellow;
+    }
+  }
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 9px;
+
+    strong {
+      font-size: 16px;
+      margin-left: 5px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    padding: 8px;
+    flex-wrap: wrap;
+    gap: 4px;
+
+    strong {
+      font-size: 15px;
+      margin-left: 4px;
+    }
   }
 `;
 
@@ -82,9 +119,28 @@ const IconWrapper = styled.span`
   display: inline-flex;
   align-items: center;
   margin-right: 8px;
+
   svg {
     stroke: white;
     stroke-width: 2.5;
+  }
+
+  @media (max-width: 768px) {
+    margin-right: 6px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    margin-right: 4px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 `;
 
@@ -97,9 +153,13 @@ const ProgressContainer = styled.div`
   overflow: hidden;
 `;
 
-const ProgressFill = styled.div<{ danger?: boolean ; warning?: boolean }>`
+const ProgressFill = styled.div<{ danger?: boolean; warning?: boolean }>`
   height: 100%;
   background: ${({ danger, warning }) =>
-    danger ? theme.colors.error : warning ? theme.colors.warning : theme.colors.primary};
+    danger
+      ? theme.colors.error
+      : warning
+        ? theme.colors.warning
+        : theme.colors.primary};
   transition: width 1s linear;
 `;
