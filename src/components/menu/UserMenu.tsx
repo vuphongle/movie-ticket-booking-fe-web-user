@@ -82,6 +82,10 @@ const Wrapper = styled.div`
   cursor: pointer;
   font-weight: 500;
   color: ${theme.colors.textPrimary};
+
+  @media (max-width: 1023px) {
+    gap: 6px;
+  }
 `;
 
 const Trigger = styled.div`
@@ -98,6 +102,14 @@ const NameTitle = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
+
+  @media (max-width: 1023px) {
+    max-width: 80px;
+  }
+
+  @media (max-width: 767px) {
+    display: none;
+  }
 `;
 
 const StyledAvatar = styled(MuiAvatar)`
