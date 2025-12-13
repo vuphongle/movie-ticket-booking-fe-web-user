@@ -36,8 +36,8 @@ const MovieDetailPage: React.FC = () => {
   const { data: movies = [] } = useGetShowingNowMoviesQuery();
 
   useEffect(() => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}, [id]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [id]);
 
   if (isLoading) return <Message>{t('MOVIE_LOADING_DETAIL')}</Message>;
   if (error) return <Message>{t('MOVIE_ERROR_DETAIL')}</Message>;
@@ -152,6 +152,8 @@ export const Banner = styled.div`
 
 export const Block = styled.div`
   margin-top: 20px;
+  overflow: hidden;
+  width: 100%;
 `;
 
 export const SectionTitle = styled.h2`
@@ -170,6 +172,9 @@ export const Description = styled.p`
   line-height: 1.6;
   color: ${theme.colors.darkTextPrimary};
   margin-bottom: ${theme.spacing.md};
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 
   @media (max-width: 768px) {
     font-size: 0.95rem;
@@ -200,6 +205,8 @@ export const LeftColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing.lg};
+  min-width: 0;
+  overflow: hidden;
 `;
 
 export const RightColumn = styled.div`
