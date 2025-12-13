@@ -29,9 +29,12 @@ export default function MovieComponent({
 
   const navigate = useNavigate();
 
-  const slidesPerView = 4;
-  const totalDots = Math.min(2, Math.ceil(movies.length / slidesPerView));
-  const slidesPerGroup = Math.ceil(movies.length / totalDots);
+  const breakpoints = {
+    0: { slidesPerView: 1.15, slidesPerGroup: 1, spaceBetween: 16 },
+    640: { slidesPerView: 2, slidesPerGroup: 2, spaceBetween: 16 },
+    900: { slidesPerView: 3, slidesPerGroup: 3, spaceBetween: 20 },
+    1280: { slidesPerView: 4, slidesPerGroup: 4, spaceBetween: 24 },
+  };
 
   const [activeTrailer, setActiveTrailer] = useState<string | null>(null);
 
@@ -52,9 +55,10 @@ export default function MovieComponent({
 
       <Swiper
         modules={[Navigation, Pagination]}
-        spaceBetween={40}
-        slidesPerView={slidesPerView}
-        slidesPerGroup={slidesPerGroup}
+        spaceBetween={24}
+        slidesPerView={1.15}
+        slidesPerGroup={1}
+        breakpoints={breakpoints}
         pagination={{ clickable: true }}
         navigation
       >
@@ -93,12 +97,54 @@ export default function MovieComponent({
 const Section = styled.section`
   margin: 40px 0;
   text-align: center;
+
+  .swiper-button-prev,
+  .swiper-button-next {
+    color: ${theme.colors.white};
+  }
+
+  .swiper {
+    padding-bottom: 24px; /* chừa chỗ cho pagination để không đè lên card */
+  }
+
+  .swiper-pagination {
+    position: static;
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .swiper-pagination-bullet {
+    width: 7px;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.6);
+    opacity: 1;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: ${theme.colors.white};
+  }
+
+  @media (max-width: 767px) {
+    margin: 32px 0;
+
+    .swiper-button-prev,
+    .swiper-button-next {
+      display: none;
+    }
+  }
 `;
 const Heading = styled.h2`
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 20px;
   color: ${theme.colors.headingLight};
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+  }
 `;
 const MoreBtn = styled.button`
   margin-top: 12px;
@@ -113,6 +159,10 @@ const MoreBtn = styled.button`
     background: ${theme.colors.primaryHoverGradient};
     color: ${theme.colors.white};
     font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
   }
 `;
 

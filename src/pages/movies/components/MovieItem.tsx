@@ -79,8 +79,16 @@ const Card = styled.div.withConfig({
   background: ${theme.colors.white};
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   position: relative;
-  margin-bottom: ${({ compact }) => (compact ? '0px' : '36px')};
-  max-width: ${({ compact }) => (compact ? '220px' : '260px')};
+  margin-bottom: ${({ compact }) => (compact ? '0px' : '32px')};
+  width: 100%;
+  max-width: ${({ compact }) => (compact ? '240px' : '300px')};
+  min-width: 220px;
+
+  @media (max-width: 768px) {
+    min-width: 0;
+    max-width: 100%;
+    margin-bottom: 24px;
+  }
 `;
 
 const Overlay = styled.div`
@@ -100,7 +108,8 @@ const PosterWrapper = styled.div.withConfig({
 })<{ compact?: boolean }>`
   position: relative;
   width: 100%;
-  height: ${({ compact }) => (compact ? '320px' : '400px')};
+  aspect-ratio: 2 / 3;
+  min-height: ${({ compact }) => (compact ? '260px' : '320px')};
   overflow: hidden;
 
   &:hover ${Overlay} {
