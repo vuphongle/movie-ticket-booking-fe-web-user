@@ -13,8 +13,10 @@ import { Modal, Button } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 import { cancelSeatMultiBeacon } from '@utils/cancelSeatMultiBeacon';
+import { useTranslation } from 'react-i18next';
 
 export default function BookingConfirmPage() {
+    const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -253,8 +255,8 @@ export default function BookingConfirmPage() {
       setShouldGuard(false);
 
       Modal.warning({
-        title: 'Luồng đặt vé đã bị hủy',
-        content: 'Vui lòng thao tác lại.',
+        title: t('BOOKING_FLOW_CANCELLED'),
+        content: t('PLEASE_TRY_AGAIN'),
         onOk: () => {
           navigate('/');
         },
@@ -279,7 +281,7 @@ export default function BookingConfirmPage() {
             }}
           >
             <Button key='cancel' onClick={() => handleConfirm(false)}>
-              Ở lại
+              {t('STAY')}
             </Button>
             <Button
               key='ok'
@@ -287,17 +289,16 @@ export default function BookingConfirmPage() {
               danger
               onClick={() => handleConfirm(true)}
             >
-              Thoát
+              {t('EXIT')}
             </Button>
           </div>,
         ]}
       >
         <CenteredContent>
           <ExclamationCircleFilled className='warning-icon' />
-          <h3>Bạn sắp thoát khỏi luồng đặt vé</h3>
+          <h3>{t('EXIT_BOOKING_FLOW')}</h3>
           <p>
-            Dữ liệu ghế và combo sẽ bị xóa. Bạn có chắc chắn muốn tiếp tục
-            không?
+            {t('SEAT_AND_COMBO_DATA_WILL_BE_DELETED')}
           </p>
         </CenteredContent>
       </Modal>
@@ -320,9 +321,9 @@ export default function BookingConfirmPage() {
           onApplyVoucher={handleApplyVoucher}
         />
         <Actions>
-          <GhostButton onClick={handleBack}>Quay lại</GhostButton>
+          <GhostButton onClick={handleBack}>{t('BOOKING_BACK')}</GhostButton>
           <PrimaryButton onClick={() => setIsConfirmModalOpen(true)}>
-            Thanh toán
+            {t('BOOKING_CONFIRM_CONFIRM2')}
           </PrimaryButton>
         </Actions>
       </Aside>

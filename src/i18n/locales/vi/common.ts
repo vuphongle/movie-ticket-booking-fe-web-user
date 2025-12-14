@@ -274,6 +274,25 @@ const common = {
   SEARCH_PLACEHOLDER_HISTORY:' Tìm kiếm theo tên phim, rạp',
   MOVIE_NO_MOVIES: 'Không có phim nào',
   SEARCH_BY_IMAGE: 'Tìm kiếm bằng hình ảnh',
+    SEARCH_CINEMA: 'Tìm kiếm rạp chiếu',
+    TODAY: 'Hôm nay',
+    TOMORROW: 'Ngày mai',
+    AUDITORIUM: 'Phòng',
+    AUDITORIUM2: 'Phòng chiếu',
+    CINEMA_LOCATION2: 'Vị trí rạp',
+    TIME_HOLD_SEAT: 'Thời gian giữ ghế',
+    SEARCH_RESULTS: 'Kết quả tìm kiếm',
+    NO_RESULTS_FOUND: 'Không tìm thấy kết quả.',
+    SEARCH_WITH_OTHER_IMAGES: 'Tìm kiếm với các hình ảnh khác',
+    PLEASE_SELECT_AT_LEAST_ONE_IMAGE: 'Vui lòng chọn ít nhất 1 ảnh trước.',
+    ONLY_ACCEPT_PNG_JPEG_JPG_IMAGES: 'Chỉ chấp nhận ảnh PNG / JPEG / JPG',
+    ONLY_SELECT_UP_TO_MAX_IMAGES: 'Chỉ chọn tối đa {{max}} ảnh.',
+      PLEASE_UPLOAD_ONE_OR_MORE_IMAGES_TO_SEARCH_FOR_MATCHING_MOVIES:
+      'Vui lòng tải lên một hoặc nhiều hình ảnh để tìm kiếm các bộ phim phù hợp.',
+      UPLOAD_IMAGES: 'Tải ảnh lên',
+      SEARCH: 'Tìm kiếm',
+      UPLOAD_MORE_IMAGES: 'Tải thêm ảnh',
+      BOOK_TICKET: 'Đặt vé',
 };
 
 export default common;

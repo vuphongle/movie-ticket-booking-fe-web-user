@@ -66,7 +66,6 @@ export default function TicketInfo({
   const handleCheckVoucher = async () => {
     if (!code || !bookingData || !couponInfo) return;
 
-    // Lọc ra các vé hợp lệ
     const tickets =
       bookingData.seats
         ?.filter(
@@ -78,7 +77,6 @@ export default function TicketInfo({
           unitPrice: s.price,
         })) || [];
 
-    // Lọc ra các combo hợp lệ
     const services =
       bookingData.combos
         ?.filter(
@@ -150,7 +148,7 @@ export default function TicketInfo({
             <AgeBadge>{bookingData.movie.age}</AgeBadge>
           </TopRight>
           <BottomLeft>
-            <DurationBadge>{bookingData.movie.duration} phút</DurationBadge>
+            <DurationBadge>{bookingData.movie.duration} {t('MINUTES')}</DurationBadge>
           </BottomLeft>
         </PosterWrapper>
 
@@ -160,11 +158,11 @@ export default function TicketInfo({
             {bookingData.cinema} - {bookingData.auditorium}
           </SubInfo>
           <SubInfo>
-            Định dạng:
+            {t('FORMAT')}:{' '}
             <FormatBadge>{t(bookingData.format)}</FormatBadge>
           </SubInfo>
           <SubInfo>
-            Suất: <ShowtimeDetail>{bookingData.showtime}</ShowtimeDetail>
+            {t('SHOWTIME')}: <ShowtimeDetail>{bookingData.showtime}</ShowtimeDetail>
           </SubInfo>
         </MovieInfo>
       </TopRow>
@@ -172,11 +170,11 @@ export default function TicketInfo({
       <Divider />
 
       {/* Danh sách vé */}
-      <SectionTitle>Vé</SectionTitle>
+      <SectionTitle>{t('TICKET')}</SectionTitle>
       {bookingData.seats.map((s, idx) => (
         <Line key={idx}>
           <span>
-            1x Ghế {s.row}
+            1x {t('BOOKING_SEAT')} {s.row}
             {s.number}
           </span>
           <span>{s.price.toLocaleString()} đ</span>
@@ -209,26 +207,26 @@ export default function TicketInfo({
           textAlign: 'right',
         }}
       >
-        Tổng: {bookingData.total.toLocaleString()} đ
+        {t('TOTAL')}: {bookingData.total.toLocaleString()} đ
       </span>
       {!hideVoucherInput && (
         <VoucherContainer>
           <VoucherInput
             type='text'
-            placeholder='Nhập mã voucher...'
+            placeholder= {t('ENTER_VOUCHER_CODE')}
             value={code}
             onChange={e => setCode(e.target.value)}
           />
-          <ApplyButton onClick={handleCheckVoucher}>Áp dụng</ApplyButton>
+          <ApplyButton onClick={handleCheckVoucher}>{t('APPLY')}</ApplyButton>
         </VoucherContainer>
       )}
 
       {couponInfo && (
         <CouponInfoBox>
           <h4>{couponInfo.name}</h4>
-          <p>Mô tả: {couponInfo.description}</p>
+          <p>{t('DESCRIPTION')}: {couponInfo.description}</p>
           <small>
-            Thời gian áp dụng:{' '}
+            {t('TIME_APPLY')}: {' '}
             {formatDate(new Date(couponInfo.startDate).toLocaleDateString())} -{' '}
             {formatDate(new Date(couponInfo.endDate).toLocaleDateString())}
           </small>
@@ -252,7 +250,7 @@ export default function TicketInfo({
                   {dr.applied ? (
                     <>
                       {dr.lineDiscount > 0 && (
-                        <span>Giảm {dr.lineDiscount.toLocaleString()}đ</span>
+                        <span>{t('DISCOUNT_AMOUNT')} {dr.lineDiscount.toLocaleString()}đ</span>
                       )}
 
                       {relatedGifts.length > 0 && (
@@ -294,7 +292,7 @@ export default function TicketInfo({
                       }}
                       disabled={applying}
                     >
-                      {appliedItems.includes(dr.detailId) ? 'Bỏ chọn' : 'Chọn'}
+                      {appliedItems.includes(dr.detailId) ? `${t('REMOVE')}` : `${t('SELECT')}`}
                     </button>
                   )}
                 </div>
@@ -304,15 +302,15 @@ export default function TicketInfo({
         </PreviewBox>
       )}
 
-      <SectionTitle>Khuyến mãi</SectionTitle>
+      <SectionTitle>{t('PROMOTION')}</SectionTitle>
       {appliedCoupons.length === 0 ? (
-        <PromoNotice>Hiện tại chưa áp dụng voucher nào.</PromoNotice>
+        <PromoNotice>{t('NO_PROMO_SELECTED2')}</PromoNotice>
       ) : (
         appliedCoupons.map((c, idx) => (
           <PromoItem key={idx}>
             <PromoLeft>
               <PromoLabel>
-                {c.type === 'voucher' ? 'Voucher' : 'Khuyến mãi'}
+                {c.type === 'voucher' ? `${t('VOUCHER')}` : `${t('PROMOTION')}`}
               </PromoLabel>
               <PromoCode title={c.code}>
                 {c.code?.split('_').pop() ?? ''}
@@ -335,7 +333,7 @@ export default function TicketInfo({
       <Divider />
 
       <Total style={{ marginBottom: '5px' }}>
-        <span style={{ color: theme.colors.primary }}>Giảm giá</span>
+        <span style={{ color: theme.colors.primary }}>{t('DISCOUNT')}</span>
         {discountTotal > 0 && (
             <span style={{ color: theme.colors.primary }}>
               -{discountTotal.toLocaleString()} đ
@@ -343,7 +341,7 @@ export default function TicketInfo({
         )}
       </Total>
       <Total>
-        <span>Thanh Toán</span>
+        <span>{t('PAYMENT')}</span>
         <span>{finalTotal.toLocaleString()} đ</span>
       </Total>
     </Card>

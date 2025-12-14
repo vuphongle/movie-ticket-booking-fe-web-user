@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useTranslation } from 'react-i18next';
 
 interface AuditoriumProps {
   auditorium: {
@@ -11,6 +12,8 @@ interface AuditoriumProps {
 }
 
 const Auditorium = ({ auditorium }: AuditoriumProps) => {
+    
+  const { t } = useTranslation();
   const { name, totalRows, totalColumns, type } = auditorium;
 
   return (
@@ -19,7 +22,7 @@ const Auditorium = ({ auditorium }: AuditoriumProps) => {
         <RoomName>{name}</RoomName>
         <RoomType>{type}</RoomType>
       </AuditoriumHeader>
-      <SeatInfo>{totalRows * totalColumns} ghế</SeatInfo>
+      <SeatInfo>{totalRows * totalColumns} {t('SEATS')}</SeatInfo>
     </AuditoriumBox>
   );
 };

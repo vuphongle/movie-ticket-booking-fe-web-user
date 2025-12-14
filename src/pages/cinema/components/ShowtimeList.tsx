@@ -47,7 +47,7 @@ const ShowtimeList = ({ cinemaId }: ShowtimeListProps) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { openLogin } = useLoginModal();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const { data } = useGetMoviesShowtimesByCinemaQuery(cinemaId);
 
@@ -149,9 +149,9 @@ const ShowtimeList = ({ cinemaId }: ShowtimeListProps) => {
 
           let label = '';
           if (isToday)
-            label = `Hôm nay\n${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+            label = `${t('TODAY')}\n${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
           else if (isTomorrow)
-            label = `Ngày mai\n${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+            label = `${t('TOMORROW')}\n${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
           else
             label = `${weekdays[d.getDay()]}\n${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
 
@@ -178,7 +178,7 @@ const ShowtimeList = ({ cinemaId }: ShowtimeListProps) => {
             (acc, st) => {
               const translation =
                 translationMap[st.translationType] ?? st.translationType;
-              const key = `Phòng ${st.auditoriumType} | ${st.graphicsType} ${translation}`;
+              const key = `${t('AUDITORIUM')} ${st.auditoriumType} | ${st.graphicsType} ${translation}`;
               if (!acc[key]) acc[key] = [];
               acc[key].push(st);
               return acc;

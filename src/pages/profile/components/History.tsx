@@ -193,7 +193,7 @@ const History: React.FC = () => {
 
                   <CinemaInfo>
                     {order.showtime?.auditorium?.cinema?.name} – {t('ROOM')}{' '}
-                    {order.showtime?.auditorium?.name}
+                    {order.showtime?.auditorium?.type}
                   </CinemaInfo>
 
                   <SmallText>
