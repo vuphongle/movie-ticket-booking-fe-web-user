@@ -269,6 +269,7 @@ const common = {
   PDF_NOT_AVAILABLE: 'This order is old and has not been PDFed yet!',
   SEARCH_PLACEHOLDER_HISTORY: 'Search by movie name, cinema',
   MOVIE_NO_MOVIES: 'No movies available',
+  SEARCH_BY_IMAGE: 'Search by Image',
 };
 
 export default common;

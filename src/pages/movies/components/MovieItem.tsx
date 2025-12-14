@@ -86,7 +86,7 @@ const Card = styled.div.withConfig({
   margin-bottom: ${({ compact }) => (compact ? '0px' : '32px')};
   width: 100%;
   max-width: ${({ compact }) => (compact ? '240px' : '300px')};
-  min-width: 220px;
+  min-width: ${({ compact }) => (compact ? '160px' : '220px')};
 
   @media (max-width: 768px) {
     min-width: 0;
@@ -105,6 +105,7 @@ const Overlay = styled.div`
   gap: 12px;
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 `;
 
 const PosterWrapper = styled.div.withConfig({
@@ -113,7 +114,7 @@ const PosterWrapper = styled.div.withConfig({
   position: relative;
   width: 100%;
   aspect-ratio: 2 / 3;
-  min-height: ${({ compact }) => (compact ? '260px' : '320px')};
+  min-height: ${({ compact }) => (compact ? '220px' : '320px')};
   overflow: hidden;
 
   &:hover ${Overlay} {

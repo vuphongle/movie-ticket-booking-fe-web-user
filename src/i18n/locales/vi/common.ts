@@ -273,6 +273,7 @@ const common = {
   PDF_NOT_AVAILABLE: 'Đơn này đã cũ, chưa tạo PDF trước đó!',
   SEARCH_PLACEHOLDER_HISTORY:' Tìm kiếm theo tên phim, rạp',
   MOVIE_NO_MOVIES: 'Không có phim nào',
+  SEARCH_BY_IMAGE: 'Tìm kiếm bằng hình ảnh',
 };
 
 export default common;
