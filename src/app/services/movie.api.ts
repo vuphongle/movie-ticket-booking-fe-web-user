@@ -1,6 +1,12 @@
 import { API_DOMAIN_PUBLIC } from '@lib/api';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+type BaseResponse<T> = {
+  success: boolean;
+  data: T;
+};
+
+
 export enum MovieAge {
   P = 'P',
   K = 'K',
@@ -68,6 +74,18 @@ export interface MovieDetail extends Movie {
   }[];
 }
 
+export interface SearchMovieResult {
+  id: number;
+  name: string;
+  slug: string;
+  poster: string;
+  rating: number;
+  duration: number;
+  age: MovieAge;
+  graphics: string[];
+}
+
+
 export const movieApi = createApi({
   reducerPath: 'movieApi',
   baseQuery: fetchBaseQuery({
@@ -105,6 +123,17 @@ export const movieApi = createApi({
       query: (keyword: string) =>
         `/movies/search?keyword=${encodeURIComponent(keyword)}`,
     }),
+    searchByImage: builder.mutation<BaseResponse<SearchMovieResult[]>, File>({
+      query: file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return {
+          url: '/movies/search-by-image',
+          method: 'POST',
+          body: formData,
+        };
+      },
+    }),
   }),
 });
 
@@ -114,4 +143,5 @@ export const {
   useGetMovieDetailQuery,
   useGetMovieByShowtimeQuery,
   useSearchMoviesQuery,
+  useSearchByImageMutation,
 } = movieApi;

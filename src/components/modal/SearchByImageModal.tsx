@@ -1,9 +1,12 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
-import { Image as ImageIcon, UploadCloud, Search } from 'lucide-react';
+import { Image as ImageIcon, UploadCloud, Search, X } from 'lucide-react';
 import { theme } from '@theme/Theme';
 import ModalBase from '@components/base/ModalBase';
+import { useSearchByImageMutation } from '@app/services/movie.api';
+import { toast } from 'react-toastify';
+import MovieItem from '@pages/movies/components/MovieItem';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   isOpen: boolean;
@@ -13,91 +16,148 @@ type Props = {
 
 const ACCEPTED = ['image/png', 'image/jpeg', 'image/jpg'];
 
-export default function SearchByImageModal({ isOpen, onClose, onSelectResult }: Props) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [loading, setLoading] = useState(false);
+type PickedItem = {
+  id: string;
+  file: File;
+  url: string;
+};
 
-  const [imageUrl, setImageUrl] = useState<string>('');
+export default function SearchByImageModal({
+  isOpen,
+  onClose,
+}: Props) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const navigate = useNavigate();
+
+  const [picked, setPicked] = useState<PickedItem[]>([]);
   const [results, setResults] = useState<any[]>([]);
   const [showResult, setShowResult] = useState(false);
 
-//   const apiBase = useMemo(() => {
-//     // ✅ bạn chỉnh theo env của bạn
-//     return (import.meta as any)?.env?.VITE_API_URL || process.env.REACT_APP_API_URL || '';
-//   }, []);
+  const [searchByImage, { isLoading }] = useSearchByImageMutation();
+  const [batchLoading, setBatchLoading] = useState(false);
+
+  const MAX_IMAGES = 5;
+
+  const anyLoading = isLoading || batchLoading;
 
   const resetAll = () => {
-    setImageUrl('');
+    picked.forEach(p => URL.revokeObjectURL(p.url));
+
+    setPicked([]);
     setResults([]);
     setShowResult(false);
-    setLoading(false);
+    if (inputRef.current) inputRef.current.value = '';
   };
 
   const handlePick = () => inputRef.current?.click();
 
-//   const handleUpload = async (file: File) => {
-//     if (!ACCEPTED.includes(file.type)) {
-//       alert('Chỉ chấp nhận file ảnh (PNG, JPEG, JPG)');
-//       return;
-//     }
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = e => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
 
-//     setLoading(true);
-//     try {
-//       const formData = new FormData();
-//       formData.append('file', file);
+    const remaining = MAX_IMAGES - picked.length;
+    if (remaining <= 0) {
+      toast.info(
+        `Bạn chỉ được chọn tối đa ${MAX_IMAGES} ảnh mỗi lần tìm kiếm.`
+      );
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
 
-//       // ✅ giống mẫu tham khảo của bạn: upload lên S3
-//       const resp = await axios.post(
-//         `${apiBase}:9097/api/v1/s3/upload-image`,
-//         formData,
-//         { headers: { 'Content-Type': 'multipart/form-data' } }
-//       );
+    const valid: File[] = [];
+    for (const f of files) {
+      if (!ACCEPTED.includes(f.type)) {
+        toast.error('Chỉ chấp nhận ảnh PNG / JPEG / JPG');
+        continue;
+      }
+      valid.push(f);
+    }
 
-//       setImageUrl(resp.data);
-//       setShowResult(false);
-//       setResults([]);
-//     } catch (e) {
-//       console.error(e);
-//       alert('Lỗi upload');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+    if (!valid.length) {
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
 
-//   const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
-//     const file = e.target.files?.[0];
-//     if (!file) return;
-//     await handleUpload(file);
-//   };
+    const items: PickedItem[] = valid.map(file => ({
+      id: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
+        .toString(16)
+        .slice(2)}`,
+      file,
+      url: URL.createObjectURL(file),
+    }));
 
-//   const handleSearch = async () => {
-//     if (!imageUrl) {
-//       alert('Vui lòng tải lên hình ảnh trước.');
-//       return;
-//     }
+    setPicked(prev => {
+      const existsKey = new Set(
+        prev.map(p => `${p.file.name}-${p.file.size}-${p.file.lastModified}`)
+      );
 
-//     setLoading(true);
-//     try {
-//       /**
-//        * ✅ TODO: Bạn thay endpoint search-by-image theo backend GoCinema của bạn.
-//        * - Trả về mảng kết quả: [{ id, name, poster, ... }]
-//        *
-//        * Ví dụ demo (bạn sửa):
-//        */
-//       const resp = await axios.get(`${apiBase}/api/v1/search/by-image`, {
-//         params: { imageUrl },
-//       });
+      const filtered = items.filter(
+        p =>
+          !existsKey.has(`${p.file.name}-${p.file.size}-${p.file.lastModified}`)
+      );
 
-//       const list = Array.isArray(resp.data) ? resp.data : resp.data?.data ?? [];
-//       setResults(list);
-//       setShowResult(true);
-//     } catch (e) {
-//       console.error(e);
-//       alert('Lỗi tìm kiếm bằng ảnh');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+      const limited = filtered.slice(0, MAX_IMAGES - prev.length);
+
+      filtered.slice(limited.length).forEach(x => URL.revokeObjectURL(x.url));
+
+      if (filtered.length > limited.length) {
+        toast.info(`Chỉ chọn tối đa ${MAX_IMAGES} ảnh.`);
+      }
+
+      return [...prev, ...limited];
+    });
+
+    setShowResult(false);
+    setResults([]);
+
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  const removePicked = (id: string) => {
+    setPicked(prev => {
+      const target = prev.find(p => p.id === id);
+      if (target) URL.revokeObjectURL(target.url);
+      return prev.filter(p => p.id !== id);
+    });
+  };
+
+  const dedupById = (list: any[]) => {
+    const map = new Map<any, any>();
+    for (const item of list) {
+      const key = item?.id ?? `${item?.slug ?? ''}-${item?.name ?? ''}`;
+      if (!map.has(key)) map.set(key, item);
+    }
+    return Array.from(map.values());
+  };
+
+  const handleSearch = async () => {
+    if (!picked.length) {
+      alert('Vui lòng chọn ít nhất 1 ảnh trước.');
+      return;
+    }
+
+    setBatchLoading(true);
+    try {
+      const all: any[] = [];
+
+      for (const p of picked) {
+        try {
+          const res = await searchByImage(p.file).unwrap();
+          const list = res?.data ?? [];
+          if (Array.isArray(list)) all.push(...list);
+        } catch (err) {
+          console.error('Search failed for file:', p.file?.name, err);
+        }
+      }
+
+      setResults(dedupById(all));
+      setShowResult(true);
+    } finally {
+      setBatchLoading(false);
+    }
+  };
+
+  const canSearch = picked.length > 0 && !anyLoading;
 
   return (
     <ModalBase
@@ -106,12 +166,12 @@ export default function SearchByImageModal({ isOpen, onClose, onSelectResult }: 
         onClose();
         resetAll();
       }}
-      size="smm"
+      size='smm'
       zIndex={200}
-      style={{ padding: 0 }}
+      style={{ padding: 0, position: 'relative' }}
     >
       <Wrap>
-        {loading && (
+        {anyLoading && (
           <LoadingOverlay>
             <Spinner />
           </LoadingOverlay>
@@ -126,48 +186,66 @@ export default function SearchByImageModal({ isOpen, onClose, onSelectResult }: 
 
         {!showResult ? (
           <Body>
-            {!imageUrl ? (
+            {!picked.length ? (
               <>
-                <Hint>Vui lòng tải lên hình ảnh để tìm kiếm thông tin liên quan.</Hint>
+                <Hint>
+                  Vui lòng tải lên một hoặc nhiều hình ảnh để tìm kiếm phim
+                  tương ứng.
+                </Hint>
 
-                <PrimaryButton type="button" onClick={handlePick}>
+                <PrimaryButton type='button' onClick={handlePick}>
                   <UploadCloud size={18} />
                   <span>Tải ảnh lên</span>
                 </PrimaryButton>
 
                 <HiddenInput
                   ref={inputRef}
-                  type="file"
-                  accept="image/png, image/jpeg, image/jpg"
-                //   onChange={handleFileChange}
+                  type='file'
+                  multiple
+                  accept='image/png, image/jpeg, image/jpg'
+                  onChange={handleFileChange}
                 />
               </>
             ) : (
               <>
-                <PreviewBox>
-                  <PreviewImg src={imageUrl} alt="preview" />
-                </PreviewBox>
+                <PreviewRow>
+                  {picked.map(p => (
+                    <PreviewItemUpload key={p.id}>
+                      <PreviewImgUpload src={p.url} alt='preview' />
+                      {!showResult && (
+                        <RemoveBtn
+                          type='button'
+                          onClick={() => removePicked(p.id)}
+                          title='Xóa ảnh'
+                        >
+                          <X size={14} />
+                        </RemoveBtn>
+                      )}
+                    </PreviewItemUpload>
+                  ))}
+                </PreviewRow>
 
                 <Row>
-                  <SecondaryButton type="button" onClick={handlePick}>
+                  <SecondaryButton type='button' onClick={handlePick}>
                     <UploadCloud size={18} />
-                    <span>Chọn ảnh khác</span>
+                    <span>Chọn thêm ảnh</span>
                   </SecondaryButton>
 
                   <HiddenInput
                     ref={inputRef}
-                    type="file"
-                    accept="image/png, image/jpeg, image/jpg"
-                    // onChange={handleFileChange}
+                    type='file'
+                    multiple
+                    accept='image/png, image/jpeg, image/jpg'
+                    onChange={handleFileChange}
                   />
                 </Row>
               </>
             )}
 
-            <SearchButton 
-                type="button" 
-                // onClick={handleSearch} 
-                disabled={!imageUrl}
+            <SearchButton
+              type='button'
+              onClick={handleSearch}
+              disabled={!canSearch}
             >
               <Search size={18} />
               <span>Tìm kiếm</span>
@@ -175,24 +253,34 @@ export default function SearchByImageModal({ isOpen, onClose, onSelectResult }: 
           </Body>
         ) : (
           <Body>
-            <PreviewBox>
-              <PreviewImg src={imageUrl} alt="preview" />
-            </PreviewBox>
+            <PreviewRow>
+              {picked.map(p => (
+                <PreviewItemUpload key={p.id}>
+                  <PreviewImgUpload src={p.url} alt='preview' />
+                </PreviewItemUpload>
+              ))}
+            </PreviewRow>
 
             {results.length > 0 ? (
               <>
                 <ResultTitle>Kết quả tìm kiếm:</ResultTitle>
                 <ResultGrid>
-                  {results.map((item, idx) => (
-                    <ResultCard
-                      key={item?.id ?? idx}
-                      type="button"
-                      onClick={() => onSelectResult?.(item)}
-                      title={item?.name ?? item?.title ?? 'Xem chi tiết'}
-                    >
-                      <Thumb src={item?.poster || item?.thumbnail || imageUrl} alt="thumb" />
-                      <ResultName>{item?.name || item?.title || 'Không có tên'}</ResultName>
-                    </ResultCard>
+                  {results.map(item => (
+                    <MovieItem
+                      key={item.id}
+                      title={item.name}
+                      poster={item.poster}
+                      age={item.age}
+                      rating={item.rating}
+                      graphics={item.graphics}
+                      buttonText='Đặt vé'
+                      compact
+                      onAction={() => {
+                        onClose();
+                        resetAll();
+                        navigate(`/movies/${item.id}/${item.slug}`);
+                      }}
+                    />
                   ))}
                 </ResultGrid>
               </>
@@ -201,14 +289,12 @@ export default function SearchByImageModal({ isOpen, onClose, onSelectResult }: 
             )}
 
             <LinkButton
-              type="button"
+              type='button'
               onClick={() => {
-                setShowResult(false);
-                setResults([]);
-                setImageUrl('');
+                resetAll();
               }}
             >
-              Tìm kiếm với hình ảnh khác
+              Tìm kiếm với các hình ảnh khác
             </LinkButton>
           </Body>
         )}
@@ -216,8 +302,6 @@ export default function SearchByImageModal({ isOpen, onClose, onSelectResult }: 
     </ModalBase>
   );
 }
-
-/* ================= styles ================= */
 
 const Wrap = styled.div`
   padding: 18px;
@@ -253,23 +337,59 @@ const Body = styled.div`
 const Hint = styled.p`
   margin: 0;
   color: #64748b;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.4;
 `;
 
-const PreviewBox = styled.div`
-  width: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid ${theme.colors.border};
-  background: ${theme.colors.backgroundHover};
-`;
+const RemoveBtn = styled.button`
+  position: absolute;
+  top: 6px;
+  right: 6px;
 
-const PreviewImg = styled.img`
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  display: block;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 999px;
+
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.18) !important;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ef4444 !important;
+  z-index: 2;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+  }
+
+  svg,
+  svg * {
+    stroke: currentColor !important;
+    fill: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.28) !important;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 `;
 
 const Row = styled.div`
@@ -329,47 +449,18 @@ const ResultTitle = styled.div`
 `;
 
 const ResultGrid = styled.div`
-  margin-top: 8px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  max-height: 340px;
+  max-height: 320px;
   overflow: auto;
   padding-right: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 16px;
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
-`;
-
-const ResultCard = styled.button`
-  border: 1px solid ${theme.colors.border};
-  background: ${theme.colors.white};
-  border-radius: 12px;
-  padding: 10px;
-  cursor: pointer;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  &:hover {
-    background: ${theme.colors.backgroundHover};
-  }
-`;
-
-const Thumb = styled.img`
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 10px;
-  background: ${theme.colors.backgroundHover};
-`;
-
-const ResultName = styled.div`
-  font-size: 14px;
-  font-weight: 700;
-  color: ${theme.colors.textPrimary};
 `;
 
 const Empty = styled.div`
@@ -415,4 +506,32 @@ const Spinner = styled.div`
       transform: rotate(360deg);
     }
   }
+`;
+
+const PreviewRow = styled.div`
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: thin;
+`;
+
+const PreviewItemUpload = styled.div`
+  position: relative;
+  flex: 0 0 160px;
+  width: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid ${theme.colors.border};
+  background: ${theme.colors.backgroundHover};
+`;
+
+const PreviewImgUpload = styled.img`
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
 `;

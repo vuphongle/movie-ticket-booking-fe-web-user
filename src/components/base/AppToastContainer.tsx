@@ -4,7 +4,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 
 const StyledToastContainer = styled(ToastContainer)`
-  z-index: 3000;
+  position: fixed;
+  z-index: 9999 !important;
 
   &.Toastify__toast-container--top-center {
     top: 80px;
@@ -32,13 +33,23 @@ const StyledToastContainer = styled(ToastContainer)`
   }
 
   .Toastify__toast--info {
-    background: ${theme.colors.bgLight};
-    background: linear-gradient(270deg, #93c5fd, #99f6e4, #c4b5fd);
+    background: ${theme.colors.white};
+  }
+
+  .Toastify__toast--info .Toastify__toast-body {
+    font-weight: 700;
+    letter-spacing: 0.1px;
+
+    background: linear-gradient(270deg, #3b82f6, #10b981, #8b5cf6);
     background-size: 400% 400%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+
+    /* làm chữ “nổi” lên, nhìn đậm hơn */
+    -webkit-text-stroke: 0.35px rgba(15, 23, 42, 0.35);
+    text-shadow: 0 0.5px 0 rgba(15, 23, 42, 0.25);
+
     animation: gradientShift 10s ease infinite;
-    font-weight: 500;
   }
 
   .Toastify__close-button {
@@ -68,13 +79,14 @@ const StyledToastContainer = styled(ToastContainer)`
 export default function AppToastContainer() {
   return (
     <StyledToastContainer
-      position="top-center"
+      position='top-center'
       autoClose={3000}
       newestOnTop
       pauseOnHover={false}
       closeOnClick
       draggable={false}
-      theme="colored"
+      theme='colored'
+      pauseOnFocusLoss={false}
     />
   );
 }
