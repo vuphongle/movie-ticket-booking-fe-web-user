@@ -10,6 +10,7 @@ import {
   useGetShowingNowMoviesQuery,
   useGetComingSoonMoviesQuery,
 } from '@/app/services/movie.api';
+import { getMovieTitle } from '@utils/functionUtils';
 
 enum CinemaCornerTab {
   BLOG = 'BLOG',
@@ -18,7 +19,7 @@ enum CinemaCornerTab {
 
 export default function CinemaCornerComponent() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: showingMovies = [] } = useGetShowingNowMoviesQuery();
   const { data: comingSoonMovies = [] } = useGetComingSoonMoviesQuery();
   const showingIds = showingMovies.map(m => m.id);
@@ -48,6 +49,7 @@ export default function CinemaCornerComponent() {
       movie: {
         id: movie.id,
         name: movie.name,
+        nameEn: movie.nameEn,
         slug: movie.slug,
         poster: movie.poster,
       },
@@ -135,12 +137,19 @@ export default function CinemaCornerComponent() {
                 }
               >
                 <PosterWrapper>
-                  <img src={r.movie?.poster} alt={r.movie?.name} />
+                  <img
+                    src={r.movie?.poster}
+                    alt={
+                      r.movie ? getMovieTitle(r.movie, i18n.language) : undefined
+                    }
+                  />
                   <RatingBadge>⭐ {r.rating}/10</RatingBadge>
                 </PosterWrapper>
 
                 <InfoWrapper>
-                  <MovieName>{r.movie?.name}</MovieName>
+                  <MovieName>
+                    {r.movie ? getMovieTitle(r.movie, i18n.language) : ''}
+                  </MovieName>
 
                   <ReviewComment>
                     {t('REVIEWS_COMMENT')}: “{r.comment}”

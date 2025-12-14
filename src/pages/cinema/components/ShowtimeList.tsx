@@ -14,6 +14,8 @@ import type { RootState } from '@app/Store';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux/es/hooks/useSelector';
 import { useLoginModal } from '@/contexts/LoginContext';
+import { useTranslation } from 'react-i18next';
+import { getMovieTitle } from '@utils/functionUtils';
 
 interface ShowtimeListProps {
   cinemaId: number;
@@ -45,6 +47,7 @@ const ShowtimeList = ({ cinemaId }: ShowtimeListProps) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { openLogin } = useLoginModal();
+  const { i18n } = useTranslation();
 
   const { data } = useGetMoviesShowtimesByCinemaQuery(cinemaId);
 
@@ -187,7 +190,7 @@ const ShowtimeList = ({ cinemaId }: ShowtimeListProps) => {
             <MovieBox key={movie.id}>
               <MovieLeft>
                 <MovieItem
-                  title={movie.name}
+                  title={getMovieTitle(movie, i18n.language)}
                   poster={movie.poster}
                   age={movie.age as MovieAge}
                   rating={movie.rating}
@@ -334,4 +337,3 @@ const Time = styled.div`
     cursor: pointer;
   }
 `;
-

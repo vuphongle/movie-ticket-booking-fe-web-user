@@ -6,7 +6,7 @@ import { useGetSeatsByAuditoriumAndShowtimeQuery } from '@app/services/auditoriu
 import type { SeatDto } from '@app/services/auditorium.api';
 import { useGetMovieByShowtimeQuery } from '@app/services/movie.api';
 import { BookingMovieInfo } from './components/BookingMovieInfo';
-import { formatDate } from '@utils/functionUtils';
+import { formatDate, getMovieTitle } from '@utils/functionUtils';
 import { useTranslation } from 'react-i18next';
 import { useBookSeatMutation } from '@/app/services/reservation.api';
 import { HeldSeatModal } from './components/modals/HeldSeatModal';
@@ -73,7 +73,7 @@ const buildFormatLabel = (graphicsType?: string, translationType?: string) => {
 };
 
 export default function BookingPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectSeatModalVisible, setSelectSeatModalVisible] = useState(false);
@@ -174,6 +174,7 @@ export default function BookingPage() {
   const { data: movie } = useGetMovieByShowtimeQuery(Number(showtimeId), {
     skip: !showtimeId,
   });
+  const displayMovieName = movie ? getMovieTitle(movie, i18n.language) : '';
 
   const [seats, setSeats] = useState<Seat[]>([]);
   const selectedSeatsRef = useRef<Seat[]>([]);
@@ -402,14 +403,14 @@ export default function BookingPage() {
       </Main>
 
       <Aside>
-        <SummaryCard>
-          <SummaryTitle>{t('BOOKING_SUMMARY')}</SummaryTitle>
-          {movie && (
-            <BookingMovieInfo
-              title={movie.name}
-              poster={movie.poster}
-              age={movie.age}
-              graphics={movie.graphics}
+          <SummaryCard>
+            <SummaryTitle>{t('BOOKING_SUMMARY')}</SummaryTitle>
+            {movie && (
+              <BookingMovieInfo
+                title={displayMovieName}
+                poster={movie.poster}
+                age={movie.age}
+                graphics={movie.graphics}
               cinema={cinema?.name || ''}
               auditorium={auditorium?.name || ''}
               showtime={showtimeLabel}

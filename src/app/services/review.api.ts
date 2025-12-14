@@ -13,6 +13,7 @@ export interface UserDto {
 export interface MovieDto {
   id: number;
   name: string;
+  nameEn?: string;
   poster: string;
   slug: string;
 }
@@ -42,6 +43,7 @@ export interface Page<T> {
 export interface MovieWithReviewsDto {
   id: number;
   name: string;
+  nameEn?: string;
   slug: string;
   poster: string;
   reviews: ReviewDto[];

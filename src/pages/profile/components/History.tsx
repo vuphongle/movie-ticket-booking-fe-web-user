@@ -8,7 +8,7 @@ import {
 } from '@app/services/Order.api';
 import type { OrderDto } from '@app/services/Order.api';
 import { FileText, TicketX } from 'lucide-react';
-import { formatDate, formatGraphicLabel } from '@utils/functionUtils';
+import { formatDate, formatGraphicLabel, getMovieTitle } from '@utils/functionUtils';
 
 const ORDER_STATUS_FILTERS = [
   { key: 'UPCOMING', label: 'Sắp tới' },
@@ -21,7 +21,7 @@ const ORDER_STATUS_FILTERS = [
 ];
 
 const History: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: purchaseHistory, isLoading, error } = useGetAllOrdersQuery();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -109,13 +109,15 @@ const History: React.FC = () => {
   const filteredSearch = useMemo(() => {
     if (!purchaseHistory) return [];
     return purchaseHistory.filter(order => {
-      const movieName = order.showtime?.movie?.name?.toLowerCase() || '';
+      const movieName = order.showtime?.movie
+        ? getMovieTitle(order.showtime.movie, i18n.language).toLowerCase()
+        : '';
       const cinemaName =
         order.showtime?.auditorium?.cinema?.name?.toLowerCase() || '';
       const term = searchTerm.toLowerCase();
       return movieName.includes(term) || cinemaName.includes(term);
     });
-  }, [purchaseHistory, searchTerm]);
+  }, [purchaseHistory, searchTerm, i18n.language]);
 
   const filteredByStatus = useMemo(() => {
     return filteredSearch.filter(order => {
@@ -176,10 +178,18 @@ const History: React.FC = () => {
               <MovieSection>
                 <Poster
                   src={order.showtime?.movie?.poster}
-                  alt={order.showtime?.movie?.name}
+                  alt={
+                    order.showtime?.movie
+                      ? getMovieTitle(order.showtime.movie, i18n.language)
+                      : undefined
+                  }
                 />
                 <MovieDetails>
-                  <MovieTitle>{order.showtime?.movie?.name}</MovieTitle>
+                  <MovieTitle>
+                    {order.showtime?.movie
+                      ? getMovieTitle(order.showtime.movie, i18n.language)
+                      : ''}
+                  </MovieTitle>
 
                   <CinemaInfo>
                     {order.showtime?.auditorium?.cinema?.name} – {t('ROOM')}{' '}
