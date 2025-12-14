@@ -11,6 +11,7 @@ import MovieItem from '@/pages/movies/components/MovieItem';
 import { theme } from '@theme/Theme';
 import type { Movie } from '@app/services/movie.api';
 import { useState } from 'react';
+import { getMovieTitle } from '@utils/functionUtils';
 
 interface Props {
   title: string;
@@ -25,7 +26,7 @@ export default function MovieComponent({
   buttonText,
   onViewMore,
 }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const navigate = useNavigate();
 
@@ -65,7 +66,7 @@ export default function MovieComponent({
         {movies.map(movie => (
           <SwiperSlide key={movie.id}>
             <MovieItem
-              title={movie.name}
+              title={getMovieTitle(movie, i18n.language)}
               poster={movie.poster}
               age={movie.age}
               rating={movie.rating ?? 0}

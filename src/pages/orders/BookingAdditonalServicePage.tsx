@@ -15,9 +15,10 @@ import GlobalLoading from '@components/loading/GlobalLoading';
 import { Modal, Button } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { cancelSeatMultiBeacon } from '@utils/cancelSeatMultiBeacon';
+import { getMovieTitle } from '@utils/functionUtils';
 
 export default function BookingAdditionalServicePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { bookingData } = location.state || {};
@@ -343,7 +344,7 @@ export default function BookingAdditionalServicePage() {
         <SummaryCard>
           <SummaryTitle>{t('BOOKING_SUMMARY')}</SummaryTitle>
           <BookingMovieInfo
-            title={bookingData.movie.name}
+            title={getMovieTitle(bookingData.movie, i18n.language)}
             poster={bookingData.movie.poster}
             age={bookingData.movie.age}
             graphics={bookingData.movie.graphics}

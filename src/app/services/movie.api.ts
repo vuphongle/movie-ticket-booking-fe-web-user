@@ -25,6 +25,7 @@ export interface Genre {
 export interface Movie {
   id: number;
   name: string;
+  nameEn?: string;
   slug: string;
   description: string;
   poster: string;

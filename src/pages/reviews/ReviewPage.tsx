@@ -9,9 +9,10 @@ import {
   useGetShowingNowMoviesQuery,
   useGetComingSoonMoviesQuery,
 } from '@/app/services/movie.api';
+import { getMovieTitle } from '@utils/functionUtils';
 
 const ReviewPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
@@ -42,6 +43,7 @@ const ReviewPage: React.FC = () => {
       movie: {
         id: movie.id,
         name: movie.name,
+        nameEn: movie.nameEn,
         slug: movie.slug,
         poster: movie.poster,
       },
@@ -87,13 +89,20 @@ const ReviewPage: React.FC = () => {
           >
             {review.movie?.poster && (
               <PosterWrapper>
-                <img src={review.movie.poster} alt={review.movie.name} />
+                <img
+                  src={review.movie.poster}
+                  alt={getMovieTitle(review.movie, i18n.language)}
+                />
                 <RatingBadge>⭐ {review.rating}/10</RatingBadge>
               </PosterWrapper>
             )}
 
             <InfoWrapper>
-              <MovieName>{review.movie?.name}</MovieName>
+              <MovieName>
+                {review.movie
+                  ? getMovieTitle(review.movie, i18n.language)
+                  : ''}
+              </MovieName>
 
               <Comment>“{review.comment}”</Comment>
 

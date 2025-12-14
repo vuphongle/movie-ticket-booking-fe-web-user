@@ -17,6 +17,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useLoginModal } from '@contexts/LoginContext';
 import { setDataToLocalStorage } from '@utils/localStorageUtils';
+import { getMovieTitle } from '@utils/functionUtils';
 
 interface ChatMessage {
   id: string;
@@ -325,7 +326,8 @@ const ChatWidget = () => {
                 typeof movie.rating === 'number'
                   ? movie.rating.toFixed(1)
                   : null;
-              const safeName = movie.name || fallbackMovieName;
+              const safeName =
+                getMovieTitle(movie, i18n.language) || fallbackMovieName;
               const detailSlug =
                 movie.slug && movie.slug.trim().length
                   ? movie.slug

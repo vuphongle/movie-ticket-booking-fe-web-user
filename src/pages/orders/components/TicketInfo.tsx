@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
-import { formatGraphicLabel, formatDate } from '@utils/functionUtils';
+import { formatGraphicLabel, formatDate, getMovieTitle } from '@utils/functionUtils';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import {
@@ -14,6 +14,7 @@ interface BookingData {
   format: string;
   movie: {
     name: string;
+    nameEn?: string;
     poster: string;
     duration: number;
     age: string;
@@ -48,8 +49,9 @@ export default function TicketInfo({
 }: TicketInfoProps) {
   if (!bookingData) return null;
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [code, setCode] = useState('');
+  const displayMovieName = getMovieTitle(bookingData.movie, i18n.language);
 
   const discountTotal = appliedCoupons.reduce((sum, c) => sum + c.discount, 0);
   const finalTotal = bookingData.total - discountTotal;
@@ -138,7 +140,7 @@ export default function TicketInfo({
     <Card>
       <TopRow>
         <PosterWrapper>
-          <Poster src={bookingData.movie.poster} alt={bookingData.movie.name} />
+          <Poster src={bookingData.movie.poster} alt={displayMovieName} />
           <TopLeft>
             {bookingData.movie.graphics.map((g, idx) => (
               <Badge key={idx}>{formatGraphicLabel(g)}</Badge>
@@ -153,7 +155,7 @@ export default function TicketInfo({
         </PosterWrapper>
 
         <MovieInfo>
-          <MovieName>{bookingData.movie.name}</MovieName>
+          <MovieName>{displayMovieName}</MovieName>
           <SubInfo>
             {bookingData.cinema} - {bookingData.auditorium}
           </SubInfo>

@@ -16,9 +16,10 @@ import MovieShowtimes from './components/MovieShowtimes';
 import MovieReviews from './components/MovieReviews';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
+import { getMovieTitle } from '@utils/functionUtils';
 
 const MovieDetailPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id, slug } = useParams<{ id: string; slug: string }>();
   const navigate = useNavigate();
 
@@ -85,7 +86,7 @@ const MovieDetailPage: React.FC = () => {
               {movies.slice(0, 3).map(m => (
                 <MovieItem
                   key={m.id}
-                  title={m.name}
+                  title={getMovieTitle(m, i18n.language)}
                   poster={m.poster}
                   age={m.age}
                   rating={m.rating}

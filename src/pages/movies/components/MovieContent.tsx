@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { theme } from '@theme/Theme';
 import { Clock, Star, Film, Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getMovieTitle } from '@utils/functionUtils';
 
 type Person = { id: number; name: string; avatar: string };
 type Genre = { id: number; name: string };
@@ -23,17 +24,26 @@ export interface MovieContentProps {
 }
 
 const MovieContent: React.FC<MovieContentProps> = ({ movie }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const primaryTitle = getMovieTitle(movie, i18n.language);
+  const secondaryTitle = i18n.language?.toLowerCase().startsWith('en')
+    ? movie.name
+    : movie.nameEn;
+  const showSecondaryTitle =
+    !!secondaryTitle &&
+    secondaryTitle.trim() &&
+    secondaryTitle.trim() !== primaryTitle.trim();
 
   return (
     <ContentWrapper>
       <Poster>
-        <img src={movie.poster} alt={movie.name} />
+        <img src={movie.poster} alt={primaryTitle} />
       </Poster>
 
       <Info>
-        <Title>{movie.name}</Title>
-        <SubTitle>{movie.nameEn}</SubTitle>
+        <Title>{primaryTitle}</Title>
+        {showSecondaryTitle && <SubTitle>{secondaryTitle}</SubTitle>}
 
         <Meta>
           <MetaItem>
