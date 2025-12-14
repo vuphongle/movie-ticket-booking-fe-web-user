@@ -1,43 +1,43 @@
 import LoginModal from '@components/modal/LoginModal';
 import RegisterModal from '@components/modal/RegisterModal';
 import ForgotPassword from '@components/modal/ForgotPasswordModal';
-import { Search } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import LogoImg from '@/assets/image/cinema-logo.png';
 import { useSelector, useDispatch } from 'react-redux';
 import { Menu as MenuIcon, X as CloseIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { theme } from '@theme/Theme';
 import type { RootState } from '@app/Store';
 import { logout } from '@/app/slices/auth.slice';
 import UserMenu from '@components/menu/UserMenu';
 import LanguageSelector from '@components/language/LanguageSelector';
-import { useEffect, useRef } from 'react';
 import ContentWrapper from '@components/base/ContentWrapper';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLoginModal } from '@contexts/LoginContext';
 import FlagVN from '@/assets/image/flags/vn.png';
 import FlagUS from '@/assets/image/flags/us.png';
+
+import SearchByImageModal from '@components/modal/SearchByImageModal';
 
 export default function Header() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { auth, isAuthenticated } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { auth, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [isSearchImageOpen, setIsSearchImageOpen] = useState(false);
+
   const handleSearch = () => {
     if (!searchTerm.trim()) return;
     navigate(`/search?keyword=${encodeURIComponent(searchTerm.trim())}`);
   };
 
   const { isLoginOpen, openLogin, closeLogin } = useLoginModal();
-
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isForgotOpen, setIsForgotOpen] = useState(false);
@@ -121,28 +121,12 @@ export default function Header() {
       key: 'movies',
       label: t('NAV_MOVIES'),
       subItems: [
-        {
-          key: 'movies-now',
-          label: t('NAV_MOVIES_NOW_SHOWING'),
-          onClick: () => navigate('/movies/now-showing'),
-        },
-        {
-          key: 'movies-soon',
-          label: t('NAV_MOVIES_COMING_SOON'),
-          onClick: () => navigate('/movies/coming-soon'),
-        },
+        { key: 'movies-now', label: t('NAV_MOVIES_NOW_SHOWING'), onClick: () => navigate('/movies/now-showing') },
+        { key: 'movies-soon', label: t('NAV_MOVIES_COMING_SOON'), onClick: () => navigate('/movies/coming-soon') },
       ],
     },
-    {
-      key: 'cinemas',
-      label: t('NAV_CINEMAS'),
-      onClick: () => navigate('/cinemas'),
-    },
-    {
-      key: 'coupons',
-      label: t('NAV_PROMOTIONS'),
-      onClick: () => navigate('/coupons'),
-    },
+    { key: 'cinemas', label: t('NAV_CINEMAS'), onClick: () => navigate('/cinemas') },
+    { key: 'coupons', label: t('NAV_PROMOTIONS'), onClick: () => navigate('/coupons') },
     {
       key: 'cinema_corner',
       label: t('NAV_CINEMA_CORNER'),
@@ -154,9 +138,7 @@ export default function Header() {
   ];
 
   const visibleTabletCount = 3;
-  const visibleMenuItems = isTablet
-    ? menuItems.slice(0, visibleTabletCount)
-    : menuItems;
+  const visibleMenuItems = isTablet ? menuItems.slice(0, visibleTabletCount) : menuItems;
   const extraMenuItems = isTablet ? menuItems.slice(visibleTabletCount) : [];
 
   const currentLang = i18n.language?.startsWith('en') ? 'en' : 'vi';
@@ -175,22 +157,15 @@ export default function Header() {
             <TopRow>
               {isMobile && (
                 <MobileLeft>
-                  <HamburgerButton
-                    onClick={toggleMobileMenu}
-                    aria-label='Toggle menu'
-                  >
-                    {isMobileMenuOpen ? (
-                      <CloseIcon size={20} />
-                    ) : (
-                      <MenuIcon size={20} />
-                    )}
+                  <HamburgerButton onClick={toggleMobileMenu} aria-label="Toggle menu">
+                    {isMobileMenuOpen ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
                   </HamburgerButton>
                 </MobileLeft>
               )}
 
               <LogoArea $centerMobile={isMobile}>
-                <Link to='/'>
-                  <Logo src={LogoImg} alt='GoCinema' />
+                <Link to="/">
+                  <Logo src={LogoImg} alt="GoCinema" />
                 </Link>
               </LogoArea>
 
@@ -203,10 +178,17 @@ export default function Header() {
                       onChange={e => setSearchTerm(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleSearch()}
                     />
-                    <SearchIcon
-                      onClick={handleSearch}
-                      style={{ cursor: 'pointer' }}
-                    />
+
+                    <SearchActions>
+                      <IconButton
+                        type="button"
+                        onClick={() => setIsSearchImageOpen(true)}
+                        aria-label="Search by image"
+                        title={t('SEARCH_BY_IMAGE') || 'Tìm bằng hình ảnh'}
+                      >
+                        <ImageIcon size={18} />
+                      </IconButton>
+                    </SearchActions>
                   </SearchBox>
                 </DesktopSearch>
               )}
@@ -222,9 +204,7 @@ export default function Header() {
                       <MenuItem
                         onClick={() => {
                           if (item.subItems) {
-                            setHoveredMenu(prev =>
-                              prev === item.key ? null : item.key
-                            );
+                            setHoveredMenu(prev => (prev === item.key ? null : item.key));
                           } else {
                             item.onClick?.();
                             setHoveredMenu(null);
@@ -236,12 +216,10 @@ export default function Header() {
                           (hoveredMenu === item.key ? (
                             <FaChevronUp size={12} style={{ marginLeft: 4 }} />
                           ) : (
-                            <FaChevronDown
-                              size={12}
-                              style={{ marginLeft: 4 }}
-                            />
+                            <FaChevronDown size={12} style={{ marginLeft: 4 }} />
                           ))}
                       </MenuItem>
+
                       {item.subItems && hoveredMenu === item.key && (
                         <SubMenu>
                           {item.subItems.map(sub => (
@@ -261,10 +239,7 @@ export default function Header() {
                   ))}
 
                   {isTablet && extraMenuItems.length > 0 && (
-                    <MenuItemWrapper
-                      onMouseEnter={() => setHoveredMenu('more')}
-                      onMouseLeave={() => setHoveredMenu(null)}
-                    >
+                    <MenuItemWrapper onMouseEnter={() => setHoveredMenu('more')} onMouseLeave={() => setHoveredMenu(null)}>
                       <MenuItem>
                         Thêm
                         {hoveredMenu === 'more' ? (
@@ -273,6 +248,7 @@ export default function Header() {
                           <FaChevronDown size={12} style={{ marginLeft: 4 }} />
                         )}
                       </MenuItem>
+
                       {hoveredMenu === 'more' && (
                         <SubMenu>
                           {extraMenuItems.map(item => (
@@ -311,12 +287,8 @@ export default function Header() {
                     <UserMenu auth={auth} onLogout={handleLogout} />
                   ) : (
                     <>
-                      <ButtonOutline onClick={openRegisterModal}>
-                        {t('AUTH_SIGNUP')}
-                      </ButtonOutline>
-                      <ButtonPrimary onClick={openLoginModal}>
-                        {t('AUTH_LOGIN')}
-                      </ButtonPrimary>
+                      <ButtonOutline onClick={openRegisterModal}>{t('AUTH_SIGNUP')}</ButtonOutline>
+                      <ButtonPrimary onClick={openLoginModal}>{t('AUTH_LOGIN')}</ButtonPrimary>
                     </>
                   )}
                   <LanguageSelectorWrapper>
@@ -330,13 +302,13 @@ export default function Header() {
                   {isAuthenticated && auth ? (
                     <UserMenu auth={auth} onLogout={handleLogout} />
                   ) : (
-                    <CompactLoginButton onClick={openLoginModal}>
-                      {t('AUTH_LOGIN')}
-                    </CompactLoginButton>
+                    <CompactLoginButton onClick={openLoginModal}>{t('AUTH_LOGIN')}</CompactLoginButton>
                   )}
+
                   <MobileLangButton onClick={() => setLangMenuOpen(p => !p)}>
-                    <img src={currentFlag} alt='lang' />
+                    <img src={currentFlag} alt="lang" />
                   </MobileLangButton>
+
                   {isLangMenuOpen && (
                     <MobileLangMenu>
                       <LangOption
@@ -345,7 +317,7 @@ export default function Header() {
                           setLangMenuOpen(false);
                         }}
                       >
-                        <img src={FlagVN} alt='VN' />
+                        <img src={FlagVN} alt="VN" />
                         <span>VN</span>
                       </LangOption>
                       <LangOption
@@ -354,7 +326,7 @@ export default function Header() {
                           setLangMenuOpen(false);
                         }}
                       >
-                        <img src={FlagUS} alt='EN' />
+                        <img src={FlagUS} alt="EN" />
                         <span>EN</span>
                       </LangOption>
                     </MobileLangMenu>
@@ -372,7 +344,18 @@ export default function Header() {
                     onChange={e => setSearchTerm(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
                   />
-                  <SearchIcon onClick={handleSearch} style={{ cursor: 'pointer' }} />
+
+                  <SearchActions>
+                    <IconButton
+                      type="button"
+                      onClick={() => setIsSearchImageOpen(true)}
+                      aria-label="Search by image"
+                      title={t('SEARCH_BY_IMAGE') || 'Tìm bằng hình ảnh'}
+                    >
+                      <ImageIcon size={18} />
+                    </IconButton>
+
+                  </SearchActions>
                 </SearchBox>
               </MobileSearchRow>
             )}
@@ -389,6 +372,7 @@ export default function Header() {
                   <CloseIcon size={18} />
                 </CloseSmall>
               </DrawerHeader>
+
               <DrawerMenu>
                 {menuItems.map(item => (
                   <DrawerItem key={item.key}>
@@ -400,6 +384,7 @@ export default function Header() {
                     >
                       {item.label}
                     </DrawerItemTitle>
+
                     {item.subItems && (
                       <DrawerSubList>
                         {item.subItems.map(sub => (
@@ -423,18 +408,24 @@ export default function Header() {
         )}
       </Container>
 
+      <SearchByImageModal
+        isOpen={isSearchImageOpen}
+        onClose={() => setIsSearchImageOpen(false)}
+        // Nếu bạn muốn click item trong kết quả => điều hướng
+        onSelectResult={(item: any) => {
+          // Ví dụ: nếu backend trả { id } cho movie:
+          if (item?.id) navigate(`/movies/${item.id}`);
+          setIsSearchImageOpen(false);
+        }}
+      />
+
       <LoginModal
         open={isLoginOpen}
         handleClose={closeLoginModal}
         handleForgotPassword={handleForgotPassword}
         handleRegister={handleRegister}
       />
-      <RegisterModal
-        open={isRegisterOpen}
-        handleClose={closeRegisterModal}
-        handleLogin={handleLogin}
-      />
-
+      <RegisterModal open={isRegisterOpen} handleClose={closeRegisterModal} handleLogin={handleLogin} />
       <ForgotPassword open={isForgotOpen} handleClose={closeForgotModal} />
     </>
   );
@@ -501,26 +492,28 @@ const Logo = styled.img`
 const SearchBox = styled.div`
   display: flex;
   align-items: center;
-  background: ${theme.colors.backgroundHover};
+
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.18);
   border-radius: ${theme.borderRadius.large};
-  padding: ${theme.spacing.sm} ${theme.spacing.md};
+
+  padding: ${theme.spacing.xs} ${theme.spacing.md};
   max-width: 520px;
   width: 100%;
   flex: 1 1 auto;
   min-width: 0;
-  border: 2px solid rgba(0, 120, 200, 0.4);
-  transition: all 0.3s ease;
+
+  transition: background 0.15s ease, border-color 0.15s ease;
 
   &:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    background: #daf0fc;
+    background: rgba(241, 245, 249, 1);
+    border-color: rgba(59, 130, 246, 0.28);
   }
 
-  @media (max-width: 768px) {
-    padding: ${theme.spacing.xs} ${theme.spacing.sm};
-    gap: ${theme.spacing.xs};
-    max-width: none;
+  &:focus-within {
+    background: rgba(59, 130, 246, 0.05);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
   }
 `;
 
@@ -541,12 +534,6 @@ const SearchInput = styled.input`
   @media (max-width: 640px) {
     font-size: 13px;
   }
-`;
-
-const SearchIcon = styled(Search)`
-  width: 16px;
-  height: 16px;
-  color: ${theme.colors.gray};
 `;
 
 const HamburgerButton = styled.button`
@@ -846,4 +833,45 @@ const DrawerSubList = styled.div`
       background: ${theme.colors.backgroundHover};
     }
   }
+`;
+
+const SearchActions = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+`;
+
+const IconButton = styled.button`
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(59, 130, 246, 0.10) !important;
+  cursor: pointer;
+
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #2563eb !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+  svg { width: 18px; height: 18px; display: block; }
+  svg, svg * {
+    stroke: currentColor !important;
+    fill: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.16) !important;
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.20);
+    transform: translateY(-1px);
+  }
+
+  &:active { transform: scale(0.98); }
 `;
