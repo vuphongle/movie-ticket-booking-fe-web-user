@@ -51,9 +51,9 @@ const common = {
 
   // FOOTER
   FOOTER_CUSTOMER_CARE: 'Chăm sóc khách hàng',
-  FOOTER_ADDRESS: '123 Đường Rạp Phim, Hà Nội, Việt Nam',
+  FOOTER_ADDRESS: '123 Đường GoCinema, TP HCM, Việt Nam',
   FOOTER_HOTLINE: 'Hotline: +84 123 456 789',
-  FOOTER_EMAIL: 'Email: support@cinema.com',
+  FOOTER_EMAIL: 'Email: support@gocinema.io.vn',
   FOOTER_BUY_TICKET: 'Mua vé',
   FOOTER_SCHEDULE: 'Lịch chiếu',
   FOOTER_CINEMA: 'Rạp chiếu',

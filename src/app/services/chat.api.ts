@@ -11,6 +11,7 @@ export interface ChatRecommendationRequest {
 export interface RecommendedMovie {
   movieId: number;
   name: string;
+  nameEn?: string | null;
   slug?: string | null;
   poster?: string | null;
   ageRating?: string | null;

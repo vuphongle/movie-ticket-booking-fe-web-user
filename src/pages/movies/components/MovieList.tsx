@@ -4,6 +4,7 @@ import type { Movie } from '@app/services/movie.api';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { getMovieTitle } from '@utils/functionUtils';
 
 interface Props {
   movies: Movie[];
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export default function MovieList({ movies, buttonText }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [activeTrailer, setActiveTrailer] = useState<string | null>(null);
 
@@ -32,7 +33,7 @@ export default function MovieList({ movies, buttonText }: Props) {
         {movies.map(movie => (
           <MovieItem
             key={movie.id}
-            title={movie.name}
+            title={getMovieTitle(movie, i18n.language)}
             poster={movie.poster}
             age={movie.age}
             rating={movie.rating}

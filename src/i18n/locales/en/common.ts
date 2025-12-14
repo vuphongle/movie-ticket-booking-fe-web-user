@@ -49,7 +49,7 @@ const common = {
 
   // FOOTER
   FOOTER_CUSTOMER_CARE: 'Customer Care',
-  FOOTER_ADDRESS: '123 Cinema Street, Hanoi, Vietnam',
+  FOOTER_ADDRESS: '123 GoCinema Street, TP HCM, Vietnam',
   FOOTER_HOTLINE: 'Hotline: +84 123 456 789',
   FOOTER_EMAIL: 'Email: support@cinema.com',
   FOOTER_BUY_TICKET: 'Buy Tickets',

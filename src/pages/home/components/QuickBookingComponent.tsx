@@ -4,7 +4,7 @@ import { theme } from '@theme/Theme';
 import { useTranslation } from 'react-i18next';
 import { useGetAllCinemaNamesQuery } from '@app/services/cine.api';
 import { useGetMoviesShowtimesByCinemaNameQuery } from '@app/services/showTime.api';
-import { formatGraphicLabel } from '@utils/functionUtils';
+import { formatGraphicLabel, getMovieTitle } from '@utils/functionUtils';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@app/Store';
@@ -14,7 +14,7 @@ import Select from 'react-select';
 import type { GroupBase, StylesConfig } from 'react-select';
 
 export default function QuickBookingComponent() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { openLogin } = useLoginModal();
@@ -147,7 +147,7 @@ export default function QuickBookingComponent() {
       graphicsType: st.graphicsType,
       translationType: st.translationType,
       format: `${st.graphicsType} ${st.translationType === 'DUBBING' ? 'Lồng tiếng' : st.translationType === 'SUBTITLING' ? 'Phụ đề' : st.translationType}`,
-      movieName: selectedMovie.name,
+      movieName: getMovieTitle(selectedMovie, i18n.language),
       movieSlug: selectedMovie.slug,
     };
 
@@ -163,7 +163,11 @@ export default function QuickBookingComponent() {
   const cinemaOptions =
     cinemaNames?.map(name => ({ value: name, label: name })) ?? [];
 
-  const movieOptions = movies?.map(m => ({ value: m.id, label: m.name })) || [];
+  const movieOptions =
+    movies?.map(m => ({
+      value: m.id,
+      label: getMovieTitle(m, i18n.language),
+    })) || [];
   const selectedMovieOption =
     movieOptions.find(opt => opt.value === selectedMovieId) || null;
 
