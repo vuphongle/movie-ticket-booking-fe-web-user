@@ -78,6 +78,7 @@ export interface MovieDetail extends Movie {
 export interface SearchMovieResult {
   id: number;
   name: string;
+  nameEn: string;
   slug: string;
   poster: string;
   rating: number;

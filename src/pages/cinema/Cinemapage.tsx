@@ -4,8 +4,10 @@ import { Spin } from 'antd';
 import { useGetAllCinemasQuery } from '@app/services/cine.api';
 import CinemaCard from './components/CinemaCard';
 import CinemaDetail from './components/CinemaDetail';
+import { useTranslation } from 'react-i18next';
 
 const CinemaPage = () => {
+  const { t } = useTranslation();
   const { data: cinemas, isLoading } = useGetAllCinemasQuery();
   const [search, setSearch] = useState('');
   const [selectedCinemaId, setSelectedCinemaId] = useState<number | null>(null);
@@ -44,7 +46,7 @@ const CinemaPage = () => {
       <SearchWrapper>
         <SearchInput
           type='text'
-          placeholder='Tìm rạp'
+          placeholder={t('SEARCH_CINEMA')}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />

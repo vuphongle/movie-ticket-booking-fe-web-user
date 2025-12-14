@@ -1,12 +1,14 @@
 import styled from 'styled-components';
 import { theme } from '@theme/Theme';
 import { Timer as TimerIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TimerBarProps {
   timer: number; // đơn vị: giây
 }
 
 export default function TimerBar({ timer }: TimerBarProps) {
+    const { t } = useTranslation();
   if (!timer || timer <= 0) return null;
 
   const formatTime = (sec: number) => {
@@ -30,7 +32,7 @@ export default function TimerBar({ timer }: TimerBarProps) {
         <IconWrapper>
           <TimerIcon size={20} />
         </IconWrapper>
-        Thời gian giữ ghế:<strong>{formatTime(timer)}</strong>
+        {t('TIME_HOLD_SEAT')}:<strong>{formatTime(timer)}</strong>
       </Bar>
       <ProgressContainer>
         <ProgressFill

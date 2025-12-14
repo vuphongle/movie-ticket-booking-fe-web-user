@@ -270,6 +270,24 @@ const common = {
   SEARCH_PLACEHOLDER_HISTORY: 'Search by movie name, cinema',
   MOVIE_NO_MOVIES: 'No movies available',
   SEARCH_BY_IMAGE: 'Search by Image',
+  SEARCH_CINEMA: 'Search cinema',
+    TODAY: 'Today',
+    TOMORROW: 'Tomorrow',
+    AUDITORIUM: 'Auditorium',
+    AUDITORIUM2: 'Auditorium Room',
+    CINEMA_LOCATION2: 'Cinema Location',
+    SEARCH_RESULTS: 'Search Results',
+    BOOK_TICKET: 'Book Ticket',
+    NO_RESULTS_FOUND: 'No results found.',
+    SEARCH_WITH_OTHER_IMAGES: 'Search with other images',
+    PLEASE_SELECT_AT_LEAST_ONE_IMAGE: 'Please select at least one image.',
+    ONLY_ACCEPT_PNG_JPEG_JPG_IMAGES: 'Only accept PNG / JPEG / JPG images.',
+    ONLY_SELECT_UP_TO_MAX_IMAGES: 'Only select up to {{max}} images.',
+    PLEASE_UPLOAD_ONE_OR_MORE_IMAGES_TO_SEARCH_FOR_MATCHING_MOVIES:
+      'Please upload one or more images to search for matching movies.',
+      UPLOAD_IMAGES: 'Upload images',
+      SEARCH: 'Search',
+      UPLOAD_MORE_IMAGES: 'Upload more images',
 };
 
 export default common;

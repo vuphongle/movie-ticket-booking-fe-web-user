@@ -3,8 +3,10 @@ import styled, { keyframes } from 'styled-components';
 import { theme } from '@theme/Theme';
 import BookingFail from '@assets/image/icons/booking-fail.png';
 import { FileText } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function PaymentResultPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const status = searchParams.get('status');
   const pdfUrl = searchParams.get('pdfUrl');
@@ -21,9 +23,9 @@ export default function PaymentResultPage() {
             </SuccessIcon>
           </IconWrapper>
 
-          <h2>Thanh toán thành công!</h2>
+          <h2>{t('PAYMENT_SUCCESS')}</h2>
           <Text>
-            Thông tin vé và QR code đã được gửi qua email.{' '}
+            {t('TICKET_INFO_SENT_EMAIL')}{' '}
             {pdfUrl && (
               <InlineDownloadButton
                 href={pdfUrl}
@@ -32,23 +34,23 @@ export default function PaymentResultPage() {
                 download={`order-${searchParams.get('orderCode') || 'ticket'}.pdf`}
               >
                 <FileText size={16} style={{ marginRight: 4 }} />
-                Xem vé
+                {t('VIEW_TICKET')}
               </InlineDownloadButton>
             )}
           </Text>
 
           <PrimaryButton onClick={() => navigate('/')}>
-            Quay về trang chủ
+            {t('BACK_TO_HOME')}
           </PrimaryButton>
         </Content>
       ) : (
         <Content>
           <img src={BookingFail} alt="Payment Failed" style={{ width: '100px', marginBottom: '16px' }} />
-          <h2>Thanh toán thất bại</h2>
-          <p>Giao dịch đã bị hủy, hết hạn hoặc không thành công.</p>
-          <p>Vui lòng thử lại hoặc liên hệ hỗ trợ.</p>
+          <h2>{t('PAYMENT_FAILED')}</h2>
+          <p>{t('TRANSACTION_CANCELLED_OR_EXPIRED')}</p>
+          <p>{t('PLEASE_TRY_AGAIN_OR_CONTACT_SUPPORT')}</p>
           <PrimaryButton onClick={() => navigate('/')}>
-            Quay về trang chủ
+            {t('BACK_TO_HOME')}
           </PrimaryButton>
         </Content>
       )}

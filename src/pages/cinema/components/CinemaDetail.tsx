@@ -7,12 +7,14 @@ import {
 import ShowtimeList from "./ShowtimeList";
 import Auditorium from "./Auditorium";
 import CinemaMap from "./CinemaMap";
+import { useTranslation } from 'react-i18next';
 
 interface CinemaDetailProps {
   cinemaId: number;
 }
 
 const CinemaDetail = ({ cinemaId }: CinemaDetailProps) => {
+    const { t } = useTranslation();
   const { data: cinema, isLoading } = useGetCinemaByIdQuery({
     cinemaId: cinemaId.toString(),
   });
@@ -30,7 +32,7 @@ const CinemaDetail = ({ cinemaId }: CinemaDetailProps) => {
 
       <BottomGrid>
         <AuditoriumBox>
-          <BoxTitle>Phòng chiếu</BoxTitle>
+          <BoxTitle>{t('AUDITORIUM2')}</BoxTitle>
           <AuditoriumList>
             {auditoriums?.map((a) => (
               <Auditorium key={a.id} auditorium={a} />
@@ -39,7 +41,7 @@ const CinemaDetail = ({ cinemaId }: CinemaDetailProps) => {
         </AuditoriumBox>
 
         <InfoBox>
-          <BoxTitle>Vị trí rạp</BoxTitle>
+          <BoxTitle>{t('CINEMA_LOCATION2')}</BoxTitle>
           <CinemaMap mapLocation={cinema.mapLocation || ""} />
         </InfoBox>
       </BottomGrid>

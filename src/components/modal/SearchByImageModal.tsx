@@ -7,6 +7,8 @@ import { useSearchByImageMutation } from '@app/services/movie.api';
 import { toast } from 'react-toastify';
 import MovieItem from '@pages/movies/components/MovieItem';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { getMovieTitle } from '@utils/functionUtils';
 
 type Props = {
   isOpen: boolean;
@@ -26,6 +28,8 @@ export default function SearchByImageModal({
   isOpen,
   onClose,
 }: Props) {
+    
+  const { t, i18n } = useTranslation();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
 
@@ -57,9 +61,7 @@ export default function SearchByImageModal({
 
     const remaining = MAX_IMAGES - picked.length;
     if (remaining <= 0) {
-      toast.info(
-        `Bạn chỉ được chọn tối đa ${MAX_IMAGES} ảnh mỗi lần tìm kiếm.`
-      );
+      toast.info(t('ONLY_SELECT_UP_TO_MAX_IMAGES', { max: MAX_IMAGES }));
       if (inputRef.current) inputRef.current.value = '';
       return;
     }
@@ -67,7 +69,7 @@ export default function SearchByImageModal({
     const valid: File[] = [];
     for (const f of files) {
       if (!ACCEPTED.includes(f.type)) {
-        toast.error('Chỉ chấp nhận ảnh PNG / JPEG / JPG');
+        toast.error(t('ONLY_ACCEPT_PNG_JPEG_JPG_IMAGES'));
         continue;
       }
       valid.push(f);
@@ -101,7 +103,7 @@ export default function SearchByImageModal({
       filtered.slice(limited.length).forEach(x => URL.revokeObjectURL(x.url));
 
       if (filtered.length > limited.length) {
-        toast.info(`Chỉ chọn tối đa ${MAX_IMAGES} ảnh.`);
+        toast.info(t('ONLY_SELECT_UP_TO_MAX_IMAGES', { max: MAX_IMAGES }));
       }
 
       return [...prev, ...limited];
@@ -132,7 +134,7 @@ export default function SearchByImageModal({
 
   const handleSearch = async () => {
     if (!picked.length) {
-      alert('Vui lòng chọn ít nhất 1 ảnh trước.');
+      alert(t('PLEASE_SELECT_AT_LEAST_ONE_IMAGE'));
       return;
     }
 
@@ -180,7 +182,7 @@ export default function SearchByImageModal({
         <Header>
           <HeaderLeft>
             <ImageIcon size={18} />
-            <HeaderTitle>Tìm kiếm với hình ảnh</HeaderTitle>
+            <HeaderTitle>{t('SEARCH_BY_IMAGE')}</HeaderTitle>
           </HeaderLeft>
         </Header>
 
@@ -189,13 +191,12 @@ export default function SearchByImageModal({
             {!picked.length ? (
               <>
                 <Hint>
-                  Vui lòng tải lên một hoặc nhiều hình ảnh để tìm kiếm phim
-                  tương ứng.
+                  {t('PLEASE_UPLOAD_ONE_OR_MORE_IMAGES_TO_SEARCH_FOR_MATCHING_MOVIES')}
                 </Hint>
 
                 <PrimaryButton type='button' onClick={handlePick}>
                   <UploadCloud size={18} />
-                  <span>Tải ảnh lên</span>
+                  <span>{t('UPLOAD_IMAGES')}</span>
                 </PrimaryButton>
 
                 <HiddenInput
@@ -216,7 +217,7 @@ export default function SearchByImageModal({
                         <RemoveBtn
                           type='button'
                           onClick={() => removePicked(p.id)}
-                          title='Xóa ảnh'
+                          title={t('REMOVE_IMAGE')}
                         >
                           <X size={14} />
                         </RemoveBtn>
@@ -228,7 +229,7 @@ export default function SearchByImageModal({
                 <Row>
                   <SecondaryButton type='button' onClick={handlePick}>
                     <UploadCloud size={18} />
-                    <span>Chọn thêm ảnh</span>
+                    <span>{t('UPLOAD_MORE_IMAGES')}</span>
                   </SecondaryButton>
 
                   <HiddenInput
@@ -248,7 +249,7 @@ export default function SearchByImageModal({
               disabled={!canSearch}
             >
               <Search size={18} />
-              <span>Tìm kiếm</span>
+              <span>{t('SEARCH')}</span>
             </SearchButton>
           </Body>
         ) : (
@@ -263,17 +264,17 @@ export default function SearchByImageModal({
 
             {results.length > 0 ? (
               <>
-                <ResultTitle>Kết quả tìm kiếm:</ResultTitle>
+                <ResultTitle>{t('SEARCH_RESULTS')}:</ResultTitle>
                 <ResultGrid>
                   {results.map(item => (
                     <MovieItem
                       key={item.id}
-                      title={item.name}
+                      title={getMovieTitle(item, i18n.language)}
                       poster={item.poster}
                       age={item.age}
                       rating={item.rating}
                       graphics={item.graphics}
-                      buttonText='Đặt vé'
+                      buttonText={t('BOOK_TICKET')}
                       compact
                       onAction={() => {
                         onClose();
@@ -285,7 +286,7 @@ export default function SearchByImageModal({
                 </ResultGrid>
               </>
             ) : (
-              <Empty>Không tìm thấy kết quả.</Empty>
+              <Empty>{t('NO_RESULTS_FOUND')}</Empty>
             )}
 
             <LinkButton
@@ -294,7 +295,7 @@ export default function SearchByImageModal({
                 resetAll();
               }}
             >
-              Tìm kiếm với các hình ảnh khác
+              {t('SEARCH_WITH_OTHER_IMAGES')}
             </LinkButton>
           </Body>
         )}
@@ -452,7 +453,7 @@ const ResultGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  max-height: 320px;
+  max-height: 340px;
   overflow: auto;
   padding-right: 4px;
   background: rgba(0, 0, 0, 0.05);

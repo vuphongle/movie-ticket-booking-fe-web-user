@@ -6,6 +6,7 @@ import {
   usePreviewAllCouponDisplayMutation,
   useApplyCouponDisplayMutation,
 } from '@app/services/coupon.api';
+import { useTranslation } from 'react-i18next';
 
 interface BookingData {
   showtimeId: string;
@@ -34,7 +35,7 @@ export default function PromoSection({
   bookingData,
   onApplyCoupon,
 }: PromoSectionProps) {
-  // ----- hooks (top-level only) -----
+  const { t } = useTranslation();
   const {
     data: couponDetails = [],
     isLoading,
@@ -46,7 +47,6 @@ export default function PromoSection({
     usePreviewAllCouponDisplayMutation();
   const previewData = previewResult?.data;
 
-  // ----- trigger preview khi bookingData thay đổi -----
   useEffect(() => {
     if (!bookingData) return;
     previewAllTrigger({
@@ -63,11 +63,9 @@ export default function PromoSection({
         })),
       },
     }).catch(() => {
-      /* ignore preview errors for display */
     });
   }, [bookingData, previewAllTrigger]);
 
-  // ----- prepare quick lookup maps from previewData -----
   const previewMap = useMemo(() => {
     const map = new Map<number, any>();
     if (previewData?.detailResults) {
@@ -144,9 +142,6 @@ export default function PromoSection({
       },
     };
 
-    // 👉 In ra console để kiểm tra
-    console.log('🧾 Dữ liệu request gửi đi:', requestData);
-
     try {
       const res = await applyCoupon(requestData).unwrap();
 
@@ -165,15 +160,13 @@ export default function PromoSection({
     });
   };
 
-  // ----- loading / error UI -----
   if (isLoading || previewResult.isLoading)
-    return <Section>Đang tải khuyến mãi...</Section>;
-  if (error) return <Section>Lỗi tải dữ liệu khuyến mãi.</Section>;
+    return <Section>{t('LOADING_PROMOTIONS')}</Section>;
+  if (error) return <Section>{t('ERROR_LOADING_PROMOTIONS')}</Section>;
 
-  // ----- render -----
   return (
     <Section>
-      <h2>Khuyến mãi dành cho đơn của bạn</h2>
+      <h2>{t('PROMOTIONS_FOR_YOUR_ORDER')}</h2>
 
       <CouponList>
         <CouponRow selected={selectedId === null} onClick={handleNoPromo}>
@@ -194,9 +187,9 @@ export default function PromoSection({
           </LeftPart>
 
           <Info>
-            <h4>Không sử dụng khuyến mãi</h4>
-            <p>Thanh toán với giá gốc</p>
-            <small>Bạn có thể chọn khuyến mãi bên dưới nếu muốn</small>
+            <h4>{t('NO_PROMO_SELECTED')}</h4>
+            <p>{t('PAY_ORIGINAL_PRICE')}</p>
+            <small>{t('YOU_CAN_CHOOSE_PROMO_BELOW')}</small>
           </Info>
 
           <DiscountBox>0₫</DiscountBox>
@@ -223,8 +216,8 @@ export default function PromoSection({
                 return false;
               }}
             >
-              {isBestChoice && <BestChoiceTag>Lựa chọn tốt nhất</BestChoiceTag>}
-              {isUsedUp && <UsedUpTag>Đã hết lượt sử dụng</UsedUpTag>}
+              {isBestChoice && <BestChoiceTag>{t('BEST_CHOICE')}</BestChoiceTag>}
+              {isUsedUp && <UsedUpTag>{t('USED_UP')}</UsedUpTag>}
 
               <LeftPart>
                 <RadioInput
@@ -249,30 +242,30 @@ export default function PromoSection({
               <Info>
                 <h4>
                   {c.targetType === 'TICKET'
-                    ? 'Ưu đãi giá vé'
+                    ? t('DISCOUNT_TICKET')
                     : c.targetType === 'ADDITIONAL_SERVICE'
-                      ? 'Ưu đãi dịch vụ đi kèm'
+                      ? t('DISCOUNT_ADDITIONAL_SERVICE')
                       : c.targetType === 'PRODUCT'
-                        ? 'Ưu đãi sản phẩm'
-                        : 'Ưu đãi khác'}
+                        ? t('DISCOUNT_PRODUCT')
+                        : t('DISCOUNT_OTHER')}
                 </h4>
 
                 <p>
                   {c.benefitType === 'FREE_PRODUCT'
-                    ? 'Tặng sản phẩm'
+                    ? t('FREE_PRODUCT')
                     : c.benefitType === 'DISCOUNT_PERCENT'
-                      ? `Giảm ${c.percent}%`
+                      ? `${t('DISCOUNT_PERCENT')} ${c.percent}%`
                       : c.benefitType === 'DISCOUNT_AMOUNT'
-                        ? `Giảm ${c.amount?.toLocaleString() ?? 0}đ`
-                        : 'Ưu đãi đặc biệt'}
+                        ? `${t('DISCOUNT_AMOUNT')} ${c.amount?.toLocaleString() ?? 0}đ`
+                        : t('SPECIAL_OFFER')}
                 </p>
 
                 {isUnlimited ? (
-                  <small>Không giới hạn</small>
+                  <small>{t('UNLIMITED')}</small>
                 ) : (
                   <>
                     <small>
-                      Giới hạn: {c.limitQuantityApplied} | Đã dùng:{' '}
+                      {t('LIMIT')}: {c.limitQuantityApplied} | {t('USED')}: {' '}
                       {c.detailUsedCount}
                     </small>
                     <ProgressBarContainer>
