@@ -33,6 +33,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
   // modal state
   const [successOpen, setSuccessOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const schema = useMemo(
     () =>
@@ -122,11 +123,18 @@ const LoginModal: React.FC<LoginModalProps> = ({
               <Label htmlFor='password'>{t('AUTH_PASSWORD')}</Label>
               <PasswordWrapper>
                 <Input
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
                   id='password'
                   {...register('password')}
                   placeholder={t('LOGIN_PASSWORD_PLACEHOLDER')}
                 />
+                <ToggleButton
+                  type='button'
+                  onClick={() => setShowPassword(!showPassword)}
+                  title={showPassword ? t('HIDE_PASSWORD') : t('SHOW_PASSWORD')}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </ToggleButton>
               </PasswordWrapper>
               {errors.password && (
                 <ErrorText>{errors.password.message}</ErrorText>
@@ -262,6 +270,26 @@ const ErrorText = styled.p`
 
 const PasswordWrapper = styled.div`
   position: relative;
+`;
+
+const ToggleButton = styled.button`
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 const ForgotPasswordWrapper = styled.div`
