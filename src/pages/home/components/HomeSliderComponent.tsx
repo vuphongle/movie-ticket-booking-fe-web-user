@@ -41,7 +41,6 @@ export default function HomeSliderComponent({ slides }: Props) {
 /* Styled */
 const SliderWrapper = styled.div`
   width: 100%;
-  max-height: 500px;
   position: relative;
 
   .swiper-pagination {
@@ -69,7 +68,16 @@ const SliderWrapper = styled.div`
 const SlideContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 500px;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+
+  @media (max-width: 1200px) {
+    aspect-ratio: 16 / 9;
+  }
+
+  @media (max-width: 768px) {
+    aspect-ratio: 4 / 3;
+  }
 `;
 
 const SlideImage = styled.img`

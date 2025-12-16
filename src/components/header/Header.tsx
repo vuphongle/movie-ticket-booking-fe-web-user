@@ -26,7 +26,9 @@ export default function Header() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { auth, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { auth, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -121,24 +123,50 @@ export default function Header() {
       key: 'movies',
       label: t('NAV_MOVIES'),
       subItems: [
-        { key: 'movies-now', label: t('NAV_MOVIES_NOW_SHOWING'), onClick: () => navigate('/movies/now-showing') },
-        { key: 'movies-soon', label: t('NAV_MOVIES_COMING_SOON'), onClick: () => navigate('/movies/coming-soon') },
+        {
+          key: 'movies-now',
+          label: t('NAV_MOVIES_NOW_SHOWING'),
+          onClick: () => navigate('/movies/now-showing'),
+        },
+        {
+          key: 'movies-soon',
+          label: t('NAV_MOVIES_COMING_SOON'),
+          onClick: () => navigate('/movies/coming-soon'),
+        },
       ],
     },
-    { key: 'cinemas', label: t('NAV_CINEMAS'), onClick: () => navigate('/cinemas') },
-    { key: 'coupons', label: t('NAV_PROMOTIONS'), onClick: () => navigate('/coupons') },
+    {
+      key: 'cinemas',
+      label: t('NAV_CINEMAS'),
+      onClick: () => navigate('/cinemas'),
+    },
+    {
+      key: 'coupons',
+      label: t('NAV_PROMOTIONS'),
+      onClick: () => navigate('/coupons'),
+    },
     {
       key: 'cinema_corner',
       label: t('NAV_CINEMA_CORNER'),
       subItems: [
-        { key: 'blogs', label: t('NAV_BLOG_MOVIES'), onClick: () => navigate('/blogs') },
-        { key: 'reviews', label: t('NAV_REVIEWS_MOVIES'), onClick: () => navigate('/reviews') },
+        {
+          key: 'blogs',
+          label: t('NAV_BLOG_MOVIES'),
+          onClick: () => navigate('/blogs'),
+        },
+        {
+          key: 'reviews',
+          label: t('NAV_REVIEWS_MOVIES'),
+          onClick: () => navigate('/reviews'),
+        },
       ],
     },
   ];
 
   const visibleTabletCount = 3;
-  const visibleMenuItems = isTablet ? menuItems.slice(0, visibleTabletCount) : menuItems;
+  const visibleMenuItems = isTablet
+    ? menuItems.slice(0, visibleTabletCount)
+    : menuItems;
   const extraMenuItems = isTablet ? menuItems.slice(visibleTabletCount) : [];
 
   const currentLang = i18n.language?.startsWith('en') ? 'en' : 'vi';
@@ -157,15 +185,22 @@ export default function Header() {
             <TopRow>
               {isMobile && (
                 <MobileLeft>
-                  <HamburgerButton onClick={toggleMobileMenu} aria-label="Toggle menu">
-                    {isMobileMenuOpen ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
+                  <HamburgerButton
+                    onClick={toggleMobileMenu}
+                    aria-label='Toggle menu'
+                  >
+                    {isMobileMenuOpen ? (
+                      <CloseIcon size={20} />
+                    ) : (
+                      <MenuIcon size={20} />
+                    )}
                   </HamburgerButton>
                 </MobileLeft>
               )}
 
               <LogoArea $centerMobile={isMobile}>
-                <Link to="/">
-                  <Logo src={LogoImg} alt="GoCinema" />
+                <Link to='/'>
+                  <Logo src={LogoImg} alt='GoCinema' />
                 </Link>
               </LogoArea>
 
@@ -181,9 +216,9 @@ export default function Header() {
 
                     <SearchActions>
                       <IconButton
-                        type="button"
+                        type='button'
                         onClick={() => setIsSearchImageOpen(true)}
-                        aria-label="Search by image"
+                        aria-label='Search by image'
                         title={t('SEARCH_BY_IMAGE') || 'Tìm bằng hình ảnh'}
                       >
                         <ImageIcon size={18} />
@@ -204,7 +239,9 @@ export default function Header() {
                       <MenuItem
                         onClick={() => {
                           if (item.subItems) {
-                            setHoveredMenu(prev => (prev === item.key ? null : item.key));
+                            setHoveredMenu(prev =>
+                              prev === item.key ? null : item.key
+                            );
                           } else {
                             item.onClick?.();
                             setHoveredMenu(null);
@@ -216,7 +253,10 @@ export default function Header() {
                           (hoveredMenu === item.key ? (
                             <FaChevronUp size={12} style={{ marginLeft: 4 }} />
                           ) : (
-                            <FaChevronDown size={12} style={{ marginLeft: 4 }} />
+                            <FaChevronDown
+                              size={12}
+                              style={{ marginLeft: 4 }}
+                            />
                           ))}
                       </MenuItem>
 
@@ -239,7 +279,10 @@ export default function Header() {
                   ))}
 
                   {isTablet && extraMenuItems.length > 0 && (
-                    <MenuItemWrapper onMouseEnter={() => setHoveredMenu('more')} onMouseLeave={() => setHoveredMenu(null)}>
+                    <MenuItemWrapper
+                      onMouseEnter={() => setHoveredMenu('more')}
+                      onMouseLeave={() => setHoveredMenu(null)}
+                    >
                       <MenuItem>
                         Thêm
                         {hoveredMenu === 'more' ? (
@@ -287,8 +330,12 @@ export default function Header() {
                     <UserMenu auth={auth} onLogout={handleLogout} />
                   ) : (
                     <>
-                      <ButtonOutline onClick={openRegisterModal}>{t('AUTH_SIGNUP')}</ButtonOutline>
-                      <ButtonPrimary onClick={openLoginModal}>{t('AUTH_LOGIN')}</ButtonPrimary>
+                      <ButtonOutline onClick={openRegisterModal}>
+                        {t('AUTH_SIGNUP')}
+                      </ButtonOutline>
+                      <ButtonPrimary onClick={openLoginModal}>
+                        {t('AUTH_LOGIN')}
+                      </ButtonPrimary>
                     </>
                   )}
                   <LanguageSelectorWrapper>
@@ -302,11 +349,13 @@ export default function Header() {
                   {isAuthenticated && auth ? (
                     <UserMenu auth={auth} onLogout={handleLogout} />
                   ) : (
-                    <CompactLoginButton onClick={openLoginModal}>{t('AUTH_LOGIN')}</CompactLoginButton>
+                    <CompactLoginButton onClick={openLoginModal}>
+                      {t('AUTH_LOGIN')}
+                    </CompactLoginButton>
                   )}
 
                   <MobileLangButton onClick={() => setLangMenuOpen(p => !p)}>
-                    <img src={currentFlag} alt="lang" />
+                    <img src={currentFlag} alt='lang' />
                   </MobileLangButton>
 
                   {isLangMenuOpen && (
@@ -317,7 +366,7 @@ export default function Header() {
                           setLangMenuOpen(false);
                         }}
                       >
-                        <img src={FlagVN} alt="VN" />
+                        <img src={FlagVN} alt='VN' />
                         <span>VN</span>
                       </LangOption>
                       <LangOption
@@ -326,7 +375,7 @@ export default function Header() {
                           setLangMenuOpen(false);
                         }}
                       >
-                        <img src={FlagUS} alt="EN" />
+                        <img src={FlagUS} alt='EN' />
                         <span>EN</span>
                       </LangOption>
                     </MobileLangMenu>
@@ -347,14 +396,13 @@ export default function Header() {
 
                   <SearchActions>
                     <IconButton
-                      type="button"
+                      type='button'
                       onClick={() => setIsSearchImageOpen(true)}
-                      aria-label="Search by image"
+                      aria-label='Search by image'
                       title={t('SEARCH_BY_IMAGE') || 'Tìm bằng hình ảnh'}
                     >
                       <ImageIcon size={18} />
                     </IconButton>
-
                   </SearchActions>
                 </SearchBox>
               </MobileSearchRow>
@@ -367,7 +415,7 @@ export default function Header() {
             <DrawerOverlay onClick={() => setMobileMenuOpen(false)} />
             <DrawerPanel>
               <DrawerHeader>
-                <span>{t('NAV_MENU') || 'Menu'}</span>
+                <span>Menu</span>
                 <CloseSmall onClick={() => setMobileMenuOpen(false)}>
                   <CloseIcon size={18} />
                 </CloseSmall>
@@ -425,7 +473,11 @@ export default function Header() {
         handleForgotPassword={handleForgotPassword}
         handleRegister={handleRegister}
       />
-      <RegisterModal open={isRegisterOpen} handleClose={closeRegisterModal} handleLogin={handleLogin} />
+      <RegisterModal
+        open={isRegisterOpen}
+        handleClose={closeRegisterModal}
+        handleLogin={handleLogin}
+      />
       <ForgotPassword open={isForgotOpen} handleClose={closeForgotModal} />
     </>
   );
@@ -456,13 +508,23 @@ const TopRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: ${theme.spacing.md};
+  gap: ${theme.spacing.sm};
+
+  @media (min-width: 1200px) {
+    gap: ${theme.spacing.md};
+  }
 `;
 
 const DesktopSearch = styled.div`
-  flex: 1 1 320px;
+  flex: 1 1 auto;
   display: flex;
   justify-content: center;
+  max-width: 380px;
+  min-width: 0;
+
+  @media (min-width: 1200px) {
+    max-width: 480px;
+  }
 `;
 
 const MobileLeft = styled.div`
@@ -483,6 +545,11 @@ const Logo = styled.img`
   height: 60px;
   border-radius: ${theme.borderRadius.medium};
 
+  @media (max-width: 1200px) {
+    width: 56px;
+    height: 46px;
+  }
+
   @media (max-width: 768px) {
     width: 48px;
     height: 40px;
@@ -497,13 +564,15 @@ const SearchBox = styled.div`
   border: 1px solid rgba(59, 130, 246, 0.18);
   border-radius: ${theme.borderRadius.large};
 
-  padding: ${theme.spacing.xs} ${theme.spacing.md};
-  max-width: 520px;
+  padding: ${theme.spacing.xs} ${theme.spacing.sm};
+  max-width: 100%;
   width: 100%;
   flex: 1 1 auto;
   min-width: 0;
 
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 
   &:hover {
     background: rgba(241, 245, 249, 1);
@@ -514,6 +583,10 @@ const SearchBox = styled.div`
     background: rgba(59, 130, 246, 0.05);
     border-color: #3b82f6;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  }
+
+  @media (max-width: 1200px) {
+    padding: ${theme.spacing.xs} ${theme.spacing.xs};
   }
 `;
 
@@ -555,13 +628,17 @@ const HamburgerButton = styled.button`
 const Menu = styled.div<{ $isTablet?: boolean }>`
   display: flex;
   align-items: center;
-  gap: ${theme.spacing.md};
-  flex-wrap: ${({ $isTablet }) => ($isTablet ? 'wrap' : 'nowrap')};
+  gap: ${theme.spacing.sm};
+  flex-wrap: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+
+  @media (min-width: 1200px) {
+    gap: ${theme.spacing.md};
+  }
 
   @media (max-width: 1023px) {
-    display: ${({ $isTablet }) => ($isTablet ? 'flex' : 'none')};
-    justify-content: center;
-    gap: ${theme.spacing.sm};
+    gap: ${theme.spacing.xs};
   }
 
   @media (max-width: 768px) {
@@ -570,12 +647,12 @@ const Menu = styled.div<{ $isTablet?: boolean }>`
 `;
 
 const MenuItem = styled.div`
-  font-size: ${theme.fontSize.md};
-  font-weight: bold;
+  font-size: ${theme.fontSize.sm};
+  font-weight: 600;
   color: ${theme.colors.textPrimary};
   cursor: pointer;
   white-space: nowrap;
-  padding: 8px 6px;
+  padding: 6px 8px;
   border-radius: 6px;
   transition:
     background-color 0.3s,
@@ -588,8 +665,15 @@ const MenuItem = styled.div`
     outline: none;
   }
 
+  @media (min-width: 1200px) {
+    font-size: ${theme.fontSize.md};
+    font-weight: bold;
+    padding: 8px 10px;
+  }
+
   @media (max-width: 1023px) {
-    font-size: 15px;
+    font-size: 14px;
+    padding: 6px 4px;
   }
 `;
 
@@ -633,19 +717,20 @@ const NestedSubMenuItem = styled(SubMenuItem)`
 const RightArea = styled.div`
   display: flex;
   align-items: center;
-  gap: ${theme.spacing.md};
-  flex-wrap: wrap;
+  gap: ${theme.spacing.sm};
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  flex-shrink: 0;
 
-  @media (max-width: 1023px) {
-    gap: ${theme.spacing.sm};
+  @media (min-width: 1200px) {
+    gap: ${theme.spacing.md};
   }
 `;
 
 const ButtonOutline = styled.button`
   border: 1px solid ${theme.colors.border};
   background: ${theme.colors.white};
-  padding: 10px 24px;
+  padding: 8px 16px;
   border-radius: ${theme.borderRadius.large};
   font-size: ${theme.fontSize.sm};
   cursor: pointer;
@@ -654,13 +739,22 @@ const ButtonOutline = styled.button`
   &:hover {
     border-color: ${theme.colors.gray};
   }
+
+  @media (min-width: 1200px) {
+    padding: 10px 24px;
+  }
+
+  @media (max-width: 1023px) {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
 `;
 
 const ButtonPrimary = styled.button`
   background: ${theme.colors.primary};
   color: ${theme.colors.white};
   border: none;
-  padding: 10px 24px;
+  padding: 8px 16px;
   border-radius: ${theme.borderRadius.large};
   font-size: ${theme.fontSize.sm};
   cursor: pointer;
@@ -669,14 +763,27 @@ const ButtonPrimary = styled.button`
   &:hover {
     background: ${theme.colors.primaryHover};
   }
+
+  @media (min-width: 1200px) {
+    padding: 10px 24px;
+  }
+
+  @media (max-width: 1023px) {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
 `;
 
 const LanguageSelectorWrapper = styled.div`
-  width: 90px;
+  width: 70px;
   flex-shrink: 0;
 
+  @media (min-width: 1200px) {
+    width: 90px;
+  }
+
   @media (max-width: 1023px) {
-    width: 80px;
+    width: 60px;
   }
 `;
 
@@ -844,7 +951,7 @@ const SearchActions = styled.div`
 
 const IconButton = styled.button`
   border: 1px solid rgba(59, 130, 246, 0.25);
-  background: rgba(59, 130, 246, 0.10) !important;
+  background: rgba(59, 130, 246, 0.1) !important;
   cursor: pointer;
 
   width: 34px;
@@ -857,10 +964,18 @@ const IconButton = styled.button`
   justify-content: center;
 
   color: #2563eb !important;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 
-  svg { width: 18px; height: 18px; display: block; }
-  svg, svg * {
+  svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+  svg,
+  svg * {
     stroke: currentColor !important;
     fill: none !important;
     opacity: 1 !important;
@@ -869,9 +984,11 @@ const IconButton = styled.button`
 
   &:hover {
     background: rgba(59, 130, 246, 0.16) !important;
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.20);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.2);
     transform: translateY(-1px);
   }
 
-  &:active { transform: scale(0.98); }
+  &:active {
+    transform: scale(0.98);
+  }
 `;

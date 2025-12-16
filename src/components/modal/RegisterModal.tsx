@@ -210,8 +210,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 <ToggleButton
                   type='button'
                   onClick={() => togglePasswordVisibility('password')}
-                  title={t('REGISTER_SHOW_PASSWORD')}
-                ></ToggleButton>
+                  title={
+                    showPassword.password
+                      ? t('HIDE_PASSWORD')
+                      : t('SHOW_PASSWORD')
+                  }
+                >
+                  {showPassword.password ? '👁️' : '👁️‍🗨️'}
+                </ToggleButton>
               </PasswordWrapper>
               {errors.password && (
                 <ErrorText>{errors.password.message}</ErrorText>
@@ -233,8 +239,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 <ToggleButton
                   type='button'
                   onClick={() => togglePasswordVisibility('confirmPassword')}
-                  title={t('REGISTER_SHOW_PASSWORD')}
-                ></ToggleButton>
+                  title={
+                    showPassword.confirmPassword
+                      ? t('HIDE_PASSWORD')
+                      : t('SHOW_PASSWORD')
+                  }
+                >
+                  {showPassword.confirmPassword ? '👁️' : '👁️‍🗨️'}
+                </ToggleButton>
               </PasswordWrapper>
               {errors.confirmPassword && (
                 <ErrorText>{errors.confirmPassword.message}</ErrorText>
@@ -344,11 +356,16 @@ const ToggleButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0;
-  color: ${theme.colors.textPrimary};
+  padding: 4px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 const SubmitButton = styled.button`
