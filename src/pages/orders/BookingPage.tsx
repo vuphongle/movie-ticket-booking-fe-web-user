@@ -31,6 +31,8 @@ interface Seat {
 }
 
 /** Utils */
+const MAX_SEATS = 8;
+
 const letterFromIndex = (idx: number) =>
   String.fromCharCode('A'.charCodeAt(0) + (idx - 1));
 
@@ -90,7 +92,9 @@ export default function BookingPage() {
   const stateShowtimeId = locationState?.showtimeId
     ? Number(locationState.showtimeId)
     : undefined;
-  const routeShowtimeId = params.showtimeId ? Number(params.showtimeId) : undefined;
+  const routeShowtimeId = params.showtimeId
+    ? Number(params.showtimeId)
+    : undefined;
   const effectiveShowtimeId = stateShowtimeId ?? routeShowtimeId;
   const hasStateContext =
     !!locationState?.auditorium?.id &&
@@ -243,6 +247,15 @@ export default function BookingPage() {
       return;
     }
 
+    const isSelected = selectedSeats.some(s => s.id === seat.id);
+    if (!isSelected && selectedSeats.length >= MAX_SEATS) {
+      setModalContent(
+        `Bạn chỉ có thể đặt tối đa ${MAX_SEATS} vé trong một lần.`
+      );
+      setModalVisible(true);
+      return;
+    }
+
     try {
       const data = await triggerCheckSeatStatus({
         seatId: seat.id,
@@ -255,7 +268,6 @@ export default function BookingPage() {
         return;
       }
 
-      const isSelected = selectedSeats.some(s => s.id === seat.id);
       if (isSelected) {
         setSelectedSeats(prev => prev.filter(s => s.id !== seat.id));
       } else {
@@ -336,16 +348,21 @@ export default function BookingPage() {
                             const isSelected = !!selectedSeats.find(
                               s => s.id === seat.id
                             );
+                            const isDisabled =
+                              seat.status === 'booked' ||
+                              (!isSelected &&
+                                selectedSeats.length >= MAX_SEATS);
                             return (
                               <SeatButton
                                 key={seat.id}
                                 aria-label={`Ghế ${seat.row}${seat.number}`}
                                 aria-pressed={isSelected}
-                                aria-disabled={seat.status === 'booked'}
+                                aria-disabled={isDisabled}
                                 $status={seat.status}
                                 $reservationStatus={seat.reservationStatus}
                                 $selected={isSelected}
                                 $type={seat.type}
+                                $disabled={isDisabled}
                                 onClick={() => toggleSeat(seat)}
                                 title={`${seat.row}${seat.number} • ${seat.price.toLocaleString()}đ (${seat.type})`}
                               >
@@ -403,14 +420,14 @@ export default function BookingPage() {
       </Main>
 
       <Aside>
-          <SummaryCard>
-            <SummaryTitle>{t('BOOKING_SUMMARY')}</SummaryTitle>
-            {movie && (
-              <BookingMovieInfo
-                title={displayMovieName}
-                poster={movie.poster}
-                age={movie.age}
-                graphics={movie.graphics}
+        <SummaryCard>
+          <SummaryTitle>{t('BOOKING_SUMMARY')}</SummaryTitle>
+          {movie && (
+            <BookingMovieInfo
+              title={displayMovieName}
+              poster={movie.poster}
+              age={movie.age}
+              graphics={movie.graphics}
               cinema={cinema?.name || ''}
               auditorium={auditorium?.name || ''}
               showtime={showtimeLabel}
@@ -794,7 +811,6 @@ const seatBase = css<{
     filter: brightness(0.95);
     box-shadow: 0 4px 12px rgba(1, 39, 76, 0.15);
   }
-
 `;
 
 const SeatButton = styled.button<{
@@ -802,6 +818,7 @@ const SeatButton = styled.button<{
   $reservationStatus: ReservationStatus;
   $selected: boolean;
   $type: SeatType;
+  $disabled?: boolean;
 }>`
   ${seatBase};
 
@@ -864,6 +881,14 @@ const SeatButton = styled.button<{
       transform: translateY(-1px);
       box-shadow: 0 6px 14px rgba(1, 39, 76, 0.25);
       opacity: 0.85;
+    `}
+
+  ${({ $disabled }) =>
+    $disabled &&
+    css`
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
     `}
 `;
 const SummaryCard = styled(Card)`
