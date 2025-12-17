@@ -1,7 +1,7 @@
 export function cancelSeatMultiBeacon(showtimeId: number, seatIds: number[]) {
   if (!seatIds?.length) return;
 
-  const url = "http://localhost:8080/api/public/seat-reservations/cancel-multiple"; 
+  const url = "https://gocinema.io.vn/api/public/seat-reservations/cancel-multiple"; 
 
   const payload = JSON.stringify({ showtimeId, seatIds });
 
