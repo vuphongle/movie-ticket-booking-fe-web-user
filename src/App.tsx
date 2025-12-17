@@ -29,6 +29,7 @@ import AppToastContainer from '@components/base/AppToastContainer';
 import ChatWidget from '@components/chat/ChatWidget';
 import CinemaPage from '@/pages/cinema/Cinemapage';
 import CouponPage from '@/pages/coupons/CouponPage';
+import BookingFlowGuard from '@/hooks/BookingFlowGuard';
 
 function App() {
 
@@ -46,6 +47,7 @@ function App() {
 
         <main style={styles.main}>
           <ContentWrapper style={styles.contentWrapper}>
+            <BookingFlowGuard />
             <Routes>
               <Route path='/' element={<HomePage />} />
               <Route path='/xac-thuc-tai-khoan' element={<VerifyAccount />} />

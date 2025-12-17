@@ -14,9 +14,13 @@ import { ExclamationCircleFilled } from '@ant-design/icons';
 import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 import { cancelSeatMultiBeacon } from '@utils/cancelSeatMultiBeacon';
 import { useTranslation } from 'react-i18next';
+import {
+  useSeatHoldGuard,
+  PAYMENT_REDIRECT_FLAG,
+} from '@/hooks/useSeatHoldGuard';
 
 export default function BookingConfirmPage() {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -42,6 +46,18 @@ export default function BookingConfirmPage() {
       gifts: any[];
     }[]
   >([]);
+
+  useSeatHoldGuard({
+    bookingData,
+    clearTimer,
+    isProceedingRef,
+  });
+
+  useEffect(() => {
+    if (bookingData) {
+      sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+    }
+  }, [bookingData]);
 
   const handleConfirmPayment = async () => {
     if (!bookingData) return;
@@ -87,6 +103,7 @@ export default function BookingConfirmPage() {
     try {
       const response = await createOrder(body).unwrap();
       if (response.url) {
+        sessionStorage.setItem(PAYMENT_REDIRECT_FLAG, '1');
         isProceedingRef.current = true;
         window.location.href = response.url;
       }
@@ -183,49 +200,6 @@ export default function BookingConfirmPage() {
     navigate(-1);
   };
 
-  useEffect(() => {
-    if (!bookingData?.seats?.length) return;
-
-    const showtimeId = bookingData.showtimeId;
-    const seatIds = bookingData.seats.map((s: any) => s.id);
-
-    const allowedPaths = ['/booking/additional', '/booking/confirm'];
-
-    const isAllowed = allowedPaths.some(path =>
-      location.pathname.includes(path)
-    );
-
-    // 1. Không hủy khi reload
-    const navEntry = performance.getEntriesByType('navigation')[0];
-    const isReload =
-      (navEntry && (navEntry as any).type === 'reload') ||
-      window.performance?.navigation?.type === 1;
-
-    if (isReload) return;
-
-    // 2. Không hủy khi đang forward sang confirm
-    if (isProceedingRef.current) return;
-
-    // 3. Hủy khi user rời flow đặt vé (route change)
-    if (!isAllowed) {
-      cancelSeatMultiBeacon(showtimeId, seatIds);
-      clearTimer?.();
-    }
-
-    // 4. Hủy khi tắt tab / tắt browser
-    const handleUnload = () => {
-      if (isProceedingRef.current) return;
-      cancelSeatMultiBeacon(showtimeId, seatIds);
-      clearTimer?.();
-    };
-
-    window.addEventListener('beforeunload', handleUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleUnload);
-    };
-  }, [location.pathname]);
-
   // Navigation guard
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [resolveFn, setResolveFn] = useState<((val: boolean) => void) | null>(
@@ -239,9 +213,21 @@ export default function BookingConfirmPage() {
     });
 
   const handleConfirm = (choice: boolean) => {
-    sessionStorage.setItem('bookingCancelled', 'true');
     setIsConfirmOpen(false);
-    resolveFn?.(choice);
+
+    if (!choice) {
+      sessionStorage.removeItem('bookingCancelled');
+      resolveFn?.(false);
+      return;
+    }
+    cancelSeatMultiBeacon(
+      bookingData.showtimeId,
+      bookingData.seats.map((s: any) => s.id)
+    );
+    clearTimer?.();
+
+    sessionStorage.setItem('bookingCancelled', 'true');
+    resolveFn?.(true);
   };
 
   const [shouldGuard, setShouldGuard] = useState(true);
@@ -297,9 +283,7 @@ export default function BookingConfirmPage() {
         <CenteredContent>
           <ExclamationCircleFilled className='warning-icon' />
           <h3>{t('EXIT_BOOKING_FLOW')}</h3>
-          <p>
-            {t('SEAT_AND_COMBO_DATA_WILL_BE_DELETED')}
-          </p>
+          <p>{t('SEAT_AND_COMBO_DATA_WILL_BE_DELETED')}</p>
         </CenteredContent>
       </Modal>
       <Main>
