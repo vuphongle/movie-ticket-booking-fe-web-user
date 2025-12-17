@@ -332,49 +332,42 @@ export default function BookingPage() {
 
           {!isLoading && !isError && (
             <>
-              <SeatArea>
-                <SeatMap role='grid' aria-label={t('BOOKING_SCREEN')}>
-                  {rows.map(row => (
-                    <Row key={row} role='row'>
-                      <RowLabel aria-hidden>{row}</RowLabel>
-                      <RowGrid>
-                        {seats
-                          .filter(s => s.row === row)
-                          .sort((a, b) => a.number - b.number)
-                          .map(seat => {
-                            if (seat.status === 'inactive') {
-                              return <SeatPlaceholder key={seat.id} />;
-                            }
-                            const isSelected = !!selectedSeats.find(
-                              s => s.id === seat.id
-                            );
-                            const isDisabled =
-                              seat.status === 'booked' ||
-                              (!isSelected &&
-                                selectedSeats.length >= MAX_SEATS);
-                            return (
-                              <SeatButton
-                                key={seat.id}
-                                aria-label={`Ghế ${seat.row}${seat.number}`}
-                                aria-pressed={isSelected}
-                                aria-disabled={isDisabled}
-                                $status={seat.status}
-                                $reservationStatus={seat.reservationStatus}
-                                $selected={isSelected}
-                                $type={seat.type}
-                                $disabled={isDisabled}
-                                onClick={() => toggleSeat(seat)}
-                                title={`${seat.row}${seat.number} • ${seat.price.toLocaleString()}đ (${seat.type})`}
-                              >
-                                {`${row}${seat.number}`}
-                              </SeatButton>
-                            );
-                          })}
-                      </RowGrid>
-                    </Row>
-                  ))}
-                </SeatMap>
-              </SeatArea>
+              <SeatMap role='grid' aria-label={t('BOOKING_SCREEN')}>
+                {rows.map(row => (
+                  <Row key={row} role='row'>
+                    <RowLabel aria-hidden>{row}</RowLabel>
+                    <RowGrid>
+                      {seats
+                        .filter(s => s.row === row)
+                        .sort((a, b) => a.number - b.number)
+                        .map(seat => {
+                          if (seat.status === 'inactive') {
+                            return <SeatPlaceholder key={seat.id} />;
+                          }
+                          const isSelected = !!selectedSeats.find(
+                            s => s.id === seat.id
+                          );
+                          return (
+                            <SeatButton
+                              key={seat.id}
+                              aria-label={`Ghế ${seat.row}${seat.number}`}
+                              aria-pressed={isSelected}
+                              aria-disabled={seat.status === 'booked'}
+                              $status={seat.status}
+                              $reservationStatus={seat.reservationStatus}
+                              $selected={isSelected}
+                              $type={seat.type}
+                              onClick={() => toggleSeat(seat)}
+                              title={`${seat.row}${seat.number} • ${seat.price.toLocaleString()}đ (${seat.type})`}
+                            >
+                              {`${row}${seat.number}`}
+                            </SeatButton>
+                          );
+                        })}
+                    </RowGrid>
+                  </Row>
+                ))}
+              </SeatMap>
               <SeatLegend>
                 <LegendGroupLeft>
                   <LegendItem $color={theme.colors.red} $filled>
@@ -428,8 +421,8 @@ export default function BookingPage() {
               poster={movie.poster}
               age={movie.age}
               graphics={movie.graphics}
-              cinema={cinema?.name || ''}
-              auditorium={auditorium?.name || ''}
+              cinema={cinema.name}
+              auditorium={auditorium.name}
               showtime={showtimeLabel}
             />
           )}
@@ -459,12 +452,6 @@ export default function BookingPage() {
             <PrimaryButton
               type='button'
               onClick={async () => {
-                if (!showtimeId || !auditorium?.id) {
-                  setModalContent(t('BOOKING_ERROR_SEAT'));
-                  setModalVisible(true);
-                  return;
-                }
-
                 if (selectedSeats.length === 0) {
                   setSelectSeatModalVisible(true);
                   return;
@@ -530,11 +517,11 @@ export default function BookingPage() {
                       expireAt,
                       bookingData: {
                         showtimeId,
-                        format: format ?? '',
+                        format,
                         movie,
-                        cinema: cinema?.name ?? '',
-                        auditorium: auditorium?.name ?? '',
-                        showtime: showtimeLabel,
+                        cinema: cinema.name,
+                        auditorium: auditorium.name,
+                        showtime: `${time} - ${formatDate(date)}`,
                         seats: selectedSeats,
                         seatTotal,
                       },
@@ -567,11 +554,6 @@ export default function BookingPage() {
         age={movie?.age ?? 'P'}
         onConfirm={async () => {
           setAgeModalVisible(false);
-          if (!showtimeId || !auditorium?.id) {
-            setModalContent(t('BOOKING_ERROR_SEAT'));
-            setModalVisible(true);
-            return;
-          }
           try {
             const seatStatusResults = await Promise.all(
               selectedSeats.map(seat =>
@@ -627,11 +609,11 @@ export default function BookingPage() {
                 expireAt,
                 bookingData: {
                   showtimeId,
-                  format: format ?? '',
+                  format,
                   movie,
-                  cinema: cinema?.name ?? '',
-                  auditorium: auditorium?.name ?? '',
-                  showtime: showtimeLabel,
+                  cinema: cinema.name,
+                  auditorium: auditorium.name,
+                  showtime: `${time} - ${formatDate(date)}`,
                   seats: selectedSeats,
                   seatTotal,
                 },
@@ -727,14 +709,6 @@ const SeatLegend = styled.div`
   gap: ${theme.spacing.md};
   margin-top: ${theme.spacing.md};
 `;
-const SeatArea = styled.div`
-  --seat-size: 32px;
-  overflow-x: auto;
-  padding-bottom: ${theme.spacing.sm};
-  @media (max-width: 768px) {
-    --seat-size: 26px;
-  }
-`;
 
 const LegendGroupLeft = styled.div`
   display: flex;
@@ -765,16 +739,11 @@ const LegendItem = styled.span<{ $color: string; $filled?: boolean }>`
 const SeatMap = styled.div`
   display: grid;
   gap: ${theme.spacing.xs};
-  min-width: max-content;
-  justify-content: center;
-  padding: 0 ${theme.spacing.xs};
 `;
 const Row = styled.div`
   display: grid;
-  grid-template-columns: 28px auto;
+  grid-template-columns: 28px 1fr;
   align-items: center;
-  width: max-content;
-  column-gap: ${theme.spacing.xs};
 `;
 const RowLabel = styled.span`
   color: white;
@@ -782,11 +751,10 @@ const RowLabel = styled.span`
 `;
 const RowGrid = styled.div`
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: var(--seat-size);
+  grid-template-columns: repeat(auto-fit, minmax(0px, max-content));
   gap: 4px;
-  width: max-content;
-  justify-content: flex-start;
+  justify-content: center;
+  margin-right: 32px;
 `;
 
 const seatBase = css<{
@@ -805,12 +773,16 @@ const seatBase = css<{
   justify-content: center;
   cursor: pointer;
   transition: all 0.15s ease;
-  width: 100%;
-  min-width: var(--seat-size, 32px);
   &:hover {
     filter: brightness(0.95);
     box-shadow: 0 4px 12px rgba(1, 39, 76, 0.15);
   }
+
+  ${({ $type }) =>
+    $type !== 'couple' &&
+    css`
+      max-width: 30px;
+    `}
 `;
 
 const SeatButton = styled.button<{
@@ -818,7 +790,6 @@ const SeatButton = styled.button<{
   $reservationStatus: ReservationStatus;
   $selected: boolean;
   $type: SeatType;
-  $disabled?: boolean;
 }>`
   ${seatBase};
 
@@ -881,14 +852,6 @@ const SeatButton = styled.button<{
       transform: translateY(-1px);
       box-shadow: 0 6px 14px rgba(1, 39, 76, 0.25);
       opacity: 0.85;
-    `}
-
-  ${({ $disabled }) =>
-    $disabled &&
-    css`
-      opacity: 0.4;
-      cursor: not-allowed;
-      pointer-events: none;
     `}
 `;
 const SummaryCard = styled(Card)`

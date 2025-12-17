@@ -14,8 +14,9 @@ import { useBookingTimer } from '@/hooks/useBookingTimer';
 import GlobalLoading from '@components/loading/GlobalLoading';
 import { Modal, Button } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { cancelSeatMultiBeacon } from '@utils/cancelSeatMultiBeacon';
 import { getMovieTitle } from '@utils/functionUtils';
+import { useSeatHoldGuard } from '@/hooks/useSeatHoldGuard';
+import { cancelSeatMultiBeacon } from '@utils/cancelSeatMultiBeacon';
 
 export default function BookingAdditionalServicePage() {
   const { t, i18n } = useTranslation();
@@ -46,6 +47,18 @@ export default function BookingAdditionalServicePage() {
       setShouldGuard(false);
     },
   });
+
+  useSeatHoldGuard({
+    bookingData,
+    clearTimer,
+    isProceedingRef,
+  });
+
+  useEffect(() => {
+    if (bookingData) {
+      sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+    }
+  }, [bookingData]);
 
   useEffect(() => {
     comboDtos.forEach(combo => {
@@ -145,49 +158,6 @@ export default function BookingAdditionalServicePage() {
     navigate(-1);
   };
 
-  useEffect(() => {
-    if (!bookingData?.seats?.length) return;
-
-    const showtimeId = bookingData.showtimeId;
-    const seatIds = bookingData.seats.map((s: any) => s.id);
-
-    const allowedPaths = ['/booking/additional', '/booking/confirm'];
-
-    const isAllowed = allowedPaths.some(path =>
-      location.pathname.includes(path)
-    );
-
-    // 1. Không hủy khi reload
-    const navEntry = performance.getEntriesByType('navigation')[0];
-    const isReload =
-      (navEntry && (navEntry as any).type === 'reload') ||
-      window.performance?.navigation?.type === 1;
-
-    if (isReload) return;
-
-    // 2. Không hủy khi đang forward sang confirm
-    if (isProceedingRef.current) return;
-
-    // 3. Hủy khi user rời flow đặt vé (route change)
-    if (!isAllowed) {
-      cancelSeatMultiBeacon(showtimeId, seatIds);
-      clearTimer?.();
-    }
-
-    // 4. Hủy khi tắt tab / tắt browser
-    const handleUnload = () => {
-      if (isProceedingRef.current) return;
-      cancelSeatMultiBeacon(showtimeId, seatIds);
-      clearTimer?.();
-    };
-
-    window.addEventListener('beforeunload', handleUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleUnload);
-    };
-  }, [location.pathname]);
-
   // Navigation guard
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [resolveFn, setResolveFn] = useState<((val: boolean) => void) | null>(
@@ -201,9 +171,21 @@ export default function BookingAdditionalServicePage() {
     });
 
   const handleConfirm = (choice: boolean) => {
-    sessionStorage.setItem('bookingCancelled', 'true');
     setIsConfirmOpen(false);
-    resolveFn?.(choice);
+
+    if (!choice) {
+      sessionStorage.removeItem('bookingCancelled');
+      resolveFn?.(false);
+      return;
+    }
+    cancelSeatMultiBeacon(
+      bookingData.showtimeId,
+      bookingData.seats.map((s: any) => s.id)
+    );
+    clearTimer?.();
+
+    sessionStorage.setItem('bookingCancelled', 'true');
+    resolveFn?.(true);
   };
 
   const [shouldGuard, setShouldGuard] = useState(true);
@@ -217,8 +199,8 @@ export default function BookingAdditionalServicePage() {
       setShouldGuard(false);
 
       Modal.warning({
-        title: 'Luồng đặt vé đã bị hủy',
-        content: 'Vui lòng thao tác lại.',
+        title: t('BOOKING_FLOW_CANCELLED'),
+        content: t('PLEASE_TRY_AGAIN'),
         onOk: () => {
           navigate('/');
         },
